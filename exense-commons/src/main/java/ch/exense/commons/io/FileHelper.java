@@ -31,6 +31,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -279,6 +281,20 @@ public class FileHelper {
 	 */
 	public static String readResource(Class<?> clazz, String resourceName) {
 		return readStream(clazz.getResourceAsStream(resourceName));
+	}
+	
+	/**
+	 * Extract a resource and copy it to a a temporary file
+	 * @param clazz the class the resource is associated with
+	 * @param resourceName the name of the resource
+	 * @return the temporary {@link File}
+	 * @throws IOException
+	 */
+	public static File extractResourceToTempFile(Class<?> clazz, String resourceName) throws IOException {
+		Path tempFile = Files.createTempFile("resourceName",".tmp");
+		Files.write(tempFile, readResource(clazz, resourceName).getBytes(), StandardOpenOption.APPEND);
+		tempFile.toFile().deleteOnExit();
+		return tempFile.toFile();
 	}
 	
 	/**

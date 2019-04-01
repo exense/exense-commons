@@ -70,5 +70,9 @@ public class FileHelperTest {
 		FileHelper.copy(new FileInputStream(classLoaderResourceAsFile), new FileOutputStream(tempFile));
 		String contentTempFile = new String(Files.readAllBytes(tempFile.toPath()));
 		Assert.assertEquals("TEST FILE", contentTempFile);
+		
+		File tempFile2 = FileHelper.extractResourceToTempFile(getClass(), "testFile.txt");
+		String contentTempFile2 = new String(Files.readAllBytes(tempFile2.toPath()));
+		Assert.assertEquals("TEST FILE", contentTempFile2);
 	}
 }
