@@ -50,6 +50,26 @@ public class FileHelper {
 		file.deleteOnExit();
 		return file;
 	}
+	
+	/**
+	 * Creates a temporary folder
+	 * @throws IOException
+	 */
+	public static File createTempFolder() throws IOException {
+		File file = Files.createTempDirectory(null).toFile();
+		return file;
+	}
+	
+	/**
+	 * Creates a temporary folder
+	 * @param prefix the prefix string to be used in generating the folder's name
+	 * @return the {@link File} of the temporary folder
+	 * @throws IOException
+	 */
+	public static File createTempFolder(String prefix) throws IOException {
+		File file = Files.createTempDirectory(prefix).toFile();
+		return file;
+	}
 
 	/**
 	 * Deletes a folder recursively
