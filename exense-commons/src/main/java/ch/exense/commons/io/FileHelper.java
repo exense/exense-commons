@@ -252,16 +252,6 @@ public class FileHelper {
 		}
 	}
 
-	public static File getClassLoaderResourceAsFile(Class<?> clazz, String resourceName) {
-		try {
-			URL url = clazz.getClassLoader().getResource(resourceName);
-			// workaround: doing toURI().getPath() to decode %20 in case of spaces in path
-			return url != null ? new File(url.toURI().getPath()) : null;
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("Error while parsing URI of resource " + resourceName, e);
-		}
-	}
-
 	/**
 	 * Reads the stream provided as argument using UTF8 charset
 	 * @param is the stream to be read
@@ -284,16 +274,55 @@ public class FileHelper {
 	}
 	
 	/**
+	 * Reads a classloader resource using UTF8 charset
+	 * @param classloader the classloader to access the resource
+	 * @param resourceName the name of the resource
+	 * @return the content of the resource
+	 */
+	public static String readClassLoaderResource(ClassLoader classLoader, String resourceName) {
+		return readStream(classLoader.getResourceAsStream(resourceName));
+	}
+	
+	/**
 	 * Reads a resource and returns its content as byte array
-	 * @param clazz
-	 * @param resourceName
-	 * @return
+	 * @param clazz the class the resource is associated with
+	 * @param resourceName the name of the resource
+	 * @return the content of the resource as byte array
 	 * @throws IOException
 	 */
 	public static byte[] readResourceAsByteArray(Class<?> clazz, String resourceName) throws IOException {
 		try(InputStream resourceAsStream = clazz.getResourceAsStream(resourceName); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 			copy(resourceAsStream, out);
 			return out.toByteArray();
+		}
+	}
+	
+	/**
+	 * Reads a classloader resource and returns its content as byte array
+	 * @param classloader the classloader to access the resource
+	 * @param resourceName the name of the resource
+	 * @return the content of the resource as byte array
+	 * @throws IOException
+	 */
+	public static byte[] readClassLoaderResourceAsByteArray(ClassLoader classLoader, String resourceName) throws IOException {
+		try(InputStream resourceAsStream = classLoader.getResourceAsStream(resourceName); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+			copy(resourceAsStream, out);
+			return out.toByteArray();
+		}
+	}
+	
+	/**
+	 * @param classloader the classloader to access the resource
+	 * @param resourceName the name of the resource
+	 * @return the resource as {@link File}
+	 */
+	public static File getClassLoaderResourceAsFile(ClassLoader classLoader, String resourceName) {
+		try {
+			URL url = classLoader.getResource(resourceName);
+			// workaround: doing toURI().getPath() to decode %20 in case of spaces in path
+			return url != null ? new File(url.toURI().getPath()) : null;
+		} catch (URISyntaxException e) {
+			throw new RuntimeException("Error while parsing URI of resource " + resourceName, e);
 		}
 	}
 	

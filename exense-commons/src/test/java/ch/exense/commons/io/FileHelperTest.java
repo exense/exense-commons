@@ -59,10 +59,19 @@ public class FileHelperTest {
 	
 	@Test
 	public void test2() throws IOException {
-		String resourceContent = FileHelper.readResource(getClass(), "testFile.txt");
-		Assert.assertEquals("TEST FILE", resourceContent);
+		String readResource = FileHelper.readResource(getClass(), "testFile.txt");
+		Assert.assertEquals("TEST FILE", readResource);
 		
-		File classLoaderResourceAsFile = FileHelper.getClassLoaderResourceAsFile(getClass(), "testClassloaderResource.txt");
+		byte[] readResourceAsByteArray = FileHelper.readResourceAsByteArray(getClass(), "testFile.txt");
+		Assert.assertEquals("TEST FILE", new String(readResourceAsByteArray));
+		
+		String readClassLoaderResource = FileHelper.readClassLoaderResource(getClass().getClassLoader(), "testClassloaderResource.txt");
+		Assert.assertEquals("TEST FILE", readClassLoaderResource);
+
+		byte[] readClassLoaderResourceAsByteArray = FileHelper.readClassLoaderResourceAsByteArray(getClass().getClassLoader(), "testClassloaderResource.txt");
+		Assert.assertEquals("TEST FILE", new String(readClassLoaderResourceAsByteArray));
+		
+		File classLoaderResourceAsFile = FileHelper.getClassLoaderResourceAsFile(getClass().getClassLoader(), "testClassloaderResource.txt");
 		String content = new String(Files.readAllBytes(classLoaderResourceAsFile.toPath()));
 		Assert.assertEquals("TEST FILE", content);
 		
