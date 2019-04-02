@@ -275,7 +275,7 @@ public class FileHelper {
 	
 	/**
 	 * Reads a classloader resource using UTF8 charset
-	 * @param classloader the classloader to access the resource
+	 * @param classLoader the classloader to access the resource
 	 * @param resourceName the name of the resource
 	 * @return the content of the resource
 	 */
@@ -299,7 +299,7 @@ public class FileHelper {
 	
 	/**
 	 * Reads a classloader resource and returns its content as byte array
-	 * @param classloader the classloader to access the resource
+	 * @param classLoader the classloader to access the resource
 	 * @param resourceName the name of the resource
 	 * @return the content of the resource as byte array
 	 * @throws IOException
@@ -312,7 +312,7 @@ public class FileHelper {
 	}
 	
 	/**
-	 * @param classloader the classloader to access the resource
+	 * @param classLoader the classloader to access the resource
 	 * @param resourceName the name of the resource
 	 * @return the resource as {@link File}
 	 */
