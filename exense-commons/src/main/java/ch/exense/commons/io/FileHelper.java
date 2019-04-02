@@ -284,6 +284,20 @@ public class FileHelper {
 	}
 	
 	/**
+	 * Reads a resource and returns its content as byte array
+	 * @param clazz
+	 * @param resourceName
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] readResourceAsByteArray(Class<?> clazz, String resourceName) throws IOException {
+		try(InputStream resourceAsStream = clazz.getResourceAsStream(resourceName); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+			copy(resourceAsStream, out);
+			return out.toByteArray();
+		}
+	}
+	
+	/**
 	 * Extract a resource and copy it to a a temporary file
 	 * @param clazz the class the resource is associated with
 	 * @param resourceName the name of the resource
