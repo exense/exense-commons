@@ -157,6 +157,37 @@ public class Configuration implements Closeable {
 			return defaultValue;
 		}
 	}
+	
+	public File getPropertyAsFile(String name) {
+		return getPropertyAsFile(name, null);
+	}
+	
+	public File getPropertyAsFile(String name, File defaultValue) {
+		String prop = properties.getProperty(name);
+		if (prop != null) {
+			return new File(prop);
+		} else {
+			return defaultValue;
+		}
+	}
+	
+	public File getPropertyAsDirectory(String name) {
+		return getPropertyAsFile(name, null);
+	}
+	
+	public File getPropertyAsDirectory(String name, File defaultValue) {
+		String prop = properties.getProperty(name);
+		File file;
+		if (prop != null) {
+			file = new File(prop);
+		} else {
+			file = defaultValue;
+		}
+		if(!file.exists()) {
+			file.mkdirs();
+		}
+		return file;
+	}
 
 	public File getPropertyFile() {
 		return propertyFile;

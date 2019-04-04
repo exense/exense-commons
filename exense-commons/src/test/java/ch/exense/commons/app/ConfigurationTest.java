@@ -22,6 +22,8 @@ public class ConfigurationTest {
 			Assert.assertEquals((int)1000, (int)configuration.getPropertyAsInteger("my.prop2"));
 			Assert.assertEquals(false, configuration.getPropertyAsBoolean("my.prop3"));
 			Assert.assertEquals(100000000000000l, (long)configuration.getPropertyAsLong("my.prop5"));
+			Assert.assertEquals(new File("."), configuration.getPropertyAsFile("my.prop6"));
+			Assert.assertEquals(new File("."), configuration.getPropertyAsDirectory("my.prop6"));
 			
 			Assert.assertEquals(true, configuration.hasProperty("my.prop5"));
 			
@@ -35,6 +37,13 @@ public class ConfigurationTest {
 			Assert.assertEquals((int)1005, (int)configuration.getPropertyAsInteger("notExistingProp",1005));
 			Assert.assertEquals((long)1000000l, (long)configuration.getPropertyAsLong("notExistingProp",1000000l));
 			Assert.assertEquals(false, configuration.getPropertyAsBoolean("notExistingProp",false));
+			File defaultValue = new File("notExisting");
+			Assert.assertEquals(defaultValue, configuration.getPropertyAsFile("notExistingProp",defaultValue));
+			File tempFolder = FileHelper.createTempFolder();
+			File myFolder = new File(tempFolder+"/myFolder");
+			Assert.assertEquals(myFolder, configuration.getPropertyAsDirectory("notExistingProp",myFolder));
+			Assert.assertTrue(myFolder.exists());
+			FileHelper.deleteFolder(tempFolder);
 		}
 	}
 	
