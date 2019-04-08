@@ -57,9 +57,10 @@ public class ConfigurationTest {
 			Assert.assertEquals(false, configuration.getPropertyAsBoolean("my.prop3"));
 			Assert.assertEquals(100000000000000l, (long)configuration.getPropertyAsLong("my.prop5"));
 			
-			Files.write(propertyFile.toPath(), new String("\nmyNewProp=myNewPropsValue").getBytes(), StandardOpenOption.APPEND);
+			Files.write(propertyFile.toPath(), new String("\nmyNewProp=myNewPropsValue").getBytes(), StandardOpenOption.APPEND, StandardOpenOption.SYNC);
 			
-			Thread.sleep(2000);
+			Thread.sleep(3000);
+			
 			Assert.assertEquals("myNewPropsValue", configuration.getProperty("myNewProp"));
 			
 			Assert.assertEquals(propertyFile, configuration.getPropertyFile());
