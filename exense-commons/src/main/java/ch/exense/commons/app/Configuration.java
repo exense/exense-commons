@@ -91,14 +91,18 @@ public class Configuration implements Closeable {
 		StringBuffer sb = new StringBuffer();
 		Matcher m = Pattern.compile("\\$\\{(.+?)\\}").matcher(configXml);
 		while (m.find()) {
-			String key = m.group(1);
-			if (placeholders != null) {
-				String replacement = placeholders.get(key);
-				m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
-			} else {
-				logger.warn("Not able to replace placeholder '" + key + "'.Placeholder map is null");
-			}
-		}
+            String key = m.group(1);
+            if(placeholders!=null) {
+            	String replacement = placeholders.get(key);
+            	if(replacement == null) {
+            		throw new RuntimeException("Missing placeholder '"+key+"'.");
+            	} else {
+            		m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+            	}
+            } else {
+            	throw new RuntimeException("Unable to replace placeholders. Placeholder map is null. This should never occur.");
+            }
+        }
 		m.appendTail(sb);
 		return sb.toString();
 	}
