@@ -73,7 +73,7 @@ public class ConfigurationTest {
 	public void testPlaceholder() throws IOException {
 		Map<String, String> placeholders = new HashMap<>();
 		placeholders.put("myPlaceholder", "myPlaceholdersValue");
-		try(Configuration configuration = new Configuration(FileHelper.getClassLoaderResourceAsFile(this.getClass().getClassLoader(), "test.properties"), placeholders)) {
+		try(Configuration configuration = new Configuration(FileHelper.getClassLoaderResourceAsFile(this.getClass().getClassLoader(), "testPlaceholders.properties"), placeholders)) {
 			Assert.assertEquals("myPlaceholdersValue", configuration.getProperty("my.prop4"));
 		}
 	}

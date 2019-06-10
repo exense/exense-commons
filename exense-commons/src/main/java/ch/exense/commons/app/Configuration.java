@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -52,7 +53,7 @@ public class Configuration implements Closeable {
 	}
 
 	public Configuration(File propertyFile) throws IOException {
-		this(propertyFile, null);
+		this(propertyFile, new HashMap<>());
 	}
 
 	public Configuration(File propertyFile, Map<String, String> placeholders) throws IOException {
