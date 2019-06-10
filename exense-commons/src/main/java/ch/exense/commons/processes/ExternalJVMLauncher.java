@@ -51,7 +51,7 @@ public class ExternalJVMLauncher {
 		return cp.toString();
 	}
 	
-	public ManagedProcess launchExternalJVM(String name, Class<?> mainClass, String... vmargs) throws ManagedProcessException {
+	public ManagedProcess launchExternalJVM(String name, Class<?> mainClass, List<String> vmargs, List<String> progargs) throws ManagedProcessException {
 		String cp = buildClasspath();
 		
 		List<String> cmd = new ArrayList<>();
@@ -59,9 +59,11 @@ public class ExternalJVMLauncher {
 		cmd.add("-cp");
 		cmd.add(cp);
 		
-		cmd.addAll(Arrays.asList(vmargs));
+		cmd.addAll(vmargs);
 		
 		cmd.add(mainClass.getName());
+		
+		cmd.addAll(progargs);
 		
 		ManagedProcess process = new ManagedProcess(name, cmd, processLogFolder);
 		process.start();
