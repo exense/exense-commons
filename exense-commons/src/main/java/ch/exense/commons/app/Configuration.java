@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -196,6 +197,13 @@ public class Configuration implements Closeable {
 
 	public File getPropertyFile() {
 		return propertyFile;
+	}
+
+	/**
+	 * @return the {@link Set} of property names (keys) contained in this {@link Configuration}
+	 */
+	public Set<Object> getPropertyNames() {
+		return properties.keySet();
 	}
 
 	public Map<String, String> getPlaceholders() {
