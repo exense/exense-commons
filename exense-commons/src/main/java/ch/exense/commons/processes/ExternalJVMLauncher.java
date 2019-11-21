@@ -22,7 +22,6 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ch.exense.commons.processes.ManagedProcess.ManagedProcessException;
@@ -50,8 +49,12 @@ public class ExternalJVMLauncher {
 		cp.append("\"");
 		return cp.toString();
 	}
-	
+
 	public ManagedProcess launchExternalJVM(String name, Class<?> mainClass, List<String> vmargs, List<String> progargs) throws ManagedProcessException {
+		return launchExternalJVM(name, mainClass, vmargs, progargs, true);
+	}
+	
+	public ManagedProcess launchExternalJVM(String name, Class<?> mainClass, List<String> vmargs, List<String> progargs, boolean redirectOutput) throws ManagedProcessException {
 		String cp = buildClasspath();
 		
 		List<String> cmd = new ArrayList<>();
@@ -65,7 +68,7 @@ public class ExternalJVMLauncher {
 		
 		cmd.addAll(progargs);
 		
-		ManagedProcess process = new ManagedProcess(name, cmd, processLogFolder);
+		ManagedProcess process = new ManagedProcess(name, cmd, processLogFolder, redirectOutput);
 		process.start();
 		return process;
 	}

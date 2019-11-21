@@ -47,7 +47,7 @@ public class ManagedProcessTest  {
 	@Test
 	public void test5() throws IOException, ManagedProcessException, TimeoutException, InterruptedException {
 		File tempFolder = FileHelper.createTempFolder();
-		try(ManagedProcess managedProcess = new ManagedProcess("MyJavaProcess", Arrays.asList(new String[] {"java", "-version"}), tempFolder)) {
+		try(ManagedProcess managedProcess = new ManagedProcess("MyJavaProcess", Arrays.asList(new String[] {"java", "-version"}), tempFolder, true)) {
 			runAndTestProcess(managedProcess);
 			Assert.assertTrue(managedProcess.getId().startsWith("MyJavaProcess_"));
 			Assert.assertEquals(managedProcess.getId(), tempFolder.listFiles()[0].getName());

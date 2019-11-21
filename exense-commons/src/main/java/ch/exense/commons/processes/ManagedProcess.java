@@ -52,11 +52,13 @@ public class ManagedProcess implements Closeable {
 	private final ProcessBuilder builder;
 	private final String id;
 	private final File executionDirectory;
+	
+	private boolean redirectOuput;
 
 	private Process process;
 	private File processOutputLog;
 	private File processErrorLog;
-
+	
 	/**
 	 * @param command the command to be executed (the program and its arguments)
 	 *                formatted as string
@@ -82,7 +84,7 @@ public class ManagedProcess implements Closeable {
 	 * @throws ManagedProcessException
 	 */
 	public ManagedProcess(List<String> commands) throws ManagedProcessException {
-		this(DEFAULT_PROCESS_NAME, commands, null);
+		this(DEFAULT_PROCESS_NAME, commands, null, true);
 	}
 
 	/**
@@ -92,7 +94,7 @@ public class ManagedProcess implements Closeable {
 	 * @throws ManagedProcessException
 	 */
 	public ManagedProcess(String name, List<String> commands) throws ManagedProcessException {
-		this(name, commands, null);
+		this(name, commands, null, true);
 	}
 
 	/**
@@ -102,7 +104,7 @@ public class ManagedProcess implements Closeable {
 	 * @throws ManagedProcessException
 	 */
 	public ManagedProcess(List<String> commands, File logDirectory) throws ManagedProcessException {
-		this(DEFAULT_PROCESS_NAME, commands, logDirectory);
+		this(DEFAULT_PROCESS_NAME, commands, logDirectory,true);
 	}
 
 	/**
@@ -113,9 +115,11 @@ public class ManagedProcess implements Closeable {
 	 *                     process will be written to
 	 * @throws ManagedProcessException
 	 */
-	public ManagedProcess(String name, List<String> commands, File logDirectory) throws ManagedProcessException {
+	public ManagedProcess(String name, List<String> commands, File logDirectory, boolean redirectOuput) throws ManagedProcessException {
 		super();
 
+		this.redirectOuput = redirectOuput;
+		
 		if (logDirectory == null) {
 			logDirectory = new File(".");
 		}
@@ -141,7 +145,10 @@ public class ManagedProcess implements Closeable {
 		return process.getOutputStream();
 	}
 
-	public InputStream getProcessInputStream() {
+	public InputStream getProcessInputStream() throws Exception {
+		if (redirectOuput) {
+			throw new Exception("The process InputStream could not be retrived if it has been redirected in a file");
+		}
 		return process.getInputStream();
 	}
 
@@ -176,8 +183,12 @@ public class ManagedProcess implements Closeable {
 			if (process == null) {
 				logger.debug("Starting managed process " + builder.command());
 				builder.directory(executionDirectory);
-				processOutputLog = new File(executionDirectory + "/ProcessOut.log");
-				builder.redirectOutput(processOutputLog);
+				
+				if (redirectOuput) {
+					processOutputLog = new File(executionDirectory + "/ProcessOut.log");
+					builder.redirectOutput(processOutputLog);
+				}
+				
 				processErrorLog = new File(executionDirectory + "/ProcessError.log");
 				builder.redirectError(processErrorLog);
 				try {
@@ -232,9 +243,13 @@ public class ManagedProcess implements Closeable {
 				String errorLog = new String(Files.readAllBytes(getProcessErrorLog().toPath()), Charset.defaultCharset());
 				logger.debug("Error output from managed process "+id+": " + errorLog);
 				logger.debug("End of error output from managed process "+id);
-				
-				String stdOut = new String(Files.readAllBytes(getProcessOutputLog().toPath()), Charset.defaultCharset());
-				logger.debug("Standard output from managed process "+id+": " + stdOut);
+
+				if (redirectOuput) {
+					String stdOut = new String(Files.readAllBytes(getProcessOutputLog().toPath()), Charset.defaultCharset());
+					logger.debug("Standard output from managed process "+id+": " + stdOut);
+				} else {
+					logger.debug("Standard output from managed process "+id+" was not redirected, nothing to display.");
+				}
 				logger.debug("End of standard output from managed process "+id);
 			} catch (IOException e) {
 				logger.error("Error while logging output of process "+id, e);
