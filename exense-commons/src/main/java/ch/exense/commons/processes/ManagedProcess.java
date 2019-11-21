@@ -21,7 +21,7 @@ package ch.exense.commons.processes;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.security.InvalidParameterException;
@@ -136,8 +136,8 @@ public class ManagedProcess implements Closeable {
 		return id;
 	}
 
-	public InputStream getProcessInputStream() {
-		return process.getInputStream();
+	public OutputStream getProcessOutputStream() {
+		return process.getOutputStream();
 	}
 
 	public File getProcessOutputLog() {
