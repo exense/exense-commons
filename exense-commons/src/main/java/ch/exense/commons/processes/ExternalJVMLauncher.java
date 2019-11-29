@@ -39,12 +39,15 @@ public class ExternalJVMLauncher {
 	}
 	
 	private String buildClasspath() {
-		URL[] urls = ((URLClassLoader)Thread.currentThread().getContextClassLoader()).getURLs();
+		//URL[] urls = ((URLClassLoader)Thread.currentThread().getContextClassLoader()).getURLs();
+		//Fix for Java11 compatibility (Classloader is no more an instance of URLClassLoader)
+		String pathSeparator = System.getProperty("path.separator");
+		String[] classPathEntries = System.getProperty("java.class.path").split(pathSeparator);
 		StringBuilder cp = new StringBuilder();
 		String delimiter = isWindows()?";":":";
 		cp.append("\"");
-		for(URL url:urls) {
-			cp.append(url.getFile()+delimiter);
+		for(String url:classPathEntries) {
+			cp.append(url+delimiter);
 		}
 		cp.append("\"");
 		return cp.toString();
