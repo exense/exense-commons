@@ -40,8 +40,9 @@ import org.slf4j.LoggerFactory;
 import ch.exense.commons.io.FileHelper;
 
 /**
- * @author jcomte
- *
+ * This class is a wrapper of {@link Process} which offers additional services
+ * like better handling of standard output and standard error output.
+ * 
  */
 public class ManagedProcess implements Closeable {
 
