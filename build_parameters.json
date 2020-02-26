@@ -1,6 +1,6 @@
 {
 	"NAME": "Exense Common",
-	"OS": "WINDOWS",
+	"OS": "LINUX",
 	
 	"SUBPROJECTS":
 	{
@@ -8,10 +8,9 @@
 		"FOLDER": ["exense-commons/"],
 		
 		"URL_STAGING":	[ "nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"	],
-		"URL_QA":		[ "nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"	],
-		"URL_PROD":		[ "sonatype::https://nexus-enterprise.exense.ch/repository/test-build-maven/"	],
+		"URL_PROD":		  [ "sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"	],
 		
-		"CONFIG_STAGING": [ "DefaultBuild"], "CONFIG_QA": [ "DefaultBuild"], "CONFIG_PROD": [ "DefaultBuild"]
+		"CONFIG_STAGING": [ "DefaultBuild"], "CONFIG_PROD": [ "DefaultBuild"]
 	},
 	"DISTRIBUTIONS": { "TYPE":[],"ORIGIN_FILE":[],"DESTINATION_NAME":[],"URL_STAGING":[],"URL_QA":[],"URL_PROD":[],"OS":[],"CONFIG":[] }
 }
