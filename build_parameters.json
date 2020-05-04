@@ -4,19 +4,13 @@
 	
 	"SUBPROJECTS":
 	{
-		"TYPE":	["POM","POM"],
-		"FOLDER": ["exense-commons/","exense-commons-tests/"],
+		"TYPE":	["POM"],
+		"FOLDER": ["exense-commons/"],
 		
-		"URL_STAGING":	[ 
-			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
-			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"
-		],
-		"URL_PROD":		[ 
-			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
-			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"
-		],
+		"URL_STAGING":	[ "nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"	],
+		"URL_PROD":		  [ "sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"	],
 		
-		"CONFIG_STAGING": [ "DefaultBuild","DefaultBuild"], "CONFIG_PROD": [ "DefaultBuild","DefaultBuild"]
+		"CONFIG_STAGING": [ "DefaultBuild"], "CONFIG_PROD": [ "DefaultBuild"]
 	},
 	"DISTRIBUTIONS": { "TYPE":[],"ORIGIN_FILE":[],"DESTINATION_NAME":[],"URL_STAGING":[],"URL_QA":[],"URL_PROD":[],"OS":[],"CONFIG":[] }
 }
