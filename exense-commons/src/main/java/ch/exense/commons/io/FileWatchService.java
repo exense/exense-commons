@@ -27,8 +27,6 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.exense.commons.io.FileHelper;
-
 public class FileWatchService extends Thread implements Closeable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileWatchService.class);
@@ -39,6 +37,8 @@ public class FileWatchService extends Thread implements Closeable {
 	
 	public FileWatchService() {
 		super();
+		
+		setDaemon(true);
 		
 		start();
 	}
