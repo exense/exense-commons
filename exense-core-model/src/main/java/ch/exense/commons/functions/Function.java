@@ -132,7 +132,6 @@ public class Function extends AbstractOrganizableObject {
 	/**
 	 * Sets the HTML code to be used as template when editing the function in the plan editor
 	 * 
-	 * @param schema the JSON schema of the function. See https://json-schema.org/ for more details concerning JSON schema.
 	 */
 	public void setHtmlTemplate(String customTemplateContent) {
 		this.htmlTemplate = customTemplateContent;
