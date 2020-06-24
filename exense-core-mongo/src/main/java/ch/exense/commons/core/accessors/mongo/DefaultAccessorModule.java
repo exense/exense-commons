@@ -15,6 +15,12 @@ public class DefaultAccessorModule extends SimpleModule {
 	public DefaultAccessorModule() {
 		super();
 		
+		/* TODO
+		 * Excluding custom serialization stuff for now
+		 * Will fix once we integrate with step's actual accessors
+		 * 
+		 * */
+		
 		//addSerializer(DottedKeyMap.class, new DottedMapKeySerializer());
 		//addDeserializer(DottedKeyMap.class, new DottedMapKeyDeserializer());
 		

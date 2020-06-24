@@ -12,6 +12,14 @@ public class AccessorLayerJacksonMapperProvider {
 	public static List<Module> modules = new ArrayList<>();
 	
 	static {
+		
+		/* TODO
+		 * 
+		 * Excluding custom serialization stuff for now
+		 * Will fix once we integrate with step's actual accessors
+		 * 
+		 * */
+		
 //		modules.add(new JSR353Module());
 //		modules.add(new JsonOrgModule());
 //		modules.add(new DefaultAccessorModule());
