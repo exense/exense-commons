@@ -60,10 +60,36 @@
 	</properties>
 
 	<dependencies>
+			<dependency>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-core-model</artifactId>
+			<version>${exense.core.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-core</artifactId>
 			<version>${exense.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-basic-commons</artifactId>
+			<version>${exense.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jongo</groupId>
+			<artifactId>jongo</artifactId>
+			<version>1.4.0</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jackson-annotations</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>${mongo.version}</version>
 		</dependency>
 
 		<!-- test dependencies -->
