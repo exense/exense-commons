@@ -1,16 +1,27 @@
 {
-	"NAME": "Exense Common",
-	"OS": "WINDOWS",
+	"NAME":	"Exense Common",
+	"OS":	"WINDOWS",
 	
 	"SUBPROJECTS":
 	{
-		"TYPE":	["POM"],
-		"FOLDER": ["exense-basic-commons/"],
+		"TYPE":	["POM","POM","POM","POM"],
+		"FOLDER": ["exense-basic-commons/","exense-core-model/","exense-core/","exense-core-mongo/"],
 		
-		"URL_STAGING":	[ "nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"	],
-		"URL_PROD":		  [ "sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"	],
+		"URL_STAGING":	[ 
+			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
+			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
+			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
+			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"
+		],
+		"URL_PROD":		[ 
+			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
+			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
+			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
+			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"
+		],
 		
-		"CONFIG_STAGING": [ "DefaultBuild"], "CONFIG_PROD": [ "DefaultBuild"]
+		"CONFIG_STAGING":	[ "DefaultBuild","DefaultBuild","DefaultBuild","DefaultBuild"], 
+		"CONFIG_PROD":		[ "DefaultBuild","DefaultBuild","DefaultBuild","DefaultBuild"]
 	},
 	"DISTRIBUTIONS": { "TYPE":[],"ORIGIN_FILE":[],"DESTINATION_NAME":[],"URL_STAGING":[],"URL_QA":[],"URL_PROD":[],"OS":[],"CONFIG":[] }
 }
