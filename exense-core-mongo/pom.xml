@@ -1,0 +1,92 @@
+<!-- (C) Copyright 2016 Jerome Comte and Dorian Cransac This file is part 
+	of STEP STEP is free software: you can redistribute it and/or modify it under 
+	the terms of the GNU Affero General Public License as published by the Free 
+	Software Foundation, either version 3 of the License, or (at your option) 
+	any later version. STEP is distributed in the hope that it will be useful, 
+	but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+	or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License 
+	for more details. You should have received a copy of the GNU Affero General 
+	Public License along with STEP. If not, see <http://www.gnu.org/licenses 
+	/>. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>ch.exense.commons</groupId>
+	<artifactId>exense-core-mongo</artifactId>
+	<version>1.2.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<url>http://exense.ch/</url>
+	<licenses>
+		<license>
+			<name>The GNU Affero General Public License 3.0</name>
+			<url>http://www.gnu.org/licenses/</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Jerome Comte</name>
+			<email>jerome.comte@exense.ch</email>
+			<organization>Exense</organization>
+			<organizationUrl>http://exense.ch</organizationUrl>
+			<url>http://step.exense.ch/</url>
+		</developer>
+		<developer>
+			<name>Dorian Cransac</name>
+			<email>dorian.cransac@exense.ch</email>
+			<organization>Exense</organization>
+			<organizationUrl>http://exense.ch</organizationUrl>
+			<url>http://step.exense.ch/</url>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:https://github.com/exense/exense-commons/</connection>
+		<developerConnection>scm:git:https://github.com/exense/exense-commons.git</developerConnection>
+		<url>https://github.com/exense/exense-commons/</url>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<slf4j.version>1.7.5</slf4j.version>
+		<junit.version>4.8.1</junit.version>
+		<jackson.version>2.10.0</jackson.version>
+		<exense.core.version>1.2.0-SNAPSHOT</exense.core.version>
+		<mongo.version>3.12.0</mongo.version>
+		<junit.version>4.8.1</junit.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-core</artifactId>
+			<version>${exense.core.version}</version>
+		</dependency>
+
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>de.flapdoodle.embed</groupId>
+			<artifactId>de.flapdoodle.embed.mongo</artifactId>
+			<version>2.2.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver</artifactId>
+			<version>${mongo.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+	</build>
+</project>
