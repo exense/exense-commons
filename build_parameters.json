@@ -5,7 +5,7 @@
 	"SUBPROJECTS":
 	{
 		"TYPE":	["POM"],
-		"FOLDER": ["exense-commons/"],
+		"FOLDER": ["exense-basic-commons/"],
 		
 		"URL_STAGING":	[ "nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"	],
 		"URL_PROD":		  [ "sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"	],
