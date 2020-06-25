@@ -12,57 +12,22 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
-	<groupId>ch.exense.commons</groupId>
+	
 	<artifactId>exense-core</artifactId>
-	<version>1.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-
-	<url>http://exense.ch/</url>
-	<licenses>
-		<license>
-			<name>The GNU Affero General Public License 3.0</name>
-			<url>http://www.gnu.org/licenses/</url>
-		</license>
-	</licenses>
-	<developers>
-		<developer>
-			<name>Jerome Comte</name>
-			<email>jerome.comte@exense.ch</email>
-			<organization>Exense</organization>
-			<organizationUrl>http://exense.ch</organizationUrl>
-			<url>http://step.exense.ch/</url>
-		</developer>
-		<developer>
-			<name>Dorian Cransac</name>
-			<email>dorian.cransac@exense.ch</email>
-			<organization>Exense</organization>
-			<organizationUrl>http://exense.ch</organizationUrl>
-			<url>http://step.exense.ch/</url>
-		</developer>
-	</developers>
-	<scm>
-		<connection>scm:git:https://github.com/exense/exense-commons/</connection>
-		<developerConnection>scm:git:https://github.com/exense/exense-commons.git</developerConnection>
-		<url>https://github.com/exense/exense-commons/</url>
-	</scm>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<slf4j.version>1.7.5</slf4j.version>
-		<junit.version>4.8.1</junit.version>
-		<jackson.version>2.10.0</jackson.version>
-		<junit.version>4.8.1</junit.version>
-		<exense.core.version>1.2.0-SNAPSHOT</exense.core.version>
-	</properties>
-
+	
+	<parent>
+		<groupId>ch.exense.commons</groupId>
+		<artifactId>exense-commons-parent</artifactId>
+		<version>0.0.0-SNAPSHOT</version>
+		<relativePath>../exense-commons-parent</relativePath>
+	</parent>
+	
 	<dependencies>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-core-model</artifactId>
-			<version>${exense.core.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -84,140 +49,5 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-
-		<!-- test dependencies -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>3.0.0-M1</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.2</version>
-				<executions>
-					<execution>
-						<id>default-prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>default-report</id>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.19.1</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.surefire</groupId>
-						<artifactId>surefire-junit47</artifactId>
-						<version>2.19.1</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<systemPropertyVariables>
-						<logback.configurationFile>${basedir}/../logback-maven.xml</logback.configurationFile>
-					</systemPropertyVariables>
-				</configuration>
-			</plugin>
-			<!-- Source -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Javadoc -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.1.1</version>
-				<configuration>
-					<source>8</source>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-
-	<profiles>
-		<profile>
-			<id>Default</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<!-- Local compilation - no signature -->
-		</profile>
-		<profile>
-			<id>DefaultBuild</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<!-- Signature -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-								<configuration>
-									<gpgArguments>
-										<arg>--pinentry-mode</arg>
-										<arg>loopback</arg>
-									</gpgArguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>
