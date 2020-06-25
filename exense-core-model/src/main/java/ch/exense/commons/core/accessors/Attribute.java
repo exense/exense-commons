@@ -29,12 +29,10 @@ import java.lang.annotation.RetentionPolicy;
  * This is for instance the case with Keywords:
  * </p>
  * <p>
- * <tt>
  * {@literal @}Attribute("name"="project", "value"="@system" <br>
  * public class MyKeywordLibrary extends AbstractKeyword {<br>
  * <br>
  * }
- * </tt>
  * </p>
  * <p>
  * This annotation can be added to types or methods
