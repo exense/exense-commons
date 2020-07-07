@@ -200,7 +200,6 @@ public class FileHelper {
 	/**
 	 * Extracts zip entry to file
 	 * @param stream the {@link InputStream} of the zip to be extracted
-	 * @param zip entry name to be extracter
 	 * @return the extracted file
 	 * @throws IOException
 	 */
@@ -283,8 +282,8 @@ public class FileHelper {
 	
 	/**
 	 * Add provided file as byte array to the zip output stream
-	 * @param zip output stream
-	 * @param bytearray output stream to be added to the zip
+	 * @param zos zip output stream
+	 * @param jsonStream bytearray output stream to be added to the zip
 	 * @param name of the zip entry
 	 */
 	public static void zipFile(ZipOutputStream zos, ByteArrayOutputStream jsonStream, String name) throws IOException {
@@ -295,9 +294,9 @@ public class FileHelper {
 	
 	/**
 	 * Add provided file to the zip output stream removing the base path
-	 * @param zip output stream
-	 * @param File to be added to the zip
-	 * @param base path of the file to be removed from the zip entry
+	 * @param zos zip output stream
+	 * @param file to be added to the zip
+	 * @param basePath path of the file to be removed from the zip entry
 	 */
 	public static void zipFile(ZipOutputStream zos, File file, String basePath) throws IOException {
 		try {
