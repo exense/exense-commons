@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -40,7 +41,7 @@ import java.util.zip.ZipOutputStream;
 
 public class FileHelper {
 
-	private static final int DEFAULT_BUFFER_SIZE = 2048;
+	public static final int DEFAULT_BUFFER_SIZE = 2048;
 	
 	/**
 	 * Creates a temporary file that will be deleted on JVM exit
@@ -197,6 +198,33 @@ public class FileHelper {
 	}
 	
 	/**
+	 * Extracts zip entry to file
+	 * @param stream the {@link InputStream} of the zip to be extracted
+	 * @return the extracted file
+	 * @throws IOException
+	 */
+	public static File unzip(InputStream stream, String entryName) throws IOException {
+		File f = null;
+		try (ZipInputStream zip = new ZipInputStream(stream)){
+			ZipEntry entry;
+			while ((entry = zip.getNextEntry()) != null) {
+				if (!entry.isDirectory() && entry.getName().equals(entryName)) {
+					f = FileHelper.createTempFile();				
+					byte data[] = new byte[DEFAULT_BUFFER_SIZE];
+					FileOutputStream fos = new FileOutputStream(f);
+					BufferedOutputStream dest = new BufferedOutputStream(fos, DEFAULT_BUFFER_SIZE);
+					int currentByte;
+					while ((currentByte = zip.read(data, 0, DEFAULT_BUFFER_SIZE)) != -1) {
+						dest.write(data, 0, currentByte);
+					}
+					dest.flush();
+					dest.close();
+				}
+			}
+		}
+		return f;
+	}
+	/**
 	 * Create a zip file of the directory denoted by the {@link File} passed as argument 
 	 * @param directory the directory to be zipped
 	 * @param target the path to the target zip file
@@ -250,6 +278,54 @@ public class FileHelper {
 				in.close();
 			}
 		}
+	}
+	
+	/**
+	 * Add provided file as byte array to the zip output stream
+	 * @param zos zip output stream
+	 * @param jsonStream bytearray output stream to be added to the zip
+	 * @param name of the zip entry
+	 */
+	public static void zipFile(ZipOutputStream zos, ByteArrayOutputStream jsonStream, String name) throws IOException {
+		ZipEntry entryJson = new ZipEntry(name);
+		zos.putNextEntry(entryJson);
+		zos.write(jsonStream.toByteArray());
+	}
+	
+	/**
+	 * Add provided file to the zip output stream removing the base path
+	 * @param zos zip output stream
+	 * @param file to be added to the zip
+	 * @param basePath path of the file to be removed from the zip entry
+	 */
+	public static void zipFile(ZipOutputStream zos, File file, String basePath) throws IOException {
+		try {
+			byte[] buffer = new byte[8192];
+			int read = 0;
+			FileInputStream in = new FileInputStream(file);
+			ZipEntry entry = new ZipEntry(file.getPath().substring(basePath.length() + 1));
+			zos.putNextEntry(entry);
+			while (-1 != (read = in.read(buffer))) {
+				zos.write(buffer, 0, read);
+			}
+			in.close();
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to create archive",e);
+		}
+	}
+	
+	/**
+	 * Check whether the provided file is an archive
+	 * @return the check result
+	 */
+	public static boolean isArchive(File f) {
+	    int fileSignature = 0;
+	    try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
+	        fileSignature = raf.readInt();
+	    } catch (IOException e) {
+	        // handle if you like
+	    }
+	    return fileSignature == 0x504B0304 || fileSignature == 0x504B0506 || fileSignature == 0x504B0708;
 	}
 
 	/**
