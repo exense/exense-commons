@@ -6,6 +6,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
+import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 
 public class AccessorLayerJacksonMapperProvider {
 
@@ -13,16 +15,9 @@ public class AccessorLayerJacksonMapperProvider {
 	
 	static {
 		
-		/* TODO
-		 * 
-		 * Excluding custom serialization stuff for now
-		 * Will fix once we integrate with step's actual accessors
-		 * 
-		 * */
-		
-//		modules.add(new JSR353Module());
-//		modules.add(new JsonOrgModule());
-//		modules.add(new DefaultAccessorModule());
+		modules.add(new JSR353Module());
+		modules.add(new JsonOrgModule());
+		modules.add(new DefaultAccessorModule());
 	}
 
 	public static List<Module> getModules() {
