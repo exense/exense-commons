@@ -13,6 +13,10 @@ public class MockedPasswordDirectory implements PasswordDirectory{
 		if(username.contains("SSHA")) {
 			return "{SSHA}W89tolUok4+Nc9vV/xmiVPRSUl/Fu4G2";
 		}
+		
+		if(username.contains("ABS")) {
+			return null;
+		}
 
 		throw new Exception("This mock requires the corresponding cypher to be placed in the user name.");
 	}

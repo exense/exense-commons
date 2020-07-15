@@ -61,8 +61,10 @@ public class LDAPClient implements PasswordDirectory{
 	@Override
 	public String getUserPassword(String username) throws Exception{
 		SearchResult result = findAccountByAccountName(username);
-		String uid = (String) result.getAttributes().get("uid").get();
-		logger.debug("Retrieving hashed password for uid '"+uid+"', originating from cn '"+username+"'");
+		if(result == null || result.getAttributes() == null || result.getAttributes().get("uid") == null || result.getAttributes().get("userPassword") == null) {
+			throw new Exception("Incorrect ldap configuration for user '"+username+"'. Result was:" + result);
+		}
+		logger.debug("Retrieving hashed password for uid '"+result.getAttributes().get("uid").get()+"', originating from cn '"+username+"'");
 		return new String((byte[]) result.getAttributes().get("userPassword").get());
 	}
 

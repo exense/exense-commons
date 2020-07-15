@@ -31,6 +31,10 @@ public class CypherAuthenticator implements Authenticator{
 	@Override
 	public boolean authenticate(Credentials credentials) throws Exception {
 		String encodedPassword = directory.getUserPassword(credentials.getUsername());
+		
+		if(encodedPassword == null) {
+			throw new Exception("User '"+credentials.getUsername()+"' could not be found in directory.");
+		}
 
 		if(cypher == null || cypher.isEmpty()) {
 			// Attempt to infer cypher from prefix of encoded password

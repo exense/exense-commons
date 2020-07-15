@@ -18,7 +18,7 @@ public class StandardEncoder implements CypherEncoder{
 		try {
 			md2 = MessageDigest.getInstance(algorithm);
 		} catch (NoSuchAlgorithmException e) {
-			// Realistically, we should never get in here..
+			// Realistically, we should never get in here if we use the class SupportedCypher
 			e.printStackTrace();
 		}
 		if(md2 != null) {

@@ -25,13 +25,13 @@ public class LDAPClientTest {
 	private PasswordDirectory directory;
 	private CypherAuthenticator authenticator;
 
-	//@Before
+	@Before
 	public void before() throws NamingException {
 		directory = new LDAPClient(ldapServer,ldapBaseDn,ldapUsername,ldapPassword);
 		authenticator = new CypherAuthenticator(directory);
 	}
 	
-	//@Test
+	@Test
 	public void authenticateSSHA() throws Exception {
 		Credentials credentials = new Credentials();
 		credentials.setPassword("testpwdssha");

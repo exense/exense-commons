@@ -10,6 +10,8 @@ public class CypherAuthenticatorTest{
 
 	private Credentials md5Credentials;
 	private Credentials sshaCredentials;
+	private Credentials absentCredentials;
+	
 	private CypherAuthenticator authenticator;
 
 	@Before
@@ -22,6 +24,10 @@ public class CypherAuthenticatorTest{
 		this.sshaCredentials.setUsername("SSHAUser");
 		this.sshaCredentials.setPassword("abcd");
 		
+		this.absentCredentials = new Credentials();
+		this.absentCredentials.setUsername("ABSuser");
+		this.absentCredentials.setPassword("abcd");
+		
 		this.authenticator = new CypherAuthenticator(new MockedPasswordDirectory());
 	}
 
@@ -33,5 +39,15 @@ public class CypherAuthenticatorTest{
 	@Test
 	public void authenticateMD5() throws Exception {
 		Assert.assertTrue(authenticator.authenticate(md5Credentials));
+	}
+	
+	@Test
+	public void cnNotFound() throws Exception {
+		try {
+			authenticator.authenticate(absentCredentials);			
+		}catch(Exception e) {
+			Assert.assertTrue(e.getMessage().contains("could not be found"));
+		}
+
 	}
 }
