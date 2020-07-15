@@ -74,9 +74,9 @@
 
 	<modules>
 		<module>../exense-basic-commons</module>
-		<module>../exense-core</module>
 		<module>../exense-core-model</module>
 		<module>../exense-core-mongo</module>
+		<module>../exense-auth-core</module>
 		<module>../exense-auth-cyphers</module>
 		<module>../exense-auth-ldap</module>
 	</modules>
