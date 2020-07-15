@@ -1,7 +1,5 @@
 package ch.commons.auth.ldap;
 
-import java.nio.charset.Charset;
-
 import javax.naming.NamingException;
 
 import org.junit.Before;
@@ -15,19 +13,20 @@ import ch.commons.auth.cyphers.CypherAuthenticator;
 public class LDAPClientTest {
 
 	// Tech inputs for retrieving hashed password
-	private final String ldapServer = "ldap://ldap.exense.ch:389";
+	private final String ldapServer = "ldap.exense.ch";
 	private final String ldapBaseDn = "dc=exense,dc=ch";
 	private final String ldapUsername = "cn=admin,dc=exense,dc=ch";
 	private final String ldapPassword = System.getProperty("adminPassword");
-	
-	private final Charset charset = Charset.forName("UTF-8");
 	
 	private PasswordDirectory directory;
 	private CypherAuthenticator authenticator;
 
 	@Before
 	public void before() throws NamingException {
-		directory = new LDAPClient(ldapServer,ldapBaseDn,ldapUsername,ldapPassword);
+		//ldap
+		//directory = new LDAPClient("ldap://" + ldapServer + ":389",ldapBaseDn,ldapUsername,ldapPassword);
+		//ldaps
+		directory = new LDAPClient("ldaps://" + ldapServer + ":636",ldapBaseDn,ldapUsername,ldapPassword, "src/test/resources/ldap.jks", ldapPassword);
 		authenticator = new CypherAuthenticator(directory);
 	}
 	

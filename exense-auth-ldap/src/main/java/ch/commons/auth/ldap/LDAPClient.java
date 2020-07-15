@@ -1,5 +1,16 @@
 package ch.commons.auth.ldap;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -9,6 +20,11 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +49,28 @@ public class LDAPClient implements PasswordDirectory{
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.PROVIDER_URL, server);
 
+		this.ctx = new InitialLdapContext(env, null);
+	}
+	
+	public LDAPClient(String server, String baseDn, String username, String password, String pathToJks, String jksPassword) throws NamingException {
+
+		this.ldapBaseDn = baseDn;
+
+		Hashtable<String, Object> env = new Hashtable<String, Object>();
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_PRINCIPAL, username);
+		env.put(Context.SECURITY_CREDENTIALS, password);
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, server);
+		// Specify SSL
+		env.put(Context.SECURITY_PROTOCOL, "ssl");
+
+		System.setProperty("javax.net.ssl.trustStore", pathToJks);
+		System.setProperty("javax.net.ssl.trustStorePassword", jksPassword);
+		
+		System.setProperty("javax.net.ssl.keyStore", pathToJks);
+		System.setProperty("javax.net.ssl.keyStorePassword", jksPassword);
+		
 		this.ctx = new InitialLdapContext(env, null);
 	}
 
@@ -66,6 +104,35 @@ public class LDAPClient implements PasswordDirectory{
 		}
 		logger.debug("Retrieving hashed password for uid '"+result.getAttributes().get("uid").get()+"', originating from cn '"+username+"'");
 		return new String((byte[]) result.getAttributes().get("userPassword").get());
+	}
+
+	private SSLContext setSSLContext(String jksPath, String password) throws KeyStoreException, NoSuchAlgorithmException,
+	CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
+		FileInputStream instream = new FileInputStream(new File(jksPath));
+		KeyStore keyStore = KeyStore.getInstance("jks");
+		keyStore.load((InputStream) instream, password.toCharArray());
+
+		KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		keyFactory.init(keyStore, password.toCharArray());
+		KeyManager[] keyManagers = keyFactory.getKeyManagers();
+
+		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}
+
+			public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+			}
+
+			public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+			}
+		} };
+
+		SSLContext sc = SSLContext.getInstance("SSL");
+		sc.init(keyManagers, trustAllCerts, new SecureRandom());
+
+		return sc;
+		//this.client = HttpClients.custom().setSSLContext(sc).build();
 	}
 
 }
