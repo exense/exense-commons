@@ -40,7 +40,7 @@ public class MongoClientSession implements Closeable {
 		String pwd = configuration.getProperty("db.password");
 		int maxConnections = configuration.getPropertyAsInteger("db.maxConnections", 200);
 			
-		db = configuration.getProperty("db.database","step");
+		db = configuration.getProperty("db.database","exense");
 
 		ServerAddress address = new ServerAddress(host, port);
 		List<MongoCredential> credentials = new ArrayList<>();
