@@ -10,12 +10,12 @@
 		<version>0.0.0-SNAPSHOT</version>
 		<relativePath>../exense-commons-parent</relativePath>
 	</parent>
-	
+
 
 	<repositories>
 		<repository>
 			<id>nexus</id>
-			<url>http://nexus.exense.ch/nexus/content/repositories/releases</url>
+			<url>https://nexus-enterprise.exense.ch/repository/exense/</url>
 		</repository>
 	</repositories>
 
@@ -35,12 +35,13 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>${slf4j.version}</version>
 		</dependency>
-		<!-- 
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
+			<groupId>org.pac4j</groupId>
+			<artifactId>pac4j-ldap</artifactId>
+			<version>${pac4j.version}</version>
 		</dependency>
-		-->
+
+		<!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-core</artifactId> 
+			<version>${jackson.version}</version> </dependency> -->
 	</dependencies>
 </project>

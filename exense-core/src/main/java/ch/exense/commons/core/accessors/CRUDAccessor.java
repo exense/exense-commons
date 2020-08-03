@@ -22,5 +22,4 @@ public interface CRUDAccessor<T extends AbstractIdentifiableObject> extends Acce
 	 * @param entities the list of entities to be saved
 	 */
 	void save(Collection<? extends T> entities);
-
 }
