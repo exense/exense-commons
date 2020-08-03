@@ -16,7 +16,7 @@ public class TestServer extends AutoconfigServer {
 
 	@Override
 	protected void registerPotentialClasses(ResourceConfig resourceConfig) {
-		resourceConfig.isRegistered(DemoServices.class);
+		resourceConfig.register(DemoServices.class);
 	}
 
 	@Override

@@ -21,7 +21,7 @@ public class DemoServices {
 	//@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getOrders() {
-		return Response.status(200).entity("It works!").build();
+		return Response.status(200).entity("{ \"he\" : \"lo\"}").build();
 	}
 
 }

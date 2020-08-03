@@ -33,7 +33,9 @@ public class SecurityFilter extends AbstractServices implements ContainerRequest
 		super.init();
 		ServerContext context = getContext();
 		accessManager = context.get(AccessManager.class);
-		authenticationManager = context.get(AuthenticationManager.class);
+		//TODO
+		//authenticationManager = context.get(AuthenticationManager.class);
+		
 	}
 	
 	@Override
@@ -41,7 +43,7 @@ public class SecurityFilter extends AbstractServices implements ContainerRequest
 		// Retrieve or initialize session
 		Session session = retrieveOrInitializeSession();
 
-		authenticationManager.authenticateDefaultUserIfAuthenticationIsDisabled(session);
+		//authenticationManager.authenticateDefaultUserIfAuthenticationIsDisabled(session);
 		
 		// Check rights
 		Secured annotation = extendendUriInfo.getMatchedResourceMethod().getInvocable().getHandlingMethod().getAnnotation(Secured.class);
