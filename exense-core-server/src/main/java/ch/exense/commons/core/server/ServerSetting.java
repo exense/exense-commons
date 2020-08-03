@@ -2,19 +2,19 @@ package ch.exense.commons.core.server;
 
 import ch.exense.commons.core.accessors.AbstractIdentifiableObject;
 
-public class ControllerSetting extends AbstractIdentifiableObject {
+public class ServerSetting extends AbstractIdentifiableObject {
 
 	protected String key;
 	
 	protected String value;
 
-	public ControllerSetting(String key, String value) {
+	public ServerSetting(String key, String value) {
 		super();
 		this.key = key;
 		this.value = value;
 	}
 
-	public ControllerSetting() {
+	public ServerSetting() {
 		super();
 	}
 

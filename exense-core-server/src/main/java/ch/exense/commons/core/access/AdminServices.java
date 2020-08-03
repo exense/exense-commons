@@ -34,8 +34,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import ch.exense.commons.core.server.ControllerSetting;
-import ch.exense.commons.core.server.ControllerSettingAccessor;
+import ch.exense.commons.core.server.ServerSetting;
+import ch.exense.commons.core.server.ServerSettingAccessor;
 import ch.exense.commons.core.server.security.Preferences;
 import ch.exense.commons.core.server.security.Secured;
 
@@ -43,7 +43,7 @@ import ch.exense.commons.core.server.security.Secured;
 @Path("admin")
 public class AdminServices extends AbstractServices {
 	
-	protected ControllerSettingAccessor controllerSettingsAccessor;
+	protected ServerSettingAccessor controllerSettingsAccessor;
 
 	private static final String MAINTENANCE_MESSAGE_KEY = "maintenance_message";
 	private static final String MAINTENANCE_TOGGLE_KEY = "maintenance_message_enabled";
@@ -52,7 +52,7 @@ public class AdminServices extends AbstractServices {
 	public void init() throws Exception {
 		super.init();
 		// TODO: move to "defaultly" registered classes in server main instead of instanciating accessor ourselves?
-		controllerSettingsAccessor = (ControllerSettingAccessor) server.getContext().get(ControllerSettingAccessor.class.toString());
+		controllerSettingsAccessor = (ServerSettingAccessor) server.getContext().get(ServerSettingAccessor.class.toString());
 	}
 
 	@POST
@@ -127,7 +127,7 @@ public class AdminServices extends AbstractServices {
 	@GET
 	@Path("/maintenance/message")
 	public String getMaintenanceMessage() {
-		ControllerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_MESSAGE_KEY);
+		ServerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_MESSAGE_KEY);
 		return setting!=null?setting.getValue():null;
 	}
 	
@@ -135,9 +135,9 @@ public class AdminServices extends AbstractServices {
 	@Secured(right="admin")
 	@Path("/maintenance/message")
 	public void setMaintenanceMessage(String message) {
-		ControllerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_MESSAGE_KEY);
+		ServerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_MESSAGE_KEY);
 		if(setting == null) {
-			setting = new ControllerSetting();
+			setting = new ServerSetting();
 			setting.setKey(MAINTENANCE_MESSAGE_KEY);
 		}
 		setting.setValue(message);
@@ -147,7 +147,7 @@ public class AdminServices extends AbstractServices {
 	@GET
 	@Path("/maintenance/message/toggle")
 	public boolean getMaintenanceMessageToggle() {
-		ControllerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_TOGGLE_KEY);
+		ServerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_TOGGLE_KEY);
 		return setting!=null?Boolean.parseBoolean(setting.getValue()):false;
 	}
 	
@@ -155,9 +155,9 @@ public class AdminServices extends AbstractServices {
 	@Secured(right="admin")
 	@Path("/maintenance/message/toggle")
 	public void setMaintenanceMessageToggle(boolean enabled) {
-		ControllerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_TOGGLE_KEY);
+		ServerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_TOGGLE_KEY);
 		if(setting == null) {
-			setting = new ControllerSetting();
+			setting = new ServerSetting();
 			setting.setKey(MAINTENANCE_TOGGLE_KEY);
 		}
 		setting.setValue(Boolean.toString(enabled));

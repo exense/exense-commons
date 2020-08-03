@@ -20,10 +20,13 @@ package ch.exense.commons.core.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.logging.LogManager;
 
 import javax.servlet.http.HttpSession;
@@ -37,17 +40,20 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -56,11 +62,12 @@ import com.google.common.util.concurrent.AbstractService;
 
 import ch.exense.commons.app.ArgumentParser;
 import ch.exense.commons.app.Configuration;
+import ch.exense.commons.core.access.AbstractServices;
 
 
 public class ServerStarter {
 
-	private Configuration configuration;
+	public static Configuration configuration;
 
 	private ExenseServer exenseServer;
 
@@ -80,7 +87,6 @@ public class ServerStarter {
 	public static void main(String[] args) throws Exception {
 		ArgumentParser arguments = new ArgumentParser(args);
 
-		Configuration configuration; 
 		String configStr = arguments.getOption("config");
 		if(configStr!=null) {
 			configuration = new Configuration(new File(configStr), arguments.getOptions());
@@ -92,7 +98,7 @@ public class ServerStarter {
 
 		setupLogging();
 
-		jettyServer.start();
+		new ServerStarter().start();
 	}
 
 	protected static void setupLogging() {
@@ -100,23 +106,29 @@ public class ServerStarter {
 		SLF4JBridgeHandler.install();
 	}
 
-	public ServerStarter(Configuration configuration) {
+	public ServerStarter() {
 		super();
-		this.configuration = configuration;
-		this.port = configuration.getPropertyAsInteger("port", 8080);
 	}
 
 	public void start() throws Exception {
+		this.port = configuration.getPropertyAsInteger("port", 8080);
 		jettyServer = new Server();
 		handlers = new ContextHandlerCollection();
 
-		initController();
-		initWebapp();
+		initServer();
+		
+		ContextHandler webapp = exenseServer.provideWebappContextHandler();
+		if(webapp != null) {
+			addHandler(webapp);
+		}
 
 		setupConnectors();
 
 		jettyServer.setHandler(handlers);
+		
+		logger.info("Loaded Server type '" + exenseServer.getClass().getName() + "'");
 		jettyServer.start();
+		jettyServer.join();	
 	}
 
 	private void stop() {
@@ -166,22 +178,13 @@ public class ServerStarter {
 		jettyServer.addConnector(connector);
 	}
 
-	private void initWebapp() throws Exception {
-		ResourceHandler bb = new ResourceHandler();
-		bb.setResourceBase(Resource.newClassPathResource("webapp").getURI().toString());
-
-		ContextHandler ctx = new ContextHandler("/"); /* the server uri path */
-		ctx.setHandler(bb);
-
-		addHandler(ctx);
-	}
-
-	private void initController() throws Exception {
-		ResourceConfig resourceConfig = new ResourceConfig();
-		//registerPackage stuff
-		//resourceConfig.packages();
+	private void initServer() throws Exception {
 
 		exenseServer = serverFoundOnClassPath();
+		
+		ResourceConfig resourceConfig = new ResourceConfig();
+		exenseServer.registerPotentialClasses(resourceConfig);
+
 
 		exenseServer.init(new ServiceRegistrationCallback() {
 			public void registerService(Class<?> serviceClass) {
@@ -237,18 +240,51 @@ public class ServerStarter {
 	}
 
 	private void registerFoundServices(ResourceConfig resourceConfig) {
-		for(Class c : getServiceListFromClasspath()) {
+		for(Class c : getSubTypesOf(AbstractServices.class)) {
 			resourceConfig.register(c);
 		}
 	}
 
 	private ExenseServer serverFoundOnClassPath() {
-		ServiceLoader<ExenseServer> loader = ServiceLoader.load(ExenseServer.class);
-		for (ExenseServer serv : loader) {
-			serv.sayHi();
-			return serv;
+		ExenseServer server = null;
+		try {
+			Set<Class<? extends ExenseServer>> serverClasses = getSubTypesOf(ExenseServer.class);
+			
+			// Evaluate concrete types first
+			for(Class clazz: serverClasses) {
+				 if(!Modifier.isAbstract( clazz.getModifiers())) {
+					 
+					 Constructor constructor = clazz.getConstructor();
+					 if(constructor == null) {
+						 // default to Autoconfig constructor
+						 if(configuration == null) {
+							 logger.info("Loading of configuration failed. Skipping starter '"+clazz.getName()+"'.");
+							 continue;
+						 }
+						 constructor = AutoconfigServer.class.getConstructor();
+					 }else {
+						 // custom config case: nothing to do, we'll just invoke that constructor
+					 }
+					 
+					 server = (ExenseServer) constructor.newInstance();
+					 break;
+				 }
+			}
+			
+			return server;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		throw new RuntimeException("No base ExenseServer class found.");
+		throw new RuntimeException("Could not load main ExenseServer class.");
+	}
+
+	private Set<Class<? extends ExenseServer>> getSubTypesOf(Class clazz) {
+		Reflections reflections = new Reflections(new ConfigurationBuilder()
+			      .filterInputsBy(new FilterBuilder().includePackage("ch.exense"))
+			      .setUrls(ClasspathHelper.forPackage("ch.exense"))
+			      .setScanners(new SubTypesScanner()));
+		return reflections.getSubTypesOf(clazz);
 	}
 
 	private Collection<Class> getServiceListFromClasspath() {

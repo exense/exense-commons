@@ -18,6 +18,8 @@
  *******************************************************************************/
 package ch.exense.commons.core.server;
 
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +34,6 @@ public abstract class ExenseServer{
 	private ServerContext context;
 
 	private ServiceRegistrationCallback serviceRegistrationCallback;
-
-	protected abstract void registerStuff();
 	
 	public ExenseServer(Configuration configuration) {
 		super();
@@ -47,9 +47,13 @@ public abstract class ExenseServer{
 		initContext(context);
 		
 		context.setServiceRegistrationCallback(serviceRegistrationCallback);
+		
+		postInitContext(context);
 	
 	}
 	
+	protected abstract void postInitContext(ServerContext context);
+
 	protected abstract void initContext(ServerContext context);
 
 
@@ -60,5 +64,7 @@ public abstract class ExenseServer{
 		return context;
 	}
 
-	protected abstract void sayHi();	
+	protected abstract ContextHandler provideWebappContextHandler();
+
+	protected abstract void registerPotentialClasses(ResourceConfig resourceConfig);	
 }

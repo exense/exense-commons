@@ -1,30 +1,26 @@
 package ch.exense.commons.core.server;
 
-import ch.exense.commons.app.Configuration;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.glassfish.jersey.server.ResourceConfig;
 
-public class TestServer extends ExenseServer {
-
-	public TestServer() {
-		//TODO: getconf
-		super(new Configuration());
-
-	}
-
-	@Override
-	protected void registerStuff() {
-		// TODO Auto-generated method stub
-
-	}
-
+public class TestServer extends AutoconfigServer {
+	
 	@Override
 	protected void initContext(ServerContext context) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	protected void sayHi() {
-		System.out.println(" ----- HELLO WORLD -------------");
+	protected ContextHandler provideWebappContextHandler() {
+		return null;
+	}
+
+	@Override
+	protected void registerPotentialClasses(ResourceConfig resourceConfig) {
+		resourceConfig.isRegistered(DemoServices.class);
+	}
+
+	@Override
+	protected void postInitContext(ServerContext context) {
 	}
 
 }
