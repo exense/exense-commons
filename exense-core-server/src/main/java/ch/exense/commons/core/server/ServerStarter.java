@@ -208,11 +208,6 @@ public class ServerStarter {
 
 		registerFoundServices(resourceConfig);
 
-		// hardcoding registration of core server service which will always be used / we need to conform to
-		resourceConfig.register(JacksonMapperProvider.class);
-		resourceConfig.register(MultiPartFeature.class);
-
-
 		resourceConfig.register(new AbstractBinder() {	
 			@Override
 			protected void configure() {
@@ -226,7 +221,7 @@ public class ServerStarter {
 
 		ServletHolder sh = new ServletHolder(servletContainer);
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setContextPath("/rest");
+		context.setContextPath(exenseServer.provideServiceContextPath());
 		context.addServlet(sh, "/*");
 
 		SessionHandler s = new SessionHandler();

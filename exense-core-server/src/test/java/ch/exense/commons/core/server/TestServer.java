@@ -23,4 +23,9 @@ public class TestServer extends AutoconfigServer {
 	protected void postInitContext(ServerContext context) {
 	}
 
+	@Override
+	protected String provideServiceContextPath() {
+		return "/rest";
+	}
+
 }

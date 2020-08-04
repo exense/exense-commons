@@ -66,5 +66,7 @@ public abstract class ExenseServer{
 
 	protected abstract ContextHandler provideWebappContextHandler();
 
-	protected abstract void registerPotentialClasses(ResourceConfig resourceConfig);	
+	protected abstract void registerPotentialClasses(ResourceConfig resourceConfig);
+
+	protected abstract String provideServiceContextPath();	
 }
