@@ -31,11 +31,6 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
-			<artifactId>exense-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-basic-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>

@@ -77,7 +77,6 @@
 
 	<modules>
 		<module>../exense-basic-commons</module>
-		<module>../exense-core</module>
 		<module>../exense-core-model</module>
 		<module>../exense-core-mongo</module>
 		<module>../exense-core-web</module>
