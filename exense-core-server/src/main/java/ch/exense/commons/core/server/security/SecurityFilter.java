@@ -13,8 +13,9 @@ import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.server.ExtendedUriInfo;
 
-import ch.exense.commons.core.access.AbstractServices;
-import ch.exense.commons.core.server.ServerContext;
+import ch.exense.commons.core.web.container.ServerContext;
+import ch.exense.commons.core.web.services.AbstractServices;
+import ch.exense.commons.core.web.session.Session;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)

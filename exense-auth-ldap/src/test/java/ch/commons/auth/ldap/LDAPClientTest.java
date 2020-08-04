@@ -21,7 +21,7 @@ public class LDAPClientTest {
 	private PasswordDirectory directory;
 	private CypherAuthenticator authenticator;
 
-	@Before
+	//@Before
 	public void before() throws NamingException {
 		//ldap
 		//directory = new LDAPClient("ldap://" + ldapServer + ":389",ldapBaseDn,ldapUsername,ldapPassword);

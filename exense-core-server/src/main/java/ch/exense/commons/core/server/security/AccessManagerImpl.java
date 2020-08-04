@@ -3,6 +3,7 @@ package ch.exense.commons.core.server.security;
 import java.util.NoSuchElementException;
 
 import ch.exense.commons.core.accessors.AbstractOrganizableObject;
+import ch.exense.commons.core.web.session.Session;
 
 public class AccessManagerImpl implements AccessManager {
 

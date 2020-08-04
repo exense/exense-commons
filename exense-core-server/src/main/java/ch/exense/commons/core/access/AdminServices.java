@@ -34,10 +34,13 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import ch.exense.commons.core.server.ServerSetting;
-import ch.exense.commons.core.server.ServerSettingAccessor;
-import ch.exense.commons.core.server.security.Preferences;
 import ch.exense.commons.core.server.security.Secured;
+import ch.exense.commons.core.user.Preferences;
+import ch.exense.commons.core.user.User;
+import ch.exense.commons.core.user.UserAccessor;
+import ch.exense.commons.core.web.container.ServerSetting;
+import ch.exense.commons.core.web.container.ServerSettingAccessor;
+import ch.exense.commons.core.web.services.AbstractServices;
 
 @Singleton
 @Path("admin")

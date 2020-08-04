@@ -17,14 +17,16 @@ import org.slf4j.LoggerFactory;
 import ch.commons.auth.Credentials;
 import ch.exense.commons.app.Configuration;
 import ch.exense.commons.core.accessors.AbstractOrganizableObject;
-import ch.exense.commons.core.server.ServerContext;
 import ch.exense.commons.core.server.security.AccessConfiguration;
 import ch.exense.commons.core.server.security.AccessManager;
 import ch.exense.commons.core.server.security.AuthenticationManager;
 import ch.exense.commons.core.server.security.Role;
 import ch.exense.commons.core.server.security.RoleProvider;
 import ch.exense.commons.core.server.security.Secured;
-import ch.exense.commons.core.server.security.Session;
+import ch.exense.commons.core.user.User;
+import ch.exense.commons.core.web.container.ServerContext;
+import ch.exense.commons.core.web.services.AbstractServices;
+import ch.exense.commons.core.web.session.Session;
 
 @Singleton
 @Path("/access")

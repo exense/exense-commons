@@ -13,7 +13,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>exense-core-mongo</artifactId>
+	<artifactId>exense-core-webcontainer</artifactId>
 	<packaging>jar</packaging>
 
 	<parent>
@@ -24,6 +24,11 @@
 	</parent>
 
 	<dependencies>
+		<dependency>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-auth-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-core-model</artifactId>
@@ -40,9 +45,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.9</version>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -55,39 +60,29 @@
 			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<version>2.3.1</version>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-servlet-core</artifactId>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jongo</groupId>
-			<artifactId>jongo</artifactId>
-			<version>1.4.0</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jackson-annotations</artifactId>
-					<groupId>com.fasterxml.jackson.core</groupId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-json-jackson</artifactId>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongo-java-driver</artifactId>
-			<version>${mongo.version}</version>
-		</dependency>
-
-		<!-- test dependencies -->
-		<dependency>
-			<groupId>de.flapdoodle.embed</groupId>
-			<artifactId>de.flapdoodle.embed.mongo</artifactId>
-			<version>2.2.0</version>
-			<scope>test</scope>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-multipart</artifactId>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongodb-driver</artifactId>
-			<version>${mongo.version}</version>
-			<scope>test</scope>
+			<groupId>ch.exense.step</groupId>
+			<artifactId>step-grid-server</artifactId>
+			<version>${step-grid.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>1.7.29</version>
 		</dependency>
 	</dependencies>
 

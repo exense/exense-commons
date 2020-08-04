@@ -8,8 +8,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import ch.commons.auth.Authenticator;
 import ch.commons.auth.Credentials;
 import ch.exense.commons.app.Configuration;
-import ch.exense.commons.core.access.User;
-import ch.exense.commons.core.access.UserAccessor;
+import ch.exense.commons.core.user.ExternalUser;
+import ch.exense.commons.core.user.User;
+import ch.exense.commons.core.user.UserAccessor;
+import ch.exense.commons.core.web.session.Session;
 
 
 public class AuthenticationManager {

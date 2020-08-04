@@ -6,10 +6,10 @@ import org.slf4j.LoggerFactory;
 
 import ch.commons.auth.Authenticator;
 import ch.commons.auth.Credentials;
-import ch.exense.commons.core.access.User;
-import ch.exense.commons.core.access.UserAccessor;
-import ch.exense.commons.core.server.ServerContext;
-import ch.exense.commons.core.server.ServerContextAware;
+import ch.exense.commons.core.user.User;
+import ch.exense.commons.core.user.UserAccessor;
+import ch.exense.commons.core.web.container.ServerContext;
+import ch.exense.commons.core.web.container.ServerContextAware;
 
 public class DefaultAuthenticator implements Authenticator, ServerContextAware {
 	
