@@ -19,13 +19,23 @@
 package ch.exense.commons.core.server;
 
 import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
+import ch.exense.commons.core.web.container.AbstractJettyContainer;
 
-public abstract class FullFeaturedServer extends AutoconfigContainer{
+public abstract class FullFeaturedServer extends AbstractJettyContainer{
 
 	protected MongoClientSession session;
 
 	public FullFeaturedServer() {
 		super();
+	}
+	
+	@Override
+	protected void configure() {
+
+	}
+	
+	@Override
+	protected void postStart() {
 		session = new MongoClientSession(super.configuration);
 	}
 }
