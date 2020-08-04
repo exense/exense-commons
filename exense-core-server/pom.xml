@@ -31,7 +31,7 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
-			<artifactId>exense-core-webcontainer</artifactId>
+			<artifactId>exense-core-web</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

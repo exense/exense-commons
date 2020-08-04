@@ -80,7 +80,7 @@
 		<module>../exense-core</module>
 		<module>../exense-core-model</module>
 		<module>../exense-core-mongo</module>
-		<module>../exense-core-webcontainer</module>
+		<module>../exense-core-web</module>
 		<module>../exense-core-server</module>
 		<module>../exense-auth-core</module>
 		<module>../exense-auth-cyphers</module>
