@@ -71,7 +71,8 @@ public class ServerStarter {
 	private ExenseServer serverFoundOnClassPath() {
 		ExenseServer server = null;
 		try {
-			Set<Class> serverClasses = ClasspathUtils.getAllConcreteSubTypesOf(ExenseServer.class, "ch.exense");
+			String packagePrefix = configuration.getProperty("ch.exense.core.starter.packagePrefix", "ch.exense");
+			Set<Class> serverClasses = ClasspathUtils.getAllConcreteSubTypesOf(ExenseServer.class, packagePrefix);
 
 			for(Class clazz: serverClasses) {
 				Constructor constructor = clazz.getConstructor();

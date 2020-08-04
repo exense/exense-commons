@@ -1,5 +1,6 @@
-package ch.exense.commons.core.server.security;
+package ch.exense.commons.core.access;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import ch.exense.commons.core.accessors.AbstractOrganizableObject;
@@ -9,7 +10,7 @@ public class AccessManagerImpl implements AccessManager {
 
 	private final RoleProvider roleProvider;
 	private RoleResolver roleResolver;
-	
+
 	public AccessManagerImpl(RoleProvider roleProvider, RoleResolver roleResolver) {
 		super();
 		this.roleProvider = roleProvider;
@@ -31,7 +32,10 @@ public class AccessManagerImpl implements AccessManager {
 	public Role getRoleInContext(Session session) {
 		String roleName = roleResolver.getRoleInContext(session);
 		try {
-			Role role = roleProvider.getRoles().stream().filter(r->roleName.equals(r.getAttributes().get(AbstractOrganizableObject.NAME))).findFirst().get();
+			List<Role> roles = roleProvider.getRoles();
+			Role role = roles.stream().filter(
+								r->roleName.equals(r.getAttributes().get(AbstractOrganizableObject.NAME))
+							).findFirst().get();
 			return role;
 		} catch (NoSuchElementException e) {
 			throw new RuntimeException("The role "+roleName+" doesn't exist");

@@ -1,4 +1,4 @@
-package ch.exense.commons.core.server.security;
+package ch.exense.commons.core.access;
 
 import ch.exense.commons.core.web.session.Session;
 

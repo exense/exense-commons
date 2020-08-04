@@ -36,8 +36,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
-import ch.exense.commons.core.server.security.Secured;
 import ch.exense.commons.core.user.Preferences;
 import ch.exense.commons.core.user.User;
 import ch.exense.commons.core.user.UserAccessor;

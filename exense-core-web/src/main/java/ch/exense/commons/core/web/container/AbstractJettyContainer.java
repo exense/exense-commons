@@ -65,9 +65,9 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 
 	protected Configuration configuration;
 
-	private ServerContext context;
+	protected ServerContext context;
 	
-	private ServiceRegistrationCallback serviceRegistrationCallback;
+	protected ServiceRegistrationCallback serviceRegistrationCallback;
 
 	private ContextHandlerCollection handlers;
 
@@ -104,7 +104,6 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 		setupRegistrationCallbacks();
 
 		registerDefaultResources();
-		registerDefaultClasses();
 
 		registerPotentialServices();
 
@@ -114,9 +113,7 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 		registerExplicitly(this.resourceConfig);
 	}
 
-	private void registerDefaultClasses() {
-
-	}
+	protected abstract void registerPotentialServices();
 
 	protected abstract void configure_();
 
@@ -296,32 +293,10 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 
 	}
 
-	private void registerPotentialServices() {
-		String packageList = configuration.getProperty("ch.exense.core.servicePackagePrefix", "ch.exense");
-
-		logger.info("Registering AbstractServices...");
-		//Not needed?
-		//resourceConfig.register(AbstractServices.class);
-		
-		// Allow multiple prefixes via configuration
-		for(String prefix : Arrays.asList(packageList.split(";"))) {
-			registerChildResources(AbstractServices.class, prefix);
-		}
-
-	}
-
-	private <T> void registerChildResources(Class<T> parentClass, String prefix) {
+	protected <T> void registerChildResources(Class<T> parentClass, String prefix) {
 		for(Class<? extends T> c : ClasspathUtils.getSubTypesOf(parentClass, prefix)) {
 			logger.info("Registering child resource of '"+parentClass+"' : '"+c+"'");
-			/*
-			 * Workaround due to injection conflict between ContainerRequestFilter and AbstractServices at registration time
-			 * We could make this better by:
-			 * 1) using a dedicated interface specifically for automatic registration (not implemented by filter classes): "Registrable" ?
-			 * 2) instead of filters extending directly AbstractServices, delegating access to context to a separate entity which could be injected into the filter
-			 */
-			//if(!ContainerRequestFilter.class.isAssignableFrom(c)) {
 				resourceConfig.register(c);
-			//}
 		}		
 	}
 

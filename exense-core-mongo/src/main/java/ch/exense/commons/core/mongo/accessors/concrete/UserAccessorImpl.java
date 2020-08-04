@@ -1,4 +1,4 @@
-package ch.exense.commons.core.mongo.accessors.concret;
+package ch.exense.commons.core.mongo.accessors.concrete;
 
 import java.util.ArrayList;
 import java.util.List;

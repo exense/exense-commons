@@ -3,6 +3,7 @@ package ch.exense.commons.core.access;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -17,14 +18,7 @@ import org.slf4j.LoggerFactory;
 import ch.commons.auth.Credentials;
 import ch.exense.commons.app.Configuration;
 import ch.exense.commons.core.accessors.AbstractOrganizableObject;
-import ch.exense.commons.core.server.security.AccessConfiguration;
-import ch.exense.commons.core.server.security.AccessManager;
-import ch.exense.commons.core.server.security.AuthenticationManager;
-import ch.exense.commons.core.server.security.Role;
-import ch.exense.commons.core.server.security.RoleProvider;
-import ch.exense.commons.core.server.security.Secured;
 import ch.exense.commons.core.user.User;
-import ch.exense.commons.core.web.container.ServerContext;
 import ch.exense.commons.core.web.services.AbstractServices;
 import ch.exense.commons.core.web.session.Session;
 
@@ -33,8 +27,13 @@ import ch.exense.commons.core.web.session.Session;
 public class AccessServices extends AbstractServices {
 	private static Logger logger = LoggerFactory.getLogger(AccessServices.class);
 	
+	@Inject
 	private RoleProvider roleProvider;
+	
+	@Inject
 	private AuthenticationManager authenticationManager;
+	
+	@Inject
 	private AccessManager accessManager;
 	
 	public AccessServices() {
@@ -43,11 +42,7 @@ public class AccessServices extends AbstractServices {
 	
 	@PostConstruct
 	public void init() throws Exception {
-		ServerContext context = getContext();
-		
-		roleProvider = context.get(RoleProvider.class);
-		authenticationManager = context.get(AuthenticationManager.class);
-		accessManager = context.get(AccessManager.class);
+		logger.info("AccessServices post constructed successfully.");
 	}
 	
 	public static class SessionResponse {
