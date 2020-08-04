@@ -19,6 +19,7 @@
 package ch.exense.commons.core.web.container;
 
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,5 +73,17 @@ public abstract class GenericContainer{
 
 	public abstract void registerPotentialClasses(ResourceConfig resourceConfig);
 
-	public abstract String provideServiceContextPath();	
+	public abstract String provideServiceContextPath();
+
+	public void registerPotentialClasses_(ResourceConfig resourceConfig) {
+
+		resourceConfig.register(new AbstractBinder() {	
+			@Override
+			protected void configure() {
+				bind(context).to(ServerContext.class);
+			}
+		});
+		
+		registerPotentialClasses(resourceConfig);		
+	}	
 }

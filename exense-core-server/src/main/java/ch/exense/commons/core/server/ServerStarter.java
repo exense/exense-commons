@@ -185,7 +185,7 @@ public class ServerStarter {
 		exenseServer = serverFoundOnClassPath();
 		
 		ResourceConfig resourceConfig = new ResourceConfig();
-		exenseServer.registerPotentialClasses(resourceConfig);
+		exenseServer.registerPotentialClasses_(resourceConfig);
 
 
 		exenseServer.init(new ServiceRegistrationCallback() {
