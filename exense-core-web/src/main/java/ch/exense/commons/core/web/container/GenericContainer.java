@@ -29,7 +29,7 @@ public abstract class GenericContainer{
 	
 	private static final Logger logger = LoggerFactory.getLogger(GenericContainer.class);
 	
-	private Configuration configuration;
+	protected Configuration configuration;
 	
 	private ServerContext context;
 

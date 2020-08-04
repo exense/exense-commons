@@ -5,7 +5,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 import ch.exense.commons.core.web.container.DemoServices;
 import ch.exense.commons.core.web.container.ServerContext;
-import ch.exense.commons.core.web.server.AutoconfigContainer;
 
 public class TestServer extends AutoconfigContainer {
 	

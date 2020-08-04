@@ -18,17 +18,14 @@
  *******************************************************************************/
 package ch.exense.commons.core.server;
 
-import ch.exense.commons.app.Configuration;
-import ch.exense.commons.core.web.container.GenericContainer;
-import ch.exense.commons.core.web.server.ServerStarter;
+import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
 
-public abstract class FullFeaturedServer extends GenericContainer{
-	
+public abstract class FullFeaturedServer extends AutoconfigContainer{
+
+	protected MongoClientSession session;
+
 	public FullFeaturedServer() {
-		super(ServerStarter.configuration);
-	}
-
-	private FullFeaturedServer(Configuration configuration) {
-		super(configuration);
+		super();
+		session = new MongoClientSession(super.configuration);
 	}
 }

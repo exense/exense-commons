@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package ch.exense.commons.core.web.server;
+package ch.exense.commons.core.server;
 
 import java.io.File;
 import java.io.IOException;
