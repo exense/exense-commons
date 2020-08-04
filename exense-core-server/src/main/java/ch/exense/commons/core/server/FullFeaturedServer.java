@@ -22,8 +22,19 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+
+import ch.exense.commons.app.ClasspathUtils;
 import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
 import ch.exense.commons.core.web.container.AbstractJettyContainer;
+import ch.exense.commons.core.web.container.JacksonMapperProvider;
+
+/**
+ * This class builds upon the abstract container to provide additional services such as
+ * - automatic handling and creation of the mongo db session
+ * - automatic registration of web services implementing Registrable
+ * - not yet implemented: automatic binding of (mongodb) accessors  
+ */
 
 public abstract class FullFeaturedServer extends AbstractJettyContainer{
 
@@ -41,6 +52,10 @@ public abstract class FullFeaturedServer extends AbstractJettyContainer{
 		session = new MongoClientSession(configuration.getProperty("db.host", "localhost"), configuration.getPropertyAsInteger("db.port",27017),
 				configuration.getProperty("db.username"), configuration.getProperty("db.password"),
 				configuration.getPropertyAsInteger("db.maxConnections", 200), configuration.getProperty("db.database","exense"));
+		/*
+		 * TODO: automatically instantiate all Accessors with session object and bind them for injection
+		 */
+		//bindBindables(resourceConfig);
 	}
 	
 	@Override
@@ -50,7 +65,16 @@ public abstract class FullFeaturedServer extends AbstractJettyContainer{
 	
 	@Override
 	public final void registerExplicitly(ResourceConfig resourceConfig) {
+		registerRegistrables(resourceConfig);
+		resourceConfig.register(JacksonMapperProvider.class);
+		resourceConfig.register(JacksonJaxbJsonProvider.class);
 		registerExplicitly_(resourceConfig);
+	}
+
+	private void registerRegistrables(ResourceConfig resourceConfig) {
+		for (Class<? extends Registrable> r: ClasspathUtils.getAllConcreteSubTypesOf(Registrable.class, "ch.exense")) {
+			resourceConfig.registerClasses(r);
+		}
 	}
 
 	protected abstract void registerExplicitly_(ResourceConfig resourceConfig);

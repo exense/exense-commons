@@ -49,9 +49,16 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import ch.exense.commons.app.ClasspathUtils;
 import ch.exense.commons.app.Configuration;
-import ch.exense.commons.app.SomeRandomClass;
 import ch.exense.commons.core.web.services.AbstractServices;
 
+/**
+ * This class is responsible for handling the core configuration and start of a Jetty based web container.
+ * 
+ * It implements the ExenseServer API in order to defer the start and configuration parsing mechanism to potential third party code.
+ * If used in conjunction with the ServerStarter, mechanisms for handling configuration and finding the exact server implementation are provided. 
+ * 
+ * Concrete implementations based on this class define the actual services and concrete webapp to be deployed on the web container.
+ */
 public abstract class AbstractJettyContainer implements ExenseServer{
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractJettyContainer.class);
@@ -60,8 +67,6 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 
 	private ServerContext context;
 	
-	protected SomeRandomClass random;
-
 	private ServiceRegistrationCallback serviceRegistrationCallback;
 
 	private ContextHandlerCollection handlers;
@@ -74,7 +79,6 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 
 	@Override
 	public void initialize(Configuration configuration) {
-		this.random = new SomeRandomClass("random value");
 		this.configuration = configuration;
 		this.port = configuration.getPropertyAsInteger("port", 8080);
 		this.context = new ServerContext();
@@ -142,7 +146,6 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 			@Override
 			protected void configure() {
 				bind(context).to(ServerContext.class);
-				bind(random).to(SomeRandomClass.class);
 				bind(configuration).to(Configuration.class);
 				bindFactory(HttpSessionFactory.class).to(HttpSession.class)
 				.proxy(true).proxyForSameScope(false).in(RequestScoped.class);

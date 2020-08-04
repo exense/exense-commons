@@ -22,12 +22,19 @@ public class TestServer extends FullFeaturedServer {
 
 	@Override
 	public void registerExplicitly_(ResourceConfig resourceConfig) {
-		resourceConfig.register(DemoServices.class);
+		// Not needed anymore due to registrable but leaving for tests of hard coded registration
+		resourceConfig.registerClasses(DemoServices.class);
 	}
 
 	@Override
 	public String provideServiceContextPath() {
 		return "/rest";
+	}
+
+	@Override
+	protected void configure_() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

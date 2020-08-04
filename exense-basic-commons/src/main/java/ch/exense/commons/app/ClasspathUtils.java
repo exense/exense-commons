@@ -1,11 +1,13 @@
 package ch.exense.commons.app;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -27,6 +29,11 @@ public class ClasspathUtils {
 			fullTree.addAll(getAllSubTypesOf(subType, prefix));
 		}
 		return fullTree;
+	}
+	
+	@SuppressWarnings({ "rawtypes" })
+	public static <T> Set<Class> getAllConcreteSubTypesOf(Class clazz, String prefix) {
+		return getAllSubTypesOf(clazz, prefix).stream().filter(c -> !Modifier.isAbstract( c.getModifiers())).collect(Collectors.toSet());
 	}
 	
 	private static <T> Reflections getReflections(Class<T> clazz, String prefix) {

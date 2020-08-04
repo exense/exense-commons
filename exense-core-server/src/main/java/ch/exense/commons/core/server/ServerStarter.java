@@ -20,7 +20,6 @@ package ch.exense.commons.core.server;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -29,14 +28,16 @@ import org.slf4j.LoggerFactory;
 import ch.exense.commons.app.ArgumentParser;
 import ch.exense.commons.app.ClasspathUtils;
 import ch.exense.commons.app.Configuration;
-import ch.exense.commons.core.web.container.AbstractJettyContainer;
+import ch.exense.commons.core.web.container.ExenseServer;
 
-
+/**
+ * This is the main starter class providing configuration parsing and search for a concrete server to start on the class path
+ */
 public class ServerStarter {
 
 	public static Configuration configuration;
 
-	private AbstractJettyContainer exenseServer;
+	private ExenseServer exenseServer;
 
 	private static final Logger logger = LoggerFactory.getLogger(ServerStarter.class);
 
@@ -65,29 +66,24 @@ public class ServerStarter {
 		exenseServer.initialize(configuration);
 		exenseServer.start();
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	private AbstractJettyContainer serverFoundOnClassPath() {
-		AbstractJettyContainer server = null;
+	private ExenseServer serverFoundOnClassPath() {
+		ExenseServer server = null;
 		try {
-			Set<Class> serverClasses = ClasspathUtils.getAllSubTypesOf(AbstractJettyContainer.class, "ch.exense");
-			
+			Set<Class> serverClasses = ClasspathUtils.getAllConcreteSubTypesOf(ExenseServer.class, "ch.exense");
+
 			for(Class clazz: serverClasses) {
-				// Evaluate concrete types only
-				 if(!Modifier.isAbstract( clazz.getModifiers())) {
-					 // We found a concrete Server implementation, lets try to load its argument-less constructor
-					 Constructor constructor = clazz.getConstructor();
-					 server = (AbstractJettyContainer) constructor.newInstance();
-					 break;
-				 }
+				Constructor constructor = clazz.getConstructor();
+				if(constructor != null) {
+					return (ExenseServer) constructor.newInstance();
+				}else {
+					throw new RuntimeException("Could not find argument-less constructor for server type '"+clazz+"'.");
+				}
 			}
-			
-			if(server == null) {
-				throw new RuntimeException("No suitable/concrete container implementation type found to launch jetty with.");
-			}
-			
-			return server;
-			
+
+			throw new RuntimeException("No suitable/concrete container implementation type found to launch jetty with (must concretely extend "+ExenseServer.class+".");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
