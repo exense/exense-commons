@@ -21,7 +21,7 @@ public class TestServer extends FullFeaturedServer {
 	}
 
 	@Override
-	public void registerExplicitClasses(ResourceConfig resourceConfig) {
+	public void registerExplicitly_(ResourceConfig resourceConfig) {
 		resourceConfig.register(DemoServices.class);
 	}
 

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.logging.LogManager;
 
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.container.ContainerRequestFilter;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -49,6 +50,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import ch.exense.commons.app.ClasspathUtils;
 import ch.exense.commons.app.Configuration;
+import ch.exense.commons.app.SomeRandomClass;
 import ch.exense.commons.core.web.services.AbstractServices;
 
 public abstract class AbstractJettyContainer implements ExenseServer{
@@ -58,6 +60,8 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 	protected Configuration configuration;
 
 	private ServerContext context;
+	
+	protected SomeRandomClass random;
 
 	private ServiceRegistrationCallback serviceRegistrationCallback;
 
@@ -71,9 +75,11 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 
 	@Override
 	public void initialize(Configuration configuration) {
+		this.random = new SomeRandomClass("random value");
 		this.configuration = configuration;
 		this.port = configuration.getPropertyAsInteger("port", 8080);
 		this.context = new ServerContext();
+		context.setConfiguration(configuration);
 		this.handlers = new ContextHandlerCollection();
 		this.resourceConfig = new ResourceConfig();
 
@@ -88,18 +94,21 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 		
 		setupLogging();
 		
+		setupRegistrationCallbacks();
+
 		registerDefaultResources();
+		registerDefaultClasses();
 
 		registerPotentialServices();
 
-		setupRegistrationCallbacks();
-		
-		addServletContainer();
-		
 		provideWebappContextHandler();
 
 		// Abstract -- register specific child impl classes
-		registerExplicitClasses(this.resourceConfig);	
+		registerExplicitly(this.resourceConfig);
+	}
+
+	private void registerDefaultClasses() {
+
 	}
 
 	protected abstract void configure();
@@ -110,7 +119,9 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 		jettyServer = new Server();
 
 		setupConnectors();
-
+		
+		addServletContainer();
+		
 		jettyServer.setHandler(handlers);
 		jettyServer.start();
 		
@@ -122,28 +133,19 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 
 	protected abstract void postStart();
 
-	protected <T> void registerResource(T object, Class<T> objectClass) {
-		resourceConfig.register(new AbstractBinder() {	
-			@Override
-			protected void configure() {
-				bind(object).to(objectClass);
-			}
-		});
-	}
-
 	private void registerDefaultResources() {
 
-		registerResource(configuration, Configuration.class);
-		registerResource(context, ServerContext.class);
-		// doesn't compile, but we shouldn't need this anyways if we delegate roles cleanly
-		// registerResource(this, this.getClass());
 		resourceConfig.register(new AbstractBinder() {	
 			@Override
 			protected void configure() {
+				bind(context).to(ServerContext.class);
+				bind(random).to(SomeRandomClass.class);
+				bind(configuration).to(Configuration.class);
 				bindFactory(HttpSessionFactory.class).to(HttpSession.class)
 				.proxy(true).proxyForSameScope(false).in(RequestScoped.class);
 			}
 		});
+		
 	}
 
 	private synchronized void addHandler(Handler handler) {
@@ -188,7 +190,7 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 	public abstract String provideWebappFolderName();
 
 
-	public abstract void registerExplicitClasses(ResourceConfig resourceConfig);
+	public abstract void registerExplicitly(ResourceConfig resourceConfig);
 
 	public abstract String provideServiceContextPath();
 
@@ -291,16 +293,29 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 	private void registerPotentialServices() {
 		String packageList = configuration.getProperty("ch.exense.core.servicePackagePrefix", "ch.exense");
 
+		logger.info("Registering AbstractServices...");
+		//Not needed?
+		//resourceConfig.register(AbstractServices.class);
+		
 		// Allow multiple prefixes via configuration
 		for(String prefix : Arrays.asList(packageList.split(";"))) {
-			registerChildResource(AbstractServices.class, prefix);
+			registerChildResources(AbstractServices.class, prefix);
 		}
 
 	}
 
-	private <T> void registerChildResource(Class<T> parentClass, String prefix) {
+	private <T> void registerChildResources(Class<T> parentClass, String prefix) {
 		for(Class<? extends T> c : ClasspathUtils.getSubTypesOf(parentClass, prefix)) {
-			resourceConfig.register(c);
+			logger.info("Registering child resource of '"+parentClass+"' : '"+c+"'");
+			/*
+			 * Workaround due to injection conflict between ContainerRequestFilter and AbstractServices at registration time
+			 * We could make this better by:
+			 * 1) using a dedicated interface specifically for automatic registration (not implemented by filter classes): "Registrable" ?
+			 * 2) instead of filters extending directly AbstractServices, delegating access to context to a separate entity which could be injected into the filter
+			 */
+			//if(!ContainerRequestFilter.class.isAssignableFrom(c)) {
+				resourceConfig.register(c);
+			//}
 		}		
 	}
 

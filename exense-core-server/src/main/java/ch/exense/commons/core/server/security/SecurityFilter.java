@@ -12,7 +12,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.server.ExtendedUriInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
 import ch.exense.commons.core.web.container.ServerContext;
 import ch.exense.commons.core.web.services.AbstractServices;
 import ch.exense.commons.core.web.session.Session;
@@ -27,12 +30,16 @@ public class SecurityFilter extends AbstractServices implements ContainerRequest
 	private AuthenticationManager authenticationManager;
 	private AccessManager accessManager;
 	
+	private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
+	
 	@PostConstruct
 	public void init() throws Exception {
 		ServerContext context = getContext();
 		accessManager = context.get(AccessManager.class);
 		//TODO
 		//authenticationManager = context.get(AuthenticationManager.class);
+		
+		logger.info("SecurityFilter post constructed successfully.");
 	}
 	
 	@Override

@@ -33,7 +33,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
 import ch.exense.commons.core.server.security.Secured;
 import ch.exense.commons.core.user.Preferences;
 import ch.exense.commons.core.user.User;
@@ -51,10 +54,14 @@ public class AdminServices extends AbstractServices {
 	private static final String MAINTENANCE_MESSAGE_KEY = "maintenance_message";
 	private static final String MAINTENANCE_TOGGLE_KEY = "maintenance_message_enabled";
 	
+	private static final Logger logger = LoggerFactory.getLogger(AdminServices.class);
+	
 	@PostConstruct
 	public void init() throws Exception {
 		// TODO: move to "defaultly" registered classes in server main instead of instanciating accessor ourselves?
 		serverSettingsAccessor = (ServerSettingAccessor) getContext().get(ServerSettingAccessor.class.toString());
+		
+		logger.info("AdminServices post constructed successfully.");
 	}
 
 	@POST

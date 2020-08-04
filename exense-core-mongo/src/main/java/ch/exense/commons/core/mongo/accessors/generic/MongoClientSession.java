@@ -8,6 +8,8 @@ import java.util.List;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.marshall.jackson.JacksonMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
@@ -16,31 +18,15 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 
-import ch.exense.commons.app.Configuration;
-
 public class MongoClientSession implements Closeable {
 
 	protected MongoClient mongoClient;
 	
 	protected String db;
 	
-	protected Configuration configuration;
-
-	public MongoClientSession(Configuration configuration) {
-		super();
-		this.configuration = configuration;
-		
-		initMongoClient();
-	}
+	private static final Logger logger = LoggerFactory.getLogger(MongoClientSession.class);
 	
-	protected void initMongoClient() {
-		String host = configuration.getProperty("db.host");
-		Integer port = configuration.getPropertyAsInteger("db.port",27017);
-		String user = configuration.getProperty("db.username");
-		String pwd = configuration.getProperty("db.password");
-		int maxConnections = configuration.getPropertyAsInteger("db.maxConnections", 200);
-			
-		db = configuration.getProperty("db.database","exense");
+	public MongoClientSession(String host, int port, String user, String pwd, int maxConnections, String db) {
 
 		ServerAddress address = new ServerAddress(host, port);
 		List<MongoCredential> credentials = new ArrayList<>();
@@ -51,6 +37,8 @@ public class MongoClientSession implements Closeable {
 		MongoClientOptions.Builder clientOptions = new MongoClientOptions.Builder();
 		MongoClientOptions options = clientOptions.connectionsPerHost(maxConnections).build();
 		mongoClient = new MongoClient(address, credentials,options);
+		
+		logger.info("mongo client initialized at: " + host +":" + port + " -- "+db);
 		
 	}
 	
