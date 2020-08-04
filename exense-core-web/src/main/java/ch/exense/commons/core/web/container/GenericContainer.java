@@ -52,9 +52,13 @@ public abstract class GenericContainer{
 	
 	}
 	
-	protected abstract void postInitContext(ServerContext context);
+	public void setConfiguration(Configuration configuration) {
+		this.configuration = configuration;
+	}
+	
+	public abstract void postInitContext(ServerContext context);
 
-	protected abstract void initContext(ServerContext context);
+	public abstract void initContext(ServerContext context);
 
 
 	public void destroy() {
@@ -64,9 +68,9 @@ public abstract class GenericContainer{
 		return context;
 	}
 
-	protected abstract ContextHandler provideWebappContextHandler();
+	public abstract ContextHandler provideWebappContextHandler();
 
-	protected abstract void registerPotentialClasses(ResourceConfig resourceConfig);
+	public abstract void registerPotentialClasses(ResourceConfig resourceConfig);
 
-	protected abstract String provideServiceContextPath();	
+	public abstract String provideServiceContextPath();	
 }

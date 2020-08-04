@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package ch.exense.commons.core.web.container;
+package ch.exense.commons.core.web.server;
 
 import ch.exense.commons.app.Configuration;
+import ch.exense.commons.core.web.container.GenericContainer;
 
 public abstract class AutoconfigContainer extends GenericContainer{
 	

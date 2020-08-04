@@ -18,12 +18,10 @@
  *******************************************************************************/
 package ch.exense.commons.core.web.services;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import ch.exense.commons.app.Configuration;
-import ch.exense.commons.core.web.container.GenericContainer;
 import ch.exense.commons.core.web.container.ServerContext;
 import ch.exense.commons.core.web.session.Session;
 
@@ -32,24 +30,20 @@ public abstract class AbstractServices {
 	private static final String SESSION = "session";
 
 	@Inject
-	protected GenericContainer server;
+	protected Configuration configuration;
+
+	@Inject
+	protected ServerContext context;
 	
 	@Inject 
 	private HttpSession httpSession;
 	
-	protected Configuration configuration;
-
 	public AbstractServices() {
 		super();
 	}
 	
-	@PostConstruct
-	public void init() throws Exception {
-		configuration = server.getContext().getConfiguration();
-	}
-
 	protected ServerContext getContext() {
-		return server.getContext();
+		return context;
 	}
 
 	protected Session getSession() {

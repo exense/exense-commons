@@ -46,16 +46,15 @@ import ch.exense.commons.core.web.services.AbstractServices;
 @Path("admin")
 public class AdminServices extends AbstractServices {
 	
-	protected ServerSettingAccessor controllerSettingsAccessor;
+	protected ServerSettingAccessor serverSettingsAccessor;
 
 	private static final String MAINTENANCE_MESSAGE_KEY = "maintenance_message";
 	private static final String MAINTENANCE_TOGGLE_KEY = "maintenance_message_enabled";
 	
 	@PostConstruct
 	public void init() throws Exception {
-		super.init();
 		// TODO: move to "defaultly" registered classes in server main instead of instanciating accessor ourselves?
-		controllerSettingsAccessor = (ServerSettingAccessor) server.getContext().get(ServerSettingAccessor.class.toString());
+		serverSettingsAccessor = (ServerSettingAccessor) getContext().get(ServerSettingAccessor.class.toString());
 	}
 
 	@POST
@@ -130,7 +129,7 @@ public class AdminServices extends AbstractServices {
 	@GET
 	@Path("/maintenance/message")
 	public String getMaintenanceMessage() {
-		ServerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_MESSAGE_KEY);
+		ServerSetting setting = serverSettingsAccessor.getSettingByKey(MAINTENANCE_MESSAGE_KEY);
 		return setting!=null?setting.getValue():null;
 	}
 	
@@ -138,19 +137,19 @@ public class AdminServices extends AbstractServices {
 	@Secured(right="admin")
 	@Path("/maintenance/message")
 	public void setMaintenanceMessage(String message) {
-		ServerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_MESSAGE_KEY);
+		ServerSetting setting = serverSettingsAccessor.getSettingByKey(MAINTENANCE_MESSAGE_KEY);
 		if(setting == null) {
 			setting = new ServerSetting();
 			setting.setKey(MAINTENANCE_MESSAGE_KEY);
 		}
 		setting.setValue(message);
-		controllerSettingsAccessor.save(setting);
+		serverSettingsAccessor.save(setting);
 	}
 	
 	@GET
 	@Path("/maintenance/message/toggle")
 	public boolean getMaintenanceMessageToggle() {
-		ServerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_TOGGLE_KEY);
+		ServerSetting setting = serverSettingsAccessor.getSettingByKey(MAINTENANCE_TOGGLE_KEY);
 		return setting!=null?Boolean.parseBoolean(setting.getValue()):false;
 	}
 	
@@ -158,13 +157,13 @@ public class AdminServices extends AbstractServices {
 	@Secured(right="admin")
 	@Path("/maintenance/message/toggle")
 	public void setMaintenanceMessageToggle(boolean enabled) {
-		ServerSetting setting = controllerSettingsAccessor.getSettingByKey(MAINTENANCE_TOGGLE_KEY);
+		ServerSetting setting = serverSettingsAccessor.getSettingByKey(MAINTENANCE_TOGGLE_KEY);
 		if(setting == null) {
 			setting = new ServerSetting();
 			setting.setKey(MAINTENANCE_TOGGLE_KEY);
 		}
 		setting.setValue(Boolean.toString(enabled));
-		controllerSettingsAccessor.save(setting);
+		serverSettingsAccessor.save(setting);
 	}
 	
 	@POST
@@ -240,7 +239,7 @@ public class AdminServices extends AbstractServices {
 	}
 
 	private UserAccessor getUserAccessor() {
-		return (UserAccessor) server.getContext().get(UserAccessor.class.toString());
+		return (UserAccessor) getContext().get(UserAccessor.class.toString());
 	}
 
 	private void resetPwd(User user) {

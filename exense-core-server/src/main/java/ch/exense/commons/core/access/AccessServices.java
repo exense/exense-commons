@@ -43,8 +43,7 @@ public class AccessServices extends AbstractServices {
 	
 	@PostConstruct
 	public void init() throws Exception {
-		super.init();
-		ServerContext context = server.getContext();
+		ServerContext context = getContext();
 		
 		roleProvider = context.get(RoleProvider.class);
 		authenticationManager = context.get(AuthenticationManager.class);

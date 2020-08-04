@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package ch.exense.commons.core.web.container;
+package ch.exense.commons.core.web.server;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +61,9 @@ import com.google.common.util.concurrent.AbstractService;
 
 import ch.exense.commons.app.ArgumentParser;
 import ch.exense.commons.app.Configuration;
+import ch.exense.commons.core.web.container.GenericContainer;
+import ch.exense.commons.core.web.container.HttpSessionFactory;
+import ch.exense.commons.core.web.container.ServiceRegistrationCallback;
 import ch.exense.commons.core.web.services.AbstractServices;
 
 
@@ -244,20 +247,20 @@ public class ServerStarter {
 		try {
 			Set<Class<? extends GenericContainer>> serverClasses = getSubTypesOf(GenericContainer.class);
 			
-			// Evaluate concrete types first
 			for(Class clazz: serverClasses) {
+				// Evaluate concrete types only
 				 if(!Modifier.isAbstract( clazz.getModifiers())) {
-					 
+					 // We found a concrete Server implementation, lets try to load its argument-less constructor
 					 Constructor constructor = clazz.getConstructor();
 					 if(constructor == null) {
-						 // default to Autoconfig constructor
+						 // It doesn't have one: it must rely on Autoconfig
 						 if(configuration == null) {
 							 logger.info("Loading of configuration failed. Skipping starter '"+clazz.getName()+"'.");
 							 continue;
 						 }
 						 constructor = AutoconfigContainer.class.getConstructor();
 					 }else {
-						 // custom config case: nothing to do, we'll just invoke that constructor
+						 // It does have one: custom config case, nothing to do here, we'll just invoke that constructor
 					 }
 					 
 					 server = (GenericContainer) constructor.newInstance();

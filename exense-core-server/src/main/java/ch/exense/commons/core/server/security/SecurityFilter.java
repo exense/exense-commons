@@ -24,19 +24,15 @@ public class SecurityFilter extends AbstractServices implements ContainerRequest
 	@Inject
 	private ExtendedUriInfo extendendUriInfo;
 	
-	
-	
 	private AuthenticationManager authenticationManager;
 	private AccessManager accessManager;
 	
 	@PostConstruct
 	public void init() throws Exception {
-		super.init();
 		ServerContext context = getContext();
 		accessManager = context.get(AccessManager.class);
 		//TODO
 		//authenticationManager = context.get(AuthenticationManager.class);
-		
 	}
 	
 	@Override

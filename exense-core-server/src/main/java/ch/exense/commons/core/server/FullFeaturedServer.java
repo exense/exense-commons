@@ -20,7 +20,7 @@ package ch.exense.commons.core.server;
 
 import ch.exense.commons.app.Configuration;
 import ch.exense.commons.core.web.container.GenericContainer;
-import ch.exense.commons.core.web.container.ServerStarter;
+import ch.exense.commons.core.web.server.ServerStarter;
 
 public abstract class FullFeaturedServer extends GenericContainer{
 	
