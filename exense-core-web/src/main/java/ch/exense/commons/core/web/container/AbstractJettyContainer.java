@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.logging.LogManager;
 
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.container.ContainerRequestFilter;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -83,12 +82,16 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 		this.handlers = new ContextHandlerCollection();
 		this.resourceConfig = new ResourceConfig();
 
+		initialize_();
+		
 		// Concrete -- local responsibilities
 		configureDefaults();
 		
 		// Abstract  -- call child server impl method
-		configure();
+		configure_();
 	}
+
+	protected abstract void initialize_();
 
 	private void configureDefaults() {
 		
@@ -111,7 +114,7 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 
 	}
 
-	protected abstract void configure();
+	protected abstract void configure_();
 
 	@Override
 	public void start() throws Exception {

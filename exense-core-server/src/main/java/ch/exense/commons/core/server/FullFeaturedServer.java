@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
-import ch.exense.commons.core.server.security.SecurityFilter;
 import ch.exense.commons.core.web.container.AbstractJettyContainer;
 
 public abstract class FullFeaturedServer extends AbstractJettyContainer{
@@ -38,21 +37,19 @@ public abstract class FullFeaturedServer extends AbstractJettyContainer{
 	}
 	
 	@Override
-	protected void configure() {
-
+	final protected void initialize_() {
+		session = new MongoClientSession(configuration.getProperty("db.host", "localhost"), configuration.getPropertyAsInteger("db.port",27017),
+				configuration.getProperty("db.username"), configuration.getProperty("db.password"),
+				configuration.getPropertyAsInteger("db.maxConnections", 200), configuration.getProperty("db.database","exense"));
 	}
 	
 	@Override
 	protected void postStart() {
-		session = new MongoClientSession(configuration.getProperty("db.host", "localhost"), configuration.getPropertyAsInteger("db.port",27017),
-						configuration.getProperty("db.username"), configuration.getProperty("db.password"),
-						configuration.getPropertyAsInteger("db.maxConnections", 200), configuration.getProperty("db.database","exense"));
+
 	}
 	
 	@Override
-	public
-	final void registerExplicitly(ResourceConfig resourceConfig) {
-		//resourceConfig.registerClasses(SecurityFilter.class);
+	public final void registerExplicitly(ResourceConfig resourceConfig) {
 		registerExplicitly_(resourceConfig);
 	}
 
