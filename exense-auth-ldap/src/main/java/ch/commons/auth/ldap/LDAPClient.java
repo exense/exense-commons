@@ -37,40 +37,38 @@ public class LDAPClient implements PasswordDirectory{
 
 	private LdapContext ctx;
 	private String ldapBaseDn;
+	private Hashtable<String, Object> env = new Hashtable<String, Object>();
 
 	public LDAPClient(String server, String baseDn, String username, String password) throws NamingException {
-
-		this.ldapBaseDn = baseDn;
-
-		Hashtable<String, Object> env = new Hashtable<String, Object>();
-		env.put(Context.SECURITY_AUTHENTICATION, "simple");
-		env.put(Context.SECURITY_PRINCIPAL, username);
-		env.put(Context.SECURITY_CREDENTIALS, password);
-		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, server);
-
-		this.ctx = new InitialLdapContext(env, null);
+		buildClient(server, baseDn, username, password);
 	}
-	
+
 	public LDAPClient(String server, String baseDn, String username, String password, String pathToJks, String jksPassword) throws NamingException {
 
+		if(server != null && server.toLowerCase().contains("ldaps") // the "s" is only real proof that we want SSL
+				&& pathToJks != null && jksPassword != null && !pathToJks.isEmpty() && !jksPassword.isEmpty()) {
+			// Specify SSL
+			env.put(Context.SECURITY_PROTOCOL, "ssl");
+
+			System.setProperty("javax.net.ssl.trustStore", pathToJks);
+			System.setProperty("javax.net.ssl.trustStorePassword", jksPassword);
+
+			System.setProperty("javax.net.ssl.keyStore", pathToJks);
+			System.setProperty("javax.net.ssl.keyStorePassword", jksPassword);
+		}
+
+		buildClient(server, baseDn, username, password);
+	}
+	
+	private void buildClient(String server, String baseDn, String username, String password) throws NamingException {
 		this.ldapBaseDn = baseDn;
 
-		Hashtable<String, Object> env = new Hashtable<String, Object>();
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		env.put(Context.SECURITY_PRINCIPAL, username);
 		env.put(Context.SECURITY_CREDENTIALS, password);
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.PROVIDER_URL, server);
-		// Specify SSL
-		env.put(Context.SECURITY_PROTOCOL, "ssl");
 
-		System.setProperty("javax.net.ssl.trustStore", pathToJks);
-		System.setProperty("javax.net.ssl.trustStorePassword", jksPassword);
-		
-		System.setProperty("javax.net.ssl.keyStore", pathToJks);
-		System.setProperty("javax.net.ssl.keyStorePassword", jksPassword);
-		
 		this.ctx = new InitialLdapContext(env, null);
 	}
 
