@@ -29,21 +29,21 @@ public class LDAPClient implements PasswordDirectory{
 
 	public LDAPClient(String server, String baseDn, String username, String password, String pathToJks, String jksPassword) throws NamingException {
 
-		if(server != null && server.toLowerCase().contains("ldaps") // the "s" is only real proof that we want SSL
-				&& pathToJks != null && jksPassword != null && !pathToJks.isEmpty() && !jksPassword.isEmpty()) {
-			// Specify SSL
+		if(server != null && server.toLowerCase().contains("ldaps")) { // the "s" is only real proof that we want SSL
 			env.put(Context.SECURITY_PROTOCOL, "ssl");
 
-			System.setProperty("javax.net.ssl.trustStore", pathToJks);
-			System.setProperty("javax.net.ssl.trustStorePassword", jksPassword);
+			if(pathToJks != null && jksPassword != null && !pathToJks.isEmpty() && !jksPassword.isEmpty()){ // Use custom truststore
+				System.setProperty("javax.net.ssl.trustStore", pathToJks);
+				System.setProperty("javax.net.ssl.trustStorePassword", jksPassword);
 
-			System.setProperty("javax.net.ssl.keyStore", pathToJks);
-			System.setProperty("javax.net.ssl.keyStorePassword", jksPassword);
+				System.setProperty("javax.net.ssl.keyStore", pathToJks);
+				System.setProperty("javax.net.ssl.keyStorePassword", jksPassword);
+			}
 		}
 
 		buildClient(server, baseDn, username, password);
 	}
-	
+
 	private void buildClient(String server, String baseDn, String username, String password) throws NamingException {
 		this.ldapBaseDn = baseDn;
 
