@@ -2,10 +2,10 @@ package ch.exense.commons.core.server;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
-import ch.exense.commons.core.web.container.DemoServices;
+import ch.exense.commons.core.web.container.DemoPublicServices;
 import ch.exense.commons.core.web.container.ServerContext;
 
-public class TestServer extends FullFeaturedServer {
+public class TestServer extends AbstractStandardServer {
 
 	@Override
 	public void postInitContext(ServerContext context) {
@@ -23,7 +23,7 @@ public class TestServer extends FullFeaturedServer {
 	@Override
 	public void registerExplicitly_(ResourceConfig resourceConfig) {
 		// Not needed anymore due to registrable but leaving for tests of hard coded registration
-		resourceConfig.registerClasses(DemoServices.class);
+		resourceConfig.registerClasses(DemoPublicServices.class);
 	}
 
 	@Override

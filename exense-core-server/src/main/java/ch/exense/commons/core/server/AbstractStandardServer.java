@@ -56,7 +56,7 @@ import ch.exense.commons.core.web.services.AbstractServices;
  * - not yet implemented: automatic binding of (mongodb) accessors  
  */
 
-public abstract class FullFeaturedServer extends AbstractJettyContainer{
+public abstract class AbstractStandardServer extends AbstractJettyContainer{
 
 	protected MongoClientSession session;
 
@@ -68,9 +68,9 @@ public abstract class FullFeaturedServer extends AbstractJettyContainer{
 	
 	private RoleProvider roleProvider;
 
-	private static final Logger logger = LoggerFactory.getLogger(FullFeaturedServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractStandardServer.class);
 
-	public FullFeaturedServer() {
+	public AbstractStandardServer() {
 		super();
 	}
 

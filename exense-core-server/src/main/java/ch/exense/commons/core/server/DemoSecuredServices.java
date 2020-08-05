@@ -16,13 +16,13 @@ import ch.exense.commons.core.access.Secured;
 import ch.exense.commons.core.web.container.ServerContext;
 
 @Singleton
-@Path("/demo2")
-public class DemoRegistrable implements Registrable{
+@Path("/secured")
+public class DemoSecuredServices implements Registrable{
 
 	@Inject
 	ServerContext context;
 	
-	private static final Logger logger = LoggerFactory.getLogger(DemoRegistrable.class);
+	private static final Logger logger = LoggerFactory.getLogger(DemoSecuredServices.class);
 	
 	static {
 		logger.info("[Static]  Initializing demo registrable.");
@@ -38,7 +38,7 @@ public class DemoRegistrable implements Registrable{
 	//@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getOrders() {
-		return Response.status(200).entity("{ \"context\" : \""+context+"\"}").build();
+		return Response.status(200).entity("{ \"service\" : \"secured\", \"context\" : \""+context+"\"}").build();
 	}
 
 }

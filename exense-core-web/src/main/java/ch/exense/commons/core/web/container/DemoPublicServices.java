@@ -13,13 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-@Path("/demo")
-public class DemoServices{
+@Path("/public")
+public class DemoPublicServices{
 
 	@Inject
 	ServerContext context;
 	
-	private static final Logger logger = LoggerFactory.getLogger(DemoServices.class);
+	private static final Logger logger = LoggerFactory.getLogger(DemoPublicServices.class);
 	
 	static {
 		logger.info("[Static]  Initializing demo services.");
@@ -34,7 +34,7 @@ public class DemoServices{
 	//@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getOrders() {
-		return Response.status(200).entity("{ \"context\" : \""+context+"\"}").build();
+		return Response.status(200).entity("{ \"service\" : \"public\", \"context\" : \""+context+"\"}").build();
 	}
 
 }
