@@ -2,7 +2,8 @@ package ch.commons.auth.cyphers;
 
 public enum SupportedCypher {
     MD5(new MD5Encoder()),
-    SSHA(new SSHAEncoder());
+    SSHA(new SSHAEncoder()),
+	SHA512(new SHA512Encoder());
  
     public final CypherEncoder encoder;
  
@@ -16,6 +17,8 @@ public enum SupportedCypher {
     		return SupportedCypher.MD5;
     	case "SSHA":
     		return SupportedCypher.SSHA;
+    	case "SHA512":
+    		return SupportedCypher.SHA512;
     	default:
     		throw new Exception("Unsupported cypher type: " +cypher);
     	}

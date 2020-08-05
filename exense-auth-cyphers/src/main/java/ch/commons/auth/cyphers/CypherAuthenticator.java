@@ -39,7 +39,11 @@ public class CypherAuthenticator implements Authenticator{
 		if(cypher == null || cypher.isEmpty()) {
 			// Attempt to infer cypher from prefix of encoded password
 			if(! (encodedPassword.contains("{") && encodedPassword.contains("}"))){
-				throw new Exception("Cypher could not be implcitly inferred from password hash. Please set CypherEncoder explicitly.");
+				/**
+				 * Temporarily defaulting to SHA512 for implicit compatibility with legacy step implementation
+				 */
+				//throw new Exception("Cypher could not be implcitly inferred from password hash. Please set CypherEncoder explicitly.");
+				cypher = "SHA512";
 			}else {
 				cypher = encodedPassword.split("\\{")[1].split("\\}")[0];
 			}
@@ -47,7 +51,10 @@ public class CypherAuthenticator implements Authenticator{
 
 		SupportedCypher supportedCypher = SupportedCypher.forName(cypher);
 		
-		String persisted = encodedPassword.substring(cypher.length() + 2);
+		/**
+		 * Temporarily handling special case for legacy step implementation
+		 */
+		String persisted = "SHA512".equals(cypher) ? encodedPassword : encodedPassword.substring(cypher.length() + 2);
 		String provided = supportedCypher.encoder.encode(credentials.getPassword(), persisted, this.charset);
 		boolean authResult = persisted.equals(provided);
 		

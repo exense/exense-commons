@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import ch.commons.auth.cyphers.SupportedCypher;
 import ch.exense.commons.core.mongo.accessors.generic.AbstractCRUDAccessor;
 import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
 import ch.exense.commons.core.user.User;
@@ -35,7 +36,12 @@ public class UserAccessorImpl extends AbstractCRUDAccessor<User> implements User
 	}
 	
 	public static String encryptPwd(String pwd) {
-		return DigestUtils.sha512Hex(pwd);
+		try {
+			return SupportedCypher.SHA512.encoder.encode(pwd, null, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "Password encryption failed.";
 	}
 
 }

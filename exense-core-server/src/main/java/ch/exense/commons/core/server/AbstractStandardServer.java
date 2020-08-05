@@ -20,7 +20,6 @@ package ch.exense.commons.core.server;
 
 import java.util.Arrays;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 import ch.commons.auth.Authenticator;
+import ch.commons.auth.cyphers.SupportedCypher;
 import ch.exense.commons.app.ClasspathUtils;
 import ch.exense.commons.core.access.AccessManager;
 import ch.exense.commons.core.access.AccessManagerImpl;
@@ -84,7 +84,7 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 
 		//TODO: automatically instantiate all Accessors with session object and bind them for injection
 		userAccessor = new UserAccessorImpl(session);
-		super.context.put(UserAccessorImpl.class.getName(), userAccessor);
+		super.context.put(UserAccessor.class.getName(), userAccessor);
 
 		//temporary until initialization component supported
 		initAdminIfNecessary();
@@ -112,7 +112,11 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 		if(userAccessor.getByUsername("admin") == null) {
 			User admin = new User();
 			admin.setUsername("admin");
-			admin.setPassword(DigestUtils.sha512Hex("init"));
+			try {
+				admin.setPassword(SupportedCypher.SHA512.encoder.encode("init", null, null));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			admin.setRole("admin");
 			userAccessor.save(admin);
 		}

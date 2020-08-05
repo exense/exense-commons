@@ -31,13 +31,13 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
-			<artifactId>exense-basic-commons</artifactId>
+			<artifactId>exense-auth-cyphers</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.9</version>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-basic-commons</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>

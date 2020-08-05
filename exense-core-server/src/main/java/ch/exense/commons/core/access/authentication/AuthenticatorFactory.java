@@ -30,6 +30,7 @@ public class AuthenticatorFactory {
 		SupportedAuthenticators authenticatorType = SupportedAuthenticators.forName(authTypeProp);
 
 		if(authenticatorType == null) {
+			throw new AuthenticatorException("Unsupported authenticator type: " + authTypeProp);
 		}
 
 		switch(authenticatorType){
