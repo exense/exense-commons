@@ -1,4 +1,4 @@
-package ch.exense.commons.core.access;
+package ch.exense.commons.core.access.role;
 
 import java.util.List;
 

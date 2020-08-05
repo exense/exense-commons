@@ -1,4 +1,4 @@
-package ch.exense.commons.core.access;
+package ch.exense.commons.core.access.role;
 
 import ch.exense.commons.core.user.ExternalUser;
 import ch.exense.commons.core.user.User;

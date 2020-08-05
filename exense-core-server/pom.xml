@@ -34,6 +34,21 @@
 			<artifactId>exense-core-web</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+				<dependency>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-auth-core</artifactId>
+			<version>0.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-auth-cyphers</artifactId>
+			<version>0.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-auth-ldap</artifactId>
+			<version>0.0.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>

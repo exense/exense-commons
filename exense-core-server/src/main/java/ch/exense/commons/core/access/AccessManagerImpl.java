@@ -3,6 +3,9 @@ package ch.exense.commons.core.access;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import ch.exense.commons.core.access.role.Role;
+import ch.exense.commons.core.access.role.RoleProvider;
+import ch.exense.commons.core.access.role.RoleResolver;
 import ch.exense.commons.core.accessors.AbstractOrganizableObject;
 import ch.exense.commons.core.web.session.Session;
 

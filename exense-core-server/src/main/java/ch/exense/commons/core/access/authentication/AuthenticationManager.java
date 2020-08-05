@@ -1,4 +1,4 @@
-package ch.exense.commons.core.access;
+package ch.exense.commons.core.access.authentication;
 
 import java.util.ArrayList;
 import java.util.List;

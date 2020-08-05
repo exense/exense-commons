@@ -17,6 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import ch.commons.auth.Credentials;
 import ch.exense.commons.app.Configuration;
+import ch.exense.commons.core.access.authentication.AuthenticationManager;
+import ch.exense.commons.core.access.role.Role;
+import ch.exense.commons.core.access.role.RoleProvider;
 import ch.exense.commons.core.accessors.AbstractOrganizableObject;
 import ch.exense.commons.core.user.User;
 import ch.exense.commons.core.web.services.AbstractServices;

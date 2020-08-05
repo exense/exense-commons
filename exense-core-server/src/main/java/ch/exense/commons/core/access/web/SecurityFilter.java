@@ -1,4 +1,4 @@
-package ch.exense.commons.core.access;
+package ch.exense.commons.core.access.web;
 
 import java.io.IOException;
 
@@ -15,6 +15,9 @@ import org.glassfish.jersey.server.ExtendedUriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.exense.commons.core.access.AccessManager;
+import ch.exense.commons.core.access.Secured;
+import ch.exense.commons.core.access.authentication.AuthenticationManager;
 import ch.exense.commons.core.web.services.AbstractServices;
 import ch.exense.commons.core.web.session.Session;
 

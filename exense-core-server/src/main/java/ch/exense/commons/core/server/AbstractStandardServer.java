@@ -28,14 +28,16 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
+import ch.commons.auth.Authenticator;
 import ch.exense.commons.app.ClasspathUtils;
 import ch.exense.commons.core.access.AccessManager;
 import ch.exense.commons.core.access.AccessManagerImpl;
-import ch.exense.commons.core.access.AuthenticationManager;
-import ch.exense.commons.core.access.DefaultAuthenticator;
-import ch.exense.commons.core.access.DefaultRoleProvider;
-import ch.exense.commons.core.access.RoleProvider;
-import ch.exense.commons.core.access.RoleResolverImpl;
+import ch.exense.commons.core.access.authentication.AuthenticationManager;
+import ch.exense.commons.core.access.authentication.AuthenticatorFactory;
+import ch.exense.commons.core.access.authentication.AuthenticatorFactory.AuthenticatorException;
+import ch.exense.commons.core.access.role.DefaultRoleProvider;
+import ch.exense.commons.core.access.role.RoleProvider;
+import ch.exense.commons.core.access.role.RoleResolverImpl;
 import ch.exense.commons.core.mongo.accessors.concrete.UserAccessorImpl;
 import ch.exense.commons.core.mongo.accessors.generic.MongoClientSession;
 import ch.exense.commons.core.user.User;
@@ -46,14 +48,14 @@ import ch.exense.commons.core.web.services.AbstractServices;
 
 /**
  * This class builds upon the abstract container to provide the following additional services:
- * - done: automatic handling and creation of the mongo db session based on config object and variables convention
- * - done: automatic registration of AbstractServices
- * - done: automatic registration of web services implementing Registrable
- * - in progress: automatic registration of user management services
- * - in progress: automatic registration of login service, security filter
- * - in progress: automatic registration of mongo + ldap authenticators
- * - not yet implemented: automatic registration of mongo + ldap role managers 
- * - not yet implemented: automatic binding of (mongodb) accessors  
+ * automatic handling and creation of the mongo db session based on config object and variables convention
+ * automatic registration of AbstractServices
+ * automatic registration of web services implementing Registrable
+ * automatic registration of default user and role management services
+ * automatic registration of login service, security filter (mongo impl)
+ * (in progress) support of ldap auth (and config-based authenticator factory)
+ * (in progress) support of generic role mgmt model 
+ * (in progress) automatic binding of (mongodb) accessors
  */
 
 public abstract class AbstractStandardServer extends AbstractJettyContainer{
@@ -84,13 +86,26 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 		userAccessor = new UserAccessorImpl(session);
 		super.context.put(UserAccessorImpl.class.getName(), userAccessor);
 
+		//temporary until initialization component supported
 		initAdminIfNecessary();
 		
-		authenticationManager = new AuthenticationManager(configuration, new DefaultAuthenticator(userAccessor), userAccessor);
+		initializeAuthentication();
 
 		roleProvider = new DefaultRoleProvider();
 		
 		accessManager = new AccessManagerImpl(roleProvider, new RoleResolverImpl(userAccessor));
+	}
+
+	private void initializeAuthentication() {
+		Authenticator authenticator;
+		try {
+			authenticator = new AuthenticatorFactory(super.configuration, super.context).getAuthenticator();
+		} catch (AuthenticatorException e) {
+			e.printStackTrace();
+			throw new RuntimeException("A critical exception has occured, server initialization failed.", e);
+		}
+		
+		authenticationManager = new AuthenticationManager(configuration, authenticator, userAccessor);
 	}
 
 	private void initAdminIfNecessary() {
@@ -113,8 +128,6 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 		String packageList = configuration.getProperty("ch.exense.core.services.packagePrefix", "ch.exense");
 
 		logger.info("Registering AbstractServices.");
-		//Not needed?
-		//resourceConfig.register(AbstractServices.class);
 
 		// Allow multiple prefixes via configuration
 		for(String prefix : Arrays.asList(packageList.split(";"))) {
@@ -149,8 +162,10 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 		registerExplicitly_(resourceConfig);
 	}
 
+	//TODO: remove Registrable interface and register classes marked as @Singleton instead?
 	private void registerRegistrables(ResourceConfig resourceConfig) {
-		for (Class<? extends Registrable> r: ClasspathUtils.getAllConcreteSubTypesOf(Registrable.class, "ch.exense")) {
+		String packagePrefix = configuration.getProperty("ch.exense.core.registrable.packagePrefix", "ch.exense");
+		for (Class<? extends Registrable> r: ClasspathUtils.getAllConcreteSubTypesOf(Registrable.class, packagePrefix)) {
 			logger.info("Registering Registrable class '"+r+"'");
 			resourceConfig.registerClasses(r);
 		}
