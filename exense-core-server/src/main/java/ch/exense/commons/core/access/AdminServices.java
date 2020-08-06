@@ -36,9 +36,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.exense.commons.core.user.Preferences;
-import ch.exense.commons.core.user.User;
-import ch.exense.commons.core.user.UserAccessor;
+import ch.exense.commons.core.model.user.Preferences;
+import ch.exense.commons.core.model.user.User;
+import ch.exense.commons.core.model.user.UserAccessor;
 import ch.exense.commons.core.web.container.ServerSetting;
 import ch.exense.commons.core.web.container.ServerSettingAccessor;
 import ch.exense.commons.core.web.services.AbstractServices;

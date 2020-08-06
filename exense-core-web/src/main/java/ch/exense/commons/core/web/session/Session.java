@@ -2,7 +2,7 @@ package ch.exense.commons.core.web.session;
 
 
 
-import ch.exense.commons.core.user.User;
+import ch.exense.commons.core.model.user.User;
 import ch.exense.commons.core.web.container.AbstractContext;
 
 public class Session extends AbstractContext {

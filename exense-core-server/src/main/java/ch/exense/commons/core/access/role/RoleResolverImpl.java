@@ -1,8 +1,8 @@
 package ch.exense.commons.core.access.role;
 
-import ch.exense.commons.core.user.ExternalUser;
-import ch.exense.commons.core.user.User;
-import ch.exense.commons.core.user.UserAccessor;
+import ch.exense.commons.core.model.user.ExternalUser;
+import ch.exense.commons.core.model.user.User;
+import ch.exense.commons.core.model.user.UserAccessor;
 import ch.exense.commons.core.web.session.Session;
 
 public class RoleResolverImpl implements RoleResolver {

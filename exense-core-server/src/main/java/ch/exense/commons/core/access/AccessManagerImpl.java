@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import ch.exense.commons.core.access.role.Role;
 import ch.exense.commons.core.access.role.RoleProvider;
 import ch.exense.commons.core.access.role.RoleResolver;
-import ch.exense.commons.core.accessors.AbstractOrganizableObject;
+import ch.exense.commons.core.model.accessors.AbstractOrganizableObject;
 import ch.exense.commons.core.web.session.Session;
 
 public class AccessManagerImpl implements AccessManager {

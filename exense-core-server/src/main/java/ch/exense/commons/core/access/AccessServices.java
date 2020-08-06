@@ -20,8 +20,8 @@ import ch.exense.commons.app.Configuration;
 import ch.exense.commons.core.access.authentication.AuthenticationManager;
 import ch.exense.commons.core.access.role.Role;
 import ch.exense.commons.core.access.role.RoleProvider;
-import ch.exense.commons.core.accessors.AbstractOrganizableObject;
-import ch.exense.commons.core.user.User;
+import ch.exense.commons.core.model.accessors.AbstractOrganizableObject;
+import ch.exense.commons.core.model.user.User;
 import ch.exense.commons.core.web.services.AbstractServices;
 import ch.exense.commons.core.web.session.Session;
 

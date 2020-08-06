@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import ch.commons.auth.Authenticator;
 import ch.commons.auth.ldap.LDAPClient;
 import ch.exense.commons.app.Configuration;
-import ch.exense.commons.core.user.UserAccessor;
+import ch.exense.commons.core.model.user.UserAccessor;
 import ch.exense.commons.core.web.container.ServerContext;
 
 public class AuthenticatorFactory {

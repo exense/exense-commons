@@ -8,8 +8,8 @@ import java.util.Spliterator;
 
 import org.bson.types.ObjectId;
 
-import ch.exense.commons.core.user.User;
-import ch.exense.commons.core.user.UserAccessor;
+import ch.exense.commons.core.model.user.User;
+import ch.exense.commons.core.model.user.UserAccessor;
 
 public class UserAccessorDirectory implements UserAccessorDirectoryI{
 	

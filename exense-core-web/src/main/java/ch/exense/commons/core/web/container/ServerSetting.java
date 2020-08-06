@@ -1,6 +1,6 @@
 package ch.exense.commons.core.web.container;
 
-import ch.exense.commons.core.accessors.AbstractIdentifiableObject;
+import ch.exense.commons.core.model.accessors.AbstractIdentifiableObject;
 
 public class ServerSetting extends AbstractIdentifiableObject {
 
