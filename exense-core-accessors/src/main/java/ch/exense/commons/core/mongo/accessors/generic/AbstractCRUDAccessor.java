@@ -91,8 +91,12 @@ public class AbstractCRUDAccessor<T extends AbstractIdentifiableObject> extends 
 
 	protected String queryByAttributes(Map<String, String> attributes, String attributesMapKey) {
 		JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
+		String prefix = "";
+		if(attributesMapKey != null && !attributesMapKey.isEmpty()) {
+			prefix = attributesMapKey + ".";
+		}s
 		for(String key:attributes.keySet()) {
-			builder.add(attributesMapKey+"."+key, attributes.get(key));
+			builder.add(prefix+key, attributes.get(key));
 		}
 
 		String query = builder.build().toString();
