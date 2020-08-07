@@ -41,13 +41,14 @@ public class AbstractCRUDAccessor<T extends AbstractIdentifiableObject> extends 
 	protected MongoCollection collection;
 	
 	private Class<T> entityClass;
-	
-	protected static JsonProvider jsonProvider = JsonProvider.provider();
+
+	protected JsonProvider jsonProvider;
 		
 	public AbstractCRUDAccessor(MongoClientSession clientSession, String collectionName, Class<T> entityClass) {
 		super(clientSession);
 		this.entityClass = entityClass;
 		collection = getJongoCollection(collectionName);
+		jsonProvider = JsonProvider.provider();
 	}
 	
 	@Override
@@ -129,5 +130,9 @@ public class AbstractCRUDAccessor<T extends AbstractIdentifiableObject> extends 
 		ArrayList<T> result = new ArrayList<T>();
 		collection.find().sort("{_id:-1}").skip(skip).limit(limit).as(entityClass).forEachRemaining(e->result.add(e));
 		return result;
+	}
+	
+	public Class<T> getEntityClass() {
+		return entityClass;
 	}
 }

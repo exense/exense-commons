@@ -18,7 +18,11 @@
  *******************************************************************************/
 package ch.exense.commons.core.server;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -38,10 +42,12 @@ import ch.exense.commons.core.access.authentication.AuthenticatorFactory.Authent
 import ch.exense.commons.core.access.role.DefaultRoleProvider;
 import ch.exense.commons.core.access.role.RoleProvider;
 import ch.exense.commons.core.access.role.RoleResolverImpl;
+import ch.exense.commons.core.model.accessors.AbstractIdentifiableObject;
 import ch.exense.commons.core.model.user.User;
 import ch.exense.commons.core.model.user.UserAccessor;
 import ch.exense.commons.core.mongo.MongoClientSession;
 import ch.exense.commons.core.mongo.accessors.concrete.UserAccessorImpl;
+import ch.exense.commons.core.mongo.accessors.generic.AbstractCRUDAccessor;
 import ch.exense.commons.core.web.container.AbstractJettyContainer;
 import ch.exense.commons.core.web.container.JacksonMapperProvider;
 import ch.exense.commons.core.web.services.AbstractServices;
@@ -53,9 +59,10 @@ import ch.exense.commons.core.web.services.AbstractServices;
  * automatic registration of web services implementing Registrable
  * automatic registration of default user and role management services
  * automatic registration of login service, security filter (mongo impl)
- * (in progress) support of ldap auth (and config-based authenticator factory)
- * (in progress) support of generic role mgmt model 
- * (in progress) automatic binding of (mongodb) accessors
+ * support of ldap auth (and config-based authenticator factory)
+ * automatic binding/registration of (mongodb) accessors
+ * TODO: support of generic role mgmt model
+ * TODO: support of plugin mechanism
  */
 
 public abstract class AbstractStandardServer extends AbstractJettyContainer{
@@ -82,21 +89,11 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 				configuration.getProperty("db.username"), configuration.getProperty("db.password"),
 				configuration.getPropertyAsInteger("db.maxConnections", 200), configuration.getProperty("db.database","exense"));
 
-		//TODO: automatically instantiate all Accessors with session object and bind them for injection
-		userAccessor = new UserAccessorImpl(session);
-		super.context.put(UserAccessor.class.getName(), userAccessor);
-
-		//temporary until initialization component supported
-		initAdminIfNecessary();
-		
-		initializeAuthentication();
-
-		roleProvider = new DefaultRoleProvider();
-		
-		accessManager = new AccessManagerImpl(roleProvider, new RoleResolverImpl(userAccessor));
+		initAllAccessors();
+		initializeAccess();		
 	}
 
-	private void initializeAuthentication() {
+	private void initializeAccess() {
 		Authenticator authenticator;
 		try {
 			authenticator = new AuthenticatorFactory(super.configuration, super.context).getAuthenticator();
@@ -106,9 +103,11 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 		}
 		
 		authenticationManager = new AuthenticationManager(configuration, authenticator, userAccessor);
+		roleProvider = new DefaultRoleProvider();
+		accessManager = new AccessManagerImpl(roleProvider, new RoleResolverImpl(userAccessor));
 	}
 
-	private void initAdminIfNecessary() {
+	private void initAdminUserIfNecessary() {
 		if(userAccessor.getByUsername("admin") == null) {
 			User admin = new User();
 			admin.setUsername("admin");
@@ -124,7 +123,7 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 
 	@Override
 	protected void postStart() {
-
+		initAdminUserIfNecessary();
 	}
 
 	@Override
@@ -159,12 +158,50 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 				bind(roleProvider).to(RoleProvider.class);
 				bind(authenticationManager).to(AuthenticationManager.class);
 				bind(accessManager).to(AccessManager.class);
+				
+				/**
+				 * TODO: autobind accessor objects to their respective interfaces
+				 * using a <Entity> -> <Entity>Accessor naming convention
+				 */
+				//for(AbstractCRUDAccessor accessor : initAndGetAllAccessors()) {
+				//	bind(accessor).to(resolveTypedInterface(accessor.getClass().getName()));
+				//}
 			}
 		});
 
 		// abstract call, opportunity to expand for children classes
 		registerExplicitly_(resourceConfig);
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void initAllAccessors(){
+		Set<Class> accessorTypes = ClasspathUtils.getAllConcreteSubTypesOf(AbstractCRUDAccessor.class, "ch.exense");
+		for(Class clazz : accessorTypes) {
+			Constructor constructor;
+			try {
+				constructor = clazz.getConstructor(MongoClientSession.class);
+			if(constructor != null) {
+				new UserAccessorImpl(session);
+				AbstractCRUDAccessor accessor = (AbstractCRUDAccessor) constructor.newInstance(session);
+				/*
+				 * Standard accessors can either be bound explicitly and then injected directly into service
+				 * or services can just derive them from the ServerContext in a PostConstruct
+				 * 
+				 * TODO: we could decide to rely on the <Entity> -> <Entity>Accessor naming convention
+				 * to bind them automatically to a standard, yet entity-specific interface in the future
+				 * 
+				 */
+				String entityClass = accessor.getEntityClass().getName();
+				context.put(entityClass, accessor);
+				logger.info("Accessor '"+accessor.getClass() + "' for entity '"+entityClass+"' was found and put into context.");
+			}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+	}
+
 
 	//TODO: remove Registrable interface and register classes marked as @Singleton instead?
 	private void registerRegistrables(ResourceConfig resourceConfig) {

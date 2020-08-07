@@ -25,8 +25,23 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.json</groupId>
+			<artifactId>javax.json-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.json</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
 			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-core-mongo</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.exense.commons</groupId>
+			<artifactId>exense-core-serialization</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
