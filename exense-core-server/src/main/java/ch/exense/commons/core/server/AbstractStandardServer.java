@@ -20,8 +20,6 @@ package ch.exense.commons.core.server;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -42,11 +40,9 @@ import ch.exense.commons.core.access.authentication.AuthenticatorFactory.Authent
 import ch.exense.commons.core.access.role.DefaultRoleProvider;
 import ch.exense.commons.core.access.role.RoleProvider;
 import ch.exense.commons.core.access.role.RoleResolverImpl;
-import ch.exense.commons.core.model.accessors.AbstractIdentifiableObject;
 import ch.exense.commons.core.model.user.User;
 import ch.exense.commons.core.model.user.UserAccessor;
 import ch.exense.commons.core.mongo.MongoClientSession;
-import ch.exense.commons.core.mongo.accessors.concrete.UserAccessorImpl;
 import ch.exense.commons.core.mongo.accessors.generic.AbstractCRUDAccessor;
 import ch.exense.commons.core.web.container.AbstractJettyContainer;
 import ch.exense.commons.core.web.container.JacksonMapperProvider;
@@ -73,8 +69,6 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 
 	private AccessManager accessManager;
 
-	private UserAccessor userAccessor;
-	
 	private RoleProvider roleProvider;
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractStandardServer.class);
@@ -90,10 +84,13 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 				configuration.getPropertyAsInteger("db.maxConnections", 200), configuration.getProperty("db.database","exense"));
 
 		initAllAccessors();
-		initializeAccess();		
+		// Relying explicitly on User Accessor for certain access features for now
+		UserAccessor accessor = (UserAccessor)context.get(User.class.getName());
+		initializeAccess(accessor);
+		initAdminUserIfNecessary(accessor);
 	}
 
-	private void initializeAccess() {
+	private void initializeAccess(UserAccessor userAccessor) {
 		Authenticator authenticator;
 		try {
 			authenticator = new AuthenticatorFactory(super.configuration, super.context).getAuthenticator();
@@ -107,8 +104,8 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 		accessManager = new AccessManagerImpl(roleProvider, new RoleResolverImpl(userAccessor));
 	}
 
-	private void initAdminUserIfNecessary() {
-		if(userAccessor.getByUsername("admin") == null) {
+	private void initAdminUserIfNecessary(UserAccessor accessor) {
+		if(accessor.getByUsername("admin") == null) {
 			User admin = new User();
 			admin.setUsername("admin");
 			try {
@@ -117,13 +114,12 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 				e.printStackTrace();
 			}
 			admin.setRole("admin");
-			userAccessor.save(admin);
+			accessor.save(admin);
 		}
 	}
 
 	@Override
 	protected void postStart() {
-		initAdminUserIfNecessary();
 	}
 
 	@Override
@@ -152,9 +148,6 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 		resourceConfig.register(new AbstractBinder() {	
 			@Override
 			protected void configure() {
-				//TODO: automatically instantiate all Accessors with session object and bind them for injection
-				bind(userAccessor).to(UserAccessor.class);
-
 				bind(roleProvider).to(RoleProvider.class);
 				bind(authenticationManager).to(AuthenticationManager.class);
 				bind(accessManager).to(AccessManager.class);
@@ -181,7 +174,6 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 			try {
 				constructor = clazz.getConstructor(MongoClientSession.class);
 			if(constructor != null) {
-				new UserAccessorImpl(session);
 				AbstractCRUDAccessor accessor = (AbstractCRUDAccessor) constructor.newInstance(session);
 				/*
 				 * Standard accessors can either be bound explicitly and then injected directly into service
