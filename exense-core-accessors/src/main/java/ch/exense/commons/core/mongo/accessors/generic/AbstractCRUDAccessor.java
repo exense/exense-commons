@@ -94,7 +94,7 @@ public class AbstractCRUDAccessor<T extends AbstractIdentifiableObject> extends 
 		String prefix = "";
 		if(attributesMapKey != null && !attributesMapKey.isEmpty()) {
 			prefix = attributesMapKey + ".";
-		}s
+		}
 		for(String key:attributes.keySet()) {
 			builder.add(prefix+key, attributes.get(key));
 		}
