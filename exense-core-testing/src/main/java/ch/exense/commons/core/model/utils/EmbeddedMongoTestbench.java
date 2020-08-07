@@ -1,49 +1,45 @@
 package ch.exense.commons.core.model.utils;
 
+import java.io.IOException;
+
 import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.exense.commons.core.mongo.MongoClientSession;
 
-public class EmbeddedMongoTestbench{
+public abstract class EmbeddedMongoTestbench{
 
 	private static EmbeddedMongo mongo = EmbeddedMongo.getInstance();
 	protected static MongoClientSession session;
+
+	private static final Logger logger = LoggerFactory.getLogger(EmbeddedMongoTestbench.class);
+
+	protected static int port = 27987;
 	
-	public EmbeddedMongoTestbench() {
-	}
-
-
 	@BeforeClass
 	public static void init(){
+		logger.info("initializing mongo backend & client");
 		try {
 			// arbitrary port should be exposed through dev profile (i.e our dynamic external test inputs)
-			int port = 27987;
 			mongo.start("testing", "localhost", port);
-			session = new MongoClientSession("localhost", 27017, null, null, port, "testing");
+			session = new MongoClientSession("localhost", port, null, null, 200, "testing");
+			session.getMongoDatabase().drop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	@Before
-	public void before(){
-	}
-	
+
 	@AfterClass
 	public static void exit() {
+		logger.info("terminating mongo backend & client");
+		try {
+			session.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		mongo.stop();
 	}
 
-	@Test
-	public void checkTamperedLicense() throws Exception {
-	}
-
-	@Test
-	public void checkOldschoolLicenseWorks() throws Exception {
-		Assert.assertTrue(true);
-	}
 }
