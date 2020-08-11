@@ -1,7 +1,6 @@
 package ch.exense.commons.core.model.accessors;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -117,5 +116,10 @@ public class InMemoryCRUDAccessor<T extends AbstractIdentifiableObject> implemen
 		} else {
 			return new ArrayList<>();
 		}
+	}
+
+	@Override
+	public Collection<T> getAllAsCollection() {
+		return map.values();
 	}
 }

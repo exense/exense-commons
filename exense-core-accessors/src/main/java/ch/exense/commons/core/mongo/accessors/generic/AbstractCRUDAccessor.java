@@ -19,9 +19,12 @@
 package ch.exense.commons.core.mongo.accessors.generic;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Spliterator;
 
 import javax.json.JsonObjectBuilder;
@@ -106,6 +109,13 @@ public class AbstractCRUDAccessor<T extends AbstractIdentifiableObject> extends 
 	@Override
 	public Iterator<T> getAll() {
 		return collection.find().as(entityClass);
+	}
+	
+	@Override
+	public Collection<T> getAllAsCollection() {
+		Set<T> all = new HashSet<>();
+		getAll().forEachRemaining(t -> all.add(t));
+		return all;
 	}
 	
 	@Override

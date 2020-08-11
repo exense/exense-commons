@@ -1,5 +1,6 @@
 package ch.exense.commons.core.model.accessors;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,4 +71,11 @@ public interface Accessor<T extends AbstractIdentifiableObject> {
 	 * @return a {@link List} containing the objects of the specified range
 	 */
 	List<T> getRange(int skip, int limit);
+
+	/**
+	 * Load all object in memory and return them as a collection
+	 * 
+	 * @return a {@link List} containing the objects of the specified range
+	 */
+	Collection<T> getAllAsCollection();
 }

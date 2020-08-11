@@ -94,4 +94,9 @@ public class UserAccessorDirectory implements UserAccessorDirectoryI{
 		return userAccessor.getByUsername(username).getPassword();
 	}
 
+	@Override
+	public Collection<User> getAllAsCollection() {
+		return userAccessor.getAllAsCollection();
+	}
+
 }
