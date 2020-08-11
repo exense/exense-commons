@@ -66,7 +66,7 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 	protected Configuration configuration;
 
 	protected ServerContext context;
-	
+
 	protected ServiceRegistrationCallback serviceRegistrationCallback;
 
 	private ContextHandlerCollection handlers;
@@ -87,10 +87,10 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 		this.resourceConfig = new ResourceConfig();
 
 		initialize_();
-		
+
 		// Concrete -- local responsibilities
 		configureDefaults();
-		
+
 		// Abstract  -- call child server impl method
 		configure_();
 	}
@@ -98,9 +98,9 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 	protected abstract void initialize_();
 
 	private void configureDefaults() {
-		
+
 		setupLogging();
-		
+
 		setupRegistrationCallbacks();
 
 		registerDefaultResources();
@@ -123,14 +123,14 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 		jettyServer = new Server();
 
 		setupConnectors();
-		
+
 		addServletContainer();
-		
+
 		jettyServer.setHandler(handlers);
 		jettyServer.start();
-		
+
 		postStart();
-		
+
 		jettyServer.join();	
 
 	}
@@ -148,7 +148,7 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 				.proxy(true).proxyForSameScope(false).in(RequestScoped.class);
 			}
 		});
-		
+
 	}
 
 	private synchronized void addHandler(Handler handler) {
@@ -181,12 +181,17 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 		if(providedWebappFolderName != null) {
 			ContextHandler webAppHandler = new ContextHandler("/");
 			ResourceHandler bb = new ResourceHandler();
-			bb.setResourceBase(Resource.newClassPathResource(providedWebappFolderName).getURI().toString());
-			webAppHandler.setHandler(bb);
-			addHandler(webAppHandler);
-			logger.info("Will deploy webapp based on folder '"+providedWebappFolderName+"' on root context handler.");
+			Resource webappRes = Resource.newClassPathResource(providedWebappFolderName);
+			if(webappRes == null) {
+				logger.info("No webapp folder with name '"+providedWebappFolderName+"' found on classpath. Skipping.");
+			}else {
+				bb.setResourceBase(webappRes.getURI().toString());
+				webAppHandler.setHandler(bb);
+				addHandler(webAppHandler);
+				logger.info("Will deploy webapp based on folder '"+providedWebappFolderName+"' on root context handler.");
+			}
 		}else {
-			logger.info("No webapp will be deployed.");
+			logger.info("No webapp will be deployed (provided webapp folder was null).");
 		}
 	}
 
@@ -296,7 +301,7 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 	protected <T> void registerChildResources(Class<T> parentClass, String prefix) {
 		for(Class<? extends T> c : ClasspathUtils.getSubTypesOf(parentClass, prefix)) {
 			logger.info("Registering child resource of '"+parentClass+"' : '"+c+"'");
-				resourceConfig.register(c);
+			resourceConfig.register(c);
 		}		
 	}
 
