@@ -25,6 +25,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-core-mongo</artifactId>
 			<version>${project.version}</version>
@@ -39,20 +44,20 @@
 			<artifactId>exense-core-web</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-auth-core</artifactId>
-			<version>0.0.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-auth-cyphers</artifactId>
-			<version>0.0.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-auth-ldap</artifactId>
-			<version>0.0.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
