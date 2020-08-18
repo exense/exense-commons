@@ -13,7 +13,7 @@ import ch.exense.commons.core.mongo.MongoClientSession;
 
 public abstract class EmbeddedMongoTestbench {
 
-	private static EmbeddedMongo mongo = EmbeddedMongo.getInstance();
+	private static EmbeddedMongo mongo;
 	protected static MongoClientSession session;
 
 	private static final Logger logger = LoggerFactory.getLogger(EmbeddedMongoTestbench.class);
@@ -24,6 +24,7 @@ public abstract class EmbeddedMongoTestbench {
 	public static void init() {
 		logger.info("initializing mongo backend & client");
 		try {
+			mongo = EmbeddedMongo.getInstance();
 			// arbitrary port should be exposed through dev profile (i.e our dynamic
 			// external test inputs)
 			mongo.start("testing", "localhost", port);
