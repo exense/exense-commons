@@ -51,7 +51,7 @@ public abstract class EmbeddedMongoTestbench {
 			tempFile =  System.getenv("temp") + File.separator + "extract-" + System.getenv("USERNAME") + "-extractmongod";
 			executable = tempFile + ".exe";
 		} else {
-			tempFile =  "/tmp/extract-" + System.getenv("USERNAME") + "-extractmongod";
+			tempFile =  "/tmp/extract-" + System.getenv("USER") + "-extractmongod";
 			executable = tempFile;
 		}
 		logger.info("cleanup mongo temp file '"+executable+"'");
