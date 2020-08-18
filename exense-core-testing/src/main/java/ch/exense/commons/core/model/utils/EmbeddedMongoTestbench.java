@@ -45,15 +45,16 @@ public abstract class EmbeddedMongoTestbench {
 		}
 		mongo.stop();
 		
-		String tempFile = System.getenv("temp") + File.separator + "extract-" + System.getenv("USERNAME")
-				+ "-extractmongod";
+		String tempFile;
 		String executable;
 		if (System.getenv("OS") != null && System.getenv("OS").contains("Windows")) {
+			tempFile =  System.getenv("temp") + File.separator + "extract-" + System.getenv("USERNAME") + "-extractmongod";
 			executable = tempFile + ".exe";
 		} else {
+			tempFile =  "/tmp/extract-" + System.getenv("USERNAME") + "-extractmongod";
 			executable = tempFile;
 		}
-		logger.info("cleanup mongo temp file "+executable);
+		logger.info("cleanup mongo temp file '"+executable+"'");
 		try {
 			Files.deleteIfExists(new File(executable).toPath());
 			Files.deleteIfExists(new File(tempFile + ".pid").toPath());
