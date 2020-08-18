@@ -1,6 +1,8 @@
 package ch.exense.commons.core.model.utils;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -9,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.exense.commons.core.mongo.MongoClientSession;
 
-public abstract class EmbeddedMongoTestbench{
+public abstract class EmbeddedMongoTestbench {
 
 	private static EmbeddedMongo mongo = EmbeddedMongo.getInstance();
 	protected static MongoClientSession session;
@@ -17,12 +19,13 @@ public abstract class EmbeddedMongoTestbench{
 	private static final Logger logger = LoggerFactory.getLogger(EmbeddedMongoTestbench.class);
 
 	protected static int port = 27987;
-	
+
 	@BeforeClass
-	public static void init(){
+	public static void init() {
 		logger.info("initializing mongo backend & client");
 		try {
-			// arbitrary port should be exposed through dev profile (i.e our dynamic external test inputs)
+			// arbitrary port should be exposed through dev profile (i.e our dynamic
+			// external test inputs)
 			mongo.start("testing", "localhost", port);
 			session = new MongoClientSession("localhost", port, null, null, 200, "testing");
 			session.getMongoDatabase().drop();
@@ -40,6 +43,23 @@ public abstract class EmbeddedMongoTestbench{
 			e.printStackTrace();
 		}
 		mongo.stop();
+		
+		logger.info("cleanup mongo temp files");
+		
+		String tempFile = System.getenv("temp") + File.separator + "extract-" + System.getenv("USERNAME")
+				+ "-extractmongod";
+		String executable;
+		if (System.getenv("OS") != null && System.getenv("OS").contains("Windows")) {
+			executable = tempFile + ".exe";
+		} else {
+			executable = tempFile + ".sh";
+		}
+		try {
+			Files.deleteIfExists(new File(executable).toPath());
+			Files.deleteIfExists(new File(tempFile + ".pid").toPath());
+		} catch (IOException e) {
+		}
+		
 	}
 
 }
