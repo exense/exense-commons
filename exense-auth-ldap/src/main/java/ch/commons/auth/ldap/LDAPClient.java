@@ -79,9 +79,11 @@ public class LDAPClient implements PasswordDirectory{
 			searchResult = (SearchResult) results.nextElement();
 
 			if(results.hasMoreElements()) {
-				logger.error("Multiple users are present for cn: " + accountName);
-				throw new NamingException("Multiple users are present for cn: " + accountName);
+				logger.error("Multiple users are present for filter: '" + searchFilter+"'");
+				throw new NamingException("Multiple users are present for filter: '" + searchFilter+"'");
 			}
+		} else {
+			throw new NamingException("No user found for filter: '" + searchFilter+"'");
 		}
 
 		return searchResult;
