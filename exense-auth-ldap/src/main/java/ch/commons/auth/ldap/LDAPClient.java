@@ -17,17 +17,24 @@ import ch.commons.auth.PasswordDirectory;
 
 public class LDAPClient implements PasswordDirectory{
 
+	private static final String DEFAULT_FILTER = "(cn=%name%)";
+
 	protected Logger logger = LoggerFactory.getLogger(LDAPClient.class);
 
 	private LdapContext ctx;
 	private String ldapBaseDn;
+	private String filter;
 	private Hashtable<String, Object> env = new Hashtable<String, Object>();
 
 	public LDAPClient(String server, String baseDn, String username, String password) throws NamingException {
-		buildClient(server, baseDn, username, password);
+		buildClient(server, baseDn, null, username, password);
 	}
 
-	public LDAPClient(String server, String baseDn, String username, String password, String pathToJks, String jksPassword) throws NamingException {
+	public LDAPClient(String server, String baseDn, String filter, String username, String password) throws NamingException {
+		buildClient(server, baseDn, filter, username, password);
+	}
+	
+	public LDAPClient(String server, String baseDn, String filter, String username, String password, String pathToJks, String jksPassword) throws NamingException {
 
 		if(server != null && server.toLowerCase().contains("ldaps")) { // the "s" is only real proof that we want SSL
 			env.put(Context.SECURITY_PROTOCOL, "ssl");
@@ -41,11 +48,13 @@ public class LDAPClient implements PasswordDirectory{
 			}
 		}
 
-		buildClient(server, baseDn, username, password);
+		buildClient(server, baseDn, filter, username, password);
 	}
 
-	private void buildClient(String server, String baseDn, String username, String password) throws NamingException {
+	private void buildClient(String server, String baseDn, String filter, String username, String password) throws NamingException {
 		this.ldapBaseDn = baseDn;
+		
+		this.filter = (filter==null)? DEFAULT_FILTER : filter;
 
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		env.put(Context.SECURITY_PRINCIPAL, username);
@@ -58,7 +67,7 @@ public class LDAPClient implements PasswordDirectory{
 
 	public SearchResult findAccountByAccountName(String accountName) throws NamingException {
 
-		String searchFilter = "(cn=" + accountName + ")";
+		String searchFilter = filter.replaceAll("%name%", accountName);
 
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);

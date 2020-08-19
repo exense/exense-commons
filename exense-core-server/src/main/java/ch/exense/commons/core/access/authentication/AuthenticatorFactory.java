@@ -66,6 +66,7 @@ public class AuthenticatorFactory {
 	private static LDAPClient buildLDAPClientFromConfig(Configuration configuration) throws NamingException {
 		String ldapUrl = configuration.getProperty("ui.authenticator.ldap.url",null);
 		String ldapBaseDn = configuration.getProperty("ui.authenticator.ldap.base",null);
+		String ldapFilter = configuration.getProperty("ui.authenticator.ldap.filter",null);
 		String ldapTechuser = configuration.getProperty("ui.authenticator.ldap.techuser",null);
 		String ldapTechpwd = configuration.getProperty("ui.authenticator.ldap.techpwd",null);
 
@@ -73,7 +74,7 @@ public class AuthenticatorFactory {
 		String pathToJks = configuration.getProperty("ui.authenticator.ldap.ssl.pathToJks",null);
 		String jksPassword = configuration.getProperty("ui.authenticator.ldap.ssl.jksPassword",null);
 
-		return new LDAPClient(ldapUrl,ldapBaseDn,ldapTechuser,ldapTechpwd, pathToJks, jksPassword);
+		return new LDAPClient(ldapUrl,ldapBaseDn,ldapFilter,ldapTechuser,ldapTechpwd, pathToJks, jksPassword);
 	}
 
 

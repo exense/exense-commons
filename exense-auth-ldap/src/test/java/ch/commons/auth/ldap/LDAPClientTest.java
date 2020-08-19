@@ -26,7 +26,7 @@ public class LDAPClientTest {
 		//ldap
 		//directory = new LDAPClient("ldap://" + ldapServer + ":389",ldapBaseDn,ldapUsername,ldapPassword);
 		//ldaps
-		directory = new LDAPClient("ldaps://" + ldapServer + ":636",ldapBaseDn,ldapUsername,ldapPassword, "src/test/resources/ldap.jks", ldapPassword);
+		directory = new LDAPClient("ldaps://" + ldapServer + ":636",ldapBaseDn,null,ldapUsername,ldapPassword, "src/test/resources/ldap.jks", ldapPassword);
 		authenticator = new CypherAuthenticator(directory);
 	}
 	
