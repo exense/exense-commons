@@ -2,9 +2,11 @@ package ch.commons.auth.ldap;
 
 import java.util.Hashtable;
 
+import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
@@ -66,13 +68,25 @@ public class LDAPClient implements PasswordDirectory{
 	}
 
 	public SearchResult findAccountByAccountName(String accountName) throws NamingException {
-
+		
+		LdapContext instance;
+		
+		instance = ctx.newInstance(null);
+		
 		String searchFilter = filter.replaceAll("%name%", accountName);
 
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-		NamingEnumeration<SearchResult> results = this.ctx.newInstance(null).search(ldapBaseDn, searchFilter, searchControls);
+		
+		NamingEnumeration<SearchResult> results = null;
+		try {
+			results = instance.search(ldapBaseDn, searchFilter, searchControls);
+		} catch (ServiceUnavailableException | CommunicationException e) {
+			ctx.reconnect(null);
+			instance = ctx.newInstance(null);
+			
+			results = instance.search(ldapBaseDn, searchFilter, searchControls);
+		}
 
 		SearchResult searchResult = null;
 		if(results.hasMoreElements()) {
