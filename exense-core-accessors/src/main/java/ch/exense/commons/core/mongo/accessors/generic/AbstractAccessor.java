@@ -105,7 +105,7 @@ public class AbstractAccessor {
 				Document d = ((Document)o);
 				
 				if(attributes.equals(d.keySet())) {
-					return d;
+					return index;
 				}
 			}
 		}
