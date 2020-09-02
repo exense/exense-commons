@@ -2,10 +2,10 @@ package ch.commons.auth.ldap;
 
 import org.ldaptive.ConnectionConfig;
 import org.ldaptive.DefaultConnectionFactory;
-import org.ldaptive.LdapUtils;
 import org.ldaptive.auth.Authenticator;
 import org.ldaptive.auth.FormatDnResolver;
 import org.ldaptive.auth.PooledBindAuthenticationHandler;
+import org.ldaptive.auth.SearchDnResolver;
 import org.ldaptive.pool.BlockingConnectionPool;
 import org.ldaptive.pool.IdlePruneStrategy;
 import org.ldaptive.pool.PoolConfig;
@@ -21,13 +21,18 @@ public class PAC4JClient {
 	public PAC4JClient() {
 		super();
 
-		FormatDnResolver dnResolver = new FormatDnResolver();
-		dnResolver.setFormat("dc=example,dc=com" + "=%s," + "ou=people,dc=example,dc=com");
-		
 		ConnectionConfig connectionConfig = new ConnectionConfig();
 		connectionConfig.setLdapUrl("ldap://ldap.exense.ch:389");
+		
 		DefaultConnectionFactory connectionFactory = new DefaultConnectionFactory();
 		connectionFactory.setConnectionConfig(connectionConfig);
+
+		SearchDnResolver dnResolver = new SearchDnResolver();
+		//dnResolver.setFormat("dc=exense,dc=ch" + "=%s," + "ou=people,dc=example,dc=com");
+		dnResolver.setBaseDn("ou=users,dc=exense,dc=ch");
+		dnResolver.setUserFilter("(uid={user})");
+		dnResolver.setConnectionFactory(connectionFactory);
+		
 		PoolConfig poolConfig = new PoolConfig();
 		poolConfig.setMinPoolSize(1);
 		poolConfig.setMaxPoolSize(2);
@@ -46,11 +51,12 @@ public class PAC4JClient {
 		pooledConnectionFactory.setConnectionPool(connectionPool);
 		PooledBindAuthenticationHandler handler = new PooledBindAuthenticationHandler();
 		handler.setConnectionFactory(pooledConnectionFactory);
+		
 		Authenticator ldaptiveAuthenticator = new Authenticator();
 		ldaptiveAuthenticator.setDnResolver(dnResolver);
 		ldaptiveAuthenticator.setAuthenticationHandler(handler);
 		// pac4j:
-		service  = new LdapProfileService(connectionFactory, ldaptiveAuthenticator, "cn=admin,dc=exense,dc=ch");
+		service  = new LdapProfileService(connectionFactory, ldaptiveAuthenticator, "ou=users,cn=admin,dc=exense,dc=ch");
 	}
 
 	public String getDn() {
@@ -59,7 +65,11 @@ public class PAC4JClient {
 
 	public void validate() {
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials("testpwdmd5", "testpwdmd5");
+		UsernamePasswordCredentials credentials2 = new UsernamePasswordCredentials("testpwdssha", "testpwdssha");
+		// bypass profile mechanism -> legacy mode
+		service.setAttributes("");
 		service.validate(credentials, null);
+		service.validate(credentials2, null);
 	}
 	
 }

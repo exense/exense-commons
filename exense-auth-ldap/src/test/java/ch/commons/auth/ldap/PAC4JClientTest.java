@@ -9,7 +9,7 @@ public class PAC4JClientTest {
 		// TODO Auto-generated constructor stub
 	}
 
-	//@Test
+	@Test
 	public void testPac() {
 		PAC4JClient client = new PAC4JClient();
 		System.out.println(client.getDn());
