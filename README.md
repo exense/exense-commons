@@ -9,4 +9,4 @@ Current stack:
 - Jackson 2.10
 - Pac4J 4.0.0 (WIP - experimental)
 
-Public developper documentation is currently being build in the [wiki](https://github.com/exense/exense-commons/wiki).
+Public developper documentation is currently being build in this repo's [wiki](https://github.com/exense/exense-commons/wiki/Developer-Docs).
