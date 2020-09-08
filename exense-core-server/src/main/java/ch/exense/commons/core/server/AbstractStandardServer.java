@@ -168,7 +168,8 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void initAllAccessors(){
-		Set<Class> accessorTypes = ClasspathUtils.getAllConcreteSubTypesOf(AbstractCRUDAccessor.class, "ch.exense");
+		String packagePrefix = configuration.getProperty("ch.exense.core.accessors.packagePrefix", "ch.exense");
+		Set<Class> accessorTypes = ClasspathUtils.getAllConcreteSubTypesOf(AbstractCRUDAccessor.class, packagePrefix);
 		for(Class clazz : accessorTypes) {
 			Constructor constructor;
 			try {

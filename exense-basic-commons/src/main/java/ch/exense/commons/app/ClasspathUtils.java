@@ -1,6 +1,7 @@
 package ch.exense.commons.app;
 
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,9 +38,15 @@ public class ClasspathUtils {
 	}
 	
 	private static <T> Reflections getReflections(Class<T> clazz, String prefix) {
+		Collection<URL> urls = ClasspathHelper.forPackage(prefix);
+		FilterBuilder filterBuilder = new FilterBuilder().includePackage("ch.exense");
+		if (prefix!="ch.exense") {
+			urls.addAll(ClasspathHelper.forPackage("ch.exense"));
+			filterBuilder.includePackage(prefix);
+		}
 		return new Reflections(new ConfigurationBuilder()
-			      .filterInputsBy(new FilterBuilder().includePackage(prefix))
-			      .setUrls(ClasspathHelper.forPackage(prefix))
+			      .filterInputsBy(filterBuilder)
+			      .setUrls(urls)
 			      .setScanners(new SubTypesScanner()));
 	}
 	
