@@ -35,17 +35,15 @@ public class ExternalJVMLauncher {
 		this.javaPath = javaPath;
 		this.processLogFolder = processLogFolder;
 	}
-	
+
 	private String buildClasspath() {
-		//URL[] urls = ((URLClassLoader)Thread.currentThread().getContextClassLoader()).getURLs();
 		//Fix for Java11 compatibility (Classloader is no more an instance of URLClassLoader)
-		String pathSeparator = System.getProperty("path.separator");
-		String[] classPathEntries = System.getProperty("java.class.path").split(pathSeparator);
+		String[] classPathEntries = System.getProperty("java.class.path").split(File.pathSeparator);
+
 		StringBuilder cp = new StringBuilder();
-		String delimiter = isWindows()?";":":";
 		cp.append("\"");
-		for(String url:classPathEntries) {
-			cp.append(url+delimiter);
+		for(String path:classPathEntries) {
+			cp.append(new File(path).getAbsolutePath()+File.pathSeparator);
 		}
 		cp.append("\"");
 		return cp.toString();
@@ -74,6 +72,6 @@ public class ExternalJVMLauncher {
 		return process;
 	}
 	public static boolean isWindows() {
-        return (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0);
+        return System.getProperty("os.name").toLowerCase().contains("win");
     }
 }
