@@ -19,7 +19,6 @@
 package ch.exense.commons.core.web.container;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.LogManager;
 
 import javax.servlet.http.HttpSession;
@@ -49,7 +48,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import ch.exense.commons.app.ClasspathUtils;
 import ch.exense.commons.app.Configuration;
-import ch.exense.commons.core.web.services.AbstractServices;
 
 /**
  * This class is responsible for handling the core configuration and start of a Jetty based web container.
