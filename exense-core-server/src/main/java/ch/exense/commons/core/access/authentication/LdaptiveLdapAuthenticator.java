@@ -2,6 +2,7 @@ package ch.exense.commons.core.access.authentication;
 
 import ch.commons.auth.Authenticator;
 import ch.commons.auth.Credentials;
+import ch.exense.commons.app.Configuration;
 import org.ldaptive.*;
 import org.ldaptive.auth.*;
 import org.ldaptive.control.ResponseControl;
@@ -11,6 +12,12 @@ import org.slf4j.LoggerFactory;
 public class LdaptiveLdapAuthenticator implements Authenticator {
 
 	private static Logger logger = LoggerFactory.getLogger(LdaptiveLdapAuthenticator.class);
+
+    public LdaptiveLdapAuthenticator(Configuration configuration) {
+    }
+
+	public LdaptiveLdapAuthenticator() {
+	}
 
 	@Override
 	public boolean authenticate(Credentials credentials) throws Exception {

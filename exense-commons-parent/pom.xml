@@ -83,10 +83,8 @@
 		<module>../exense-core-serialization</module>
 		<module>../exense-core-mongo</module>
 		<module>../exense-core-web</module>
-		<module>../exense-core-server</module>
 		<module>../exense-auth-core</module>
-		<module>../exense-auth-cyphers</module>
-		<module>../exense-auth-ldap</module>
+		<module>../exense-core-server</module>
 	</modules>
 	
 	<build>
