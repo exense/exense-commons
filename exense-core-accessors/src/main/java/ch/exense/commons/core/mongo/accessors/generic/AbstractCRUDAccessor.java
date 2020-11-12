@@ -37,8 +37,6 @@ import ch.exense.commons.core.model.accessors.AbstractIdentifiableObject;
 import ch.exense.commons.core.model.accessors.CRUDAccessor;
 import ch.exense.commons.core.mongo.MongoClientSession;
 
-
-
 public class AbstractCRUDAccessor<T extends AbstractIdentifiableObject> extends AbstractAccessor implements CRUDAccessor<T> {
 			
 	protected MongoCollection collection;

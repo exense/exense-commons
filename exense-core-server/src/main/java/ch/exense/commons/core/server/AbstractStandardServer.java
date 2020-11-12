@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 import ch.commons.auth.Authenticator;
-import ch.commons.auth.cyphers.SupportedCypher;
 import ch.exense.commons.app.ClasspathUtils;
 import ch.exense.commons.core.access.AccessManager;
 import ch.exense.commons.core.access.AccessManagerImpl;
@@ -96,7 +95,7 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 			authenticator = new AuthenticatorFactory(super.configuration, super.context).getAuthenticator();
 		} catch (AuthenticatorException e) {
 			e.printStackTrace();
-			throw new RuntimeException("A critical exception has occured, server initialization failed.", e);
+			throw new RuntimeException("A critical exception has occurred, server initialization failed.", e);
 		}
 		
 		authenticationManager = new AuthenticationManager(configuration, authenticator, userAccessor);
@@ -109,7 +108,7 @@ public abstract class AbstractStandardServer extends AbstractJettyContainer{
 			User admin = new User();
 			admin.setUsername("admin");
 			try {
-				admin.setPassword(SupportedCypher.SHA512.encoder.encode("init", null, null));
+				admin.setPassword(AuthenticationManager.hashPassword("init"));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

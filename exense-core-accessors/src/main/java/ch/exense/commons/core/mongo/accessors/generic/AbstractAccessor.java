@@ -1,7 +1,6 @@
 package ch.exense.commons.core.mongo.accessors.generic;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 

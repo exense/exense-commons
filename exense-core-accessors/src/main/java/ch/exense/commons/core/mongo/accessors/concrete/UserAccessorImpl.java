@@ -3,7 +3,6 @@ package ch.exense.commons.core.mongo.accessors.concrete;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.commons.auth.cyphers.SupportedCypher;
 import ch.exense.commons.core.model.user.User;
 import ch.exense.commons.core.model.user.UserAccessor;
 import ch.exense.commons.core.mongo.MongoClientSession;
@@ -32,14 +31,4 @@ public class UserAccessorImpl extends AbstractCRUDAccessor<User> implements User
 		assert username != null;
 		return collection.findOne("{username: #}", username).as(User.class);
 	}
-	
-	public static String encryptPwd(String pwd) {
-		try {
-			return SupportedCypher.SHA512.encoder.encode(pwd, null, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "Password encryption failed.";
-	}
-
 }
