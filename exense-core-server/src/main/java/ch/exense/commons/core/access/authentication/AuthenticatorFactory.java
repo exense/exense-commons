@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.commons.auth.Authenticator;
-import ch.commons.auth.ldap.LDAPClient;
 import ch.exense.commons.app.Configuration;
 import ch.exense.commons.core.model.user.UserAccessor;
 import ch.exense.commons.core.web.container.ServerContext;
@@ -49,34 +48,12 @@ public class AuthenticatorFactory {
 			 * This would shift the problem of doing ldap-specific stuff outside of the factory which isn't nice
 			 * Instead, we're making the factory configuration-aware and creating the LDAPClient in here.
 			 */
-			//return new LdapAuthenticator((LDAPClient)this.context.get(LDAPClient.class));
-
-			try {
-				return new LdapAuthenticator(buildLDAPClientFromConfig(this.configuration));
-			} catch (NamingException e) {
-				e.printStackTrace();
-			}
+			return new LdaptiveLdapAuthenticator(this.configuration);
 		}
 
 		// Actually unreachable.
 		return null;
 	}
-
-
-	private static LDAPClient buildLDAPClientFromConfig(Configuration configuration) throws NamingException {
-		String ldapUrl = configuration.getProperty("ui.authenticator.ldap.url",null);
-		String ldapBaseDn = configuration.getProperty("ui.authenticator.ldap.base",null);
-		String ldapFilter = configuration.getProperty("ui.authenticator.ldap.filter",null);
-		String ldapTechuser = configuration.getProperty("ui.authenticator.ldap.techuser",null);
-		String ldapTechpwd = configuration.getProperty("ui.authenticator.ldap.techpwd",null);
-
-		// Ldap over SSL case
-		String pathToJks = configuration.getProperty("ui.authenticator.ldap.ssl.pathToJks",null);
-		String jksPassword = configuration.getProperty("ui.authenticator.ldap.ssl.jksPassword",null);
-
-		return new LDAPClient(ldapUrl,ldapBaseDn,ldapFilter,ldapTechuser,ldapTechpwd, pathToJks, jksPassword);
-	}
-
 
 	public enum SupportedAuthenticators {
 		ACCESSOR("accessor"),

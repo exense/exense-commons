@@ -46,11 +46,6 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.exense.commons</groupId>
-			<artifactId>exense-auth-cyphers</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.exense.commons</groupId>
 			<artifactId>exense-core-model</artifactId>
 			<version>${project.version}</version>
 		</dependency>

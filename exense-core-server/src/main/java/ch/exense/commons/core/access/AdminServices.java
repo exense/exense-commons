@@ -32,7 +32,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import ch.exense.commons.core.access.authentication.AuthenticationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,7 +177,7 @@ public class AdminServices extends AbstractServices {
 	public void resetMyPassword(ChangePwdRequest request) {
 		User user = getCurrentUser();
 		if(user!=null) {
-			user.setPassword(encryptPwd(request.getNewPwd()));
+			user.setPassword(AuthenticationManager.hashPassword(request.getNewPwd()));
 			getUserAccessor().save(user);			
 		}
 	}
@@ -248,9 +248,6 @@ public class AdminServices extends AbstractServices {
 	}
 
 	private void resetPwd(User user) {
-		user.setPassword(encryptPwd(INITIAL_PWD));
+		user.setPassword(AuthenticationManager.hashPassword(INITIAL_PWD));
 	}
-
-	private String encryptPwd(String pwd) {
-		return DigestUtils.sha512Hex(pwd);
-	}}
+}

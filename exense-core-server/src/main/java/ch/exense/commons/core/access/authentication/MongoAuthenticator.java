@@ -4,7 +4,7 @@ import ch.exense.commons.core.model.user.UserAccessor;
 import ch.exense.commons.core.mongo.MongoClientSession;
 import ch.exense.commons.core.mongo.accessors.concrete.UserAccessorImpl;
 
-public class MongoAuthenticator extends DirectoryComparisonAuthenticator{
+public class MongoAuthenticator extends DirectoryComparisonAuthenticator {
 
 	public MongoAuthenticator(UserAccessor userAccessor) {
 		super(new UserAccessorDirectory(userAccessor));

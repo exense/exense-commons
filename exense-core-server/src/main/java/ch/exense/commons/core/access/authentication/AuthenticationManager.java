@@ -1,9 +1,10 @@
 package ch.exense.commons.core.access.authentication;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.codec.digest.DigestUtils;
 
 import ch.commons.auth.Authenticator;
 import ch.commons.auth.Credentials;
@@ -76,13 +77,25 @@ public class AuthenticationManager {
 			setUserToSession(session, "admin");
 		}
 	}
-	
+
 	public static User defaultAdminUser() {
 		User user = new User();
 		user.setUsername("admin");
 		user.setRole("admin");
-		user.setPassword(DigestUtils.sha512Hex("init"));
+		user.setPassword(hashPassword("init"));
 		return user;
+	}
+
+	public static String hashPassword(String password) {
+		MessageDigest digest = null;
+		try {
+			digest = MessageDigest.getInstance("SHA-512");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+		digest.reset();
+		digest.update(Byte.parseByte(password));
+		return String.format("%0128x", new BigInteger(1, digest.digest()));
 	}
 
 	public boolean registerListener(AuthenticationManagerListener e) {

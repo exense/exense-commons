@@ -50,14 +50,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ch.exense.commons</groupId>
-			<artifactId>exense-auth-cyphers</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.exense.commons</groupId>
-			<artifactId>exense-auth-ldap</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.ldaptive</groupId>
+			<artifactId>ldaptive</artifactId>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
