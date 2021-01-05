@@ -1,6 +1,7 @@
 package ch.exense.commons.core.access.authentication;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class AuthenticationManager {
 			throw new RuntimeException(e);
 		}
 		digest.reset();
-		digest.update(Byte.parseByte(password));
+		digest.update(password.getBytes(StandardCharsets.UTF_8));
 		return String.format("%0128x", new BigInteger(1, digest.digest()));
 	}
 
