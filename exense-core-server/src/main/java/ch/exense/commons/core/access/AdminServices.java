@@ -67,7 +67,7 @@ public class AdminServices extends AbstractServices {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/user")
 	public void save(User user) {
-		UserAccessor userAccessor = (UserAccessor) getContext().get(UserAccessor.class.toString());
+		UserAccessor userAccessor = getUserAccessor();
 
 		User previousUser = userAccessor.get(user.getId());
 		if(previousUser == null) {
@@ -244,7 +244,7 @@ public class AdminServices extends AbstractServices {
 	}
 
 	private UserAccessor getUserAccessor() {
-		return (UserAccessor) getContext().get(UserAccessor.class.toString());
+		return (UserAccessor) getContext().get(User.class.getName());
 	}
 
 	private void resetPwd(User user) {

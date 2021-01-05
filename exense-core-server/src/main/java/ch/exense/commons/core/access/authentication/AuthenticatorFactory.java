@@ -2,6 +2,7 @@ package ch.exense.commons.core.access.authentication;
 
 import javax.naming.NamingException;
 
+import ch.exense.commons.core.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public class AuthenticatorFactory {
 			 * We're also assuming that the accessor has already been set in context at an earlier stage.
 			 * 
 			 */
-			return new MongoAuthenticator((UserAccessor)this.context.get(UserAccessor.class));
+			return new MongoAuthenticator((UserAccessor)this.context.get(User.class.getName()));
 		case LDAP:
 			/**
 			 * This would shift the problem of doing ldap-specific stuff outside of the factory which isn't nice
