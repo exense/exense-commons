@@ -173,7 +173,7 @@ public class FileHelper {
 
 			ZipEntry entry;
 			while ((entry = zip.getNextEntry()) != null) {
-				String currentEntry = entry.getName();
+				String currentEntry = entry.getName().replaceAll("\\\\","/");
 
 				File destFile = new File(target.getAbsolutePath(), currentEntry);
 				File destinationParent = destFile.getParentFile();
@@ -270,7 +270,7 @@ public class FileHelper {
 				zip(files[i], base, zos);
 			} else {
 				FileInputStream in = new FileInputStream(files[i]);
-				ZipEntry entry = new ZipEntry(files[i].getPath().substring(base.getPath().length() + 1));
+				ZipEntry entry = new ZipEntry(files[i].getPath().substring(base.getPath().length() + 1).replaceAll("\\\\","/"));
 				zos.putNextEntry(entry);
 				while (-1 != (read = in.read(buffer))) {
 					zos.write(buffer, 0, read);
@@ -287,7 +287,7 @@ public class FileHelper {
 	 * @param name of the zip entry
 	 */
 	public static void zipFile(ZipOutputStream zos, ByteArrayOutputStream jsonStream, String name) throws IOException {
-		ZipEntry entryJson = new ZipEntry(name);
+		ZipEntry entryJson = new ZipEntry(name.replaceAll("\\\\","/"));
 		zos.putNextEntry(entryJson);
 		zos.write(jsonStream.toByteArray());
 	}
@@ -303,7 +303,7 @@ public class FileHelper {
 			byte[] buffer = new byte[8192];
 			int read = 0;
 			FileInputStream in = new FileInputStream(file);
-			ZipEntry entry = new ZipEntry(file.getPath().substring(basePath.length() + 1));
+			ZipEntry entry = new ZipEntry(file.getPath().substring(basePath.length() + 1).replaceAll("\\\\","/"));
 			zos.putNextEntry(entry);
 			while (-1 != (read = in.read(buffer))) {
 				zos.write(buffer, 0, read);
