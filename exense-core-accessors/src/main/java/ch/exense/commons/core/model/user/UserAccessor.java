@@ -13,10 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package ch.exense.commons.core.model.accessors;
+package ch.exense.commons.core.model.user;
 
-public class GenericOrganizableAccessor {
+import ch.exense.commons.core.mongo.accessors.generic.CRUDAccessor;
+
+import java.util.List;
+
+public interface UserAccessor extends CRUDAccessor<User> {
 	
-	public void insertObject() {}
+	void remove(String username);
 
+	List<User> getAllUsers();
+
+	User getByUsername(String username);
 }

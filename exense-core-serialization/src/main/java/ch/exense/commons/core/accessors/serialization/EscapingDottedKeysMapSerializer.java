@@ -21,7 +21,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 @SuppressWarnings("rawtypes")
@@ -33,22 +35,28 @@ public class EscapingDottedKeysMapSerializer extends JsonSerializer<Map> {
 
 	@Override
 	public void serialize(Map value, JsonGenerator jgen,
-			SerializerProvider provider) throws IOException,
+						  SerializerProvider provider) throws IOException,
 			JsonProcessingException {
 		Map<Object, Object> newMap = new HashMap<>();
 		for(Object key:value.keySet()) {
 			newMap.put(encodeKey(key), value.get(key));
 		}
-		jgen.writeObject(newMap);
+		ObjectCodec initialCodec = jgen.getCodec();
+		jgen.setCodec(new ObjectMapper());
+		try {
+			jgen.writeObject(newMap);
+		} finally {
+			jgen.setCodec(initialCodec);
+		}
 	}
-	
-    // replacing "." and "$" by their unicodes as they are invalid keys in BSON
-    private Object encodeKey(Object key) {
-    	if(key instanceof String) {
-    		return ((String) key).replace("\\\\", "\\\\\\\\").replace("\\$", "\\\\u0024").replace(".", "\\\\u002e");
-    	} else {
-    		return key;
-    	}
-    }
+
+	// replacing "." and "$" by their unicodes as they are invalid keys in BSON
+	private Object encodeKey(Object key) {
+		if(key instanceof String) {
+			return ((String) key).replace("\\\\", "\\\\\\\\").replace("\\$", "\\\\u0024").replace(".", "\\\\u002e");
+		} else {
+			return key;
+		}
+	}
 
 }

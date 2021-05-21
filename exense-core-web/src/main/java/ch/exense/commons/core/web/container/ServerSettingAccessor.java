@@ -15,7 +15,7 @@
  ******************************************************************************/
 package ch.exense.commons.core.web.container;
 
-import ch.exense.commons.core.model.accessors.CRUDAccessor;
+import ch.exense.commons.core.mongo.accessors.generic.CRUDAccessor;
 
 public interface ServerSettingAccessor extends CRUDAccessor<ServerSetting> {
 
