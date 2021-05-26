@@ -45,8 +45,6 @@ public class MongoDBCollection<T> extends AbstractCollection<T> implements Colle
 	
 	private static final Logger logger = LoggerFactory.getLogger(MongoDBCollection.class);
 
-	private static final int DEFAULT_LIMIT = 1000;
-	
 	protected static final String CSV_DELIMITER = ";";
 	
 	private final MongoClientSession mongoClientSession;
@@ -96,7 +94,8 @@ public class MongoDBCollection<T> extends AbstractCollection<T> implements Colle
 		
 		FindIterable<T> find = collection.find(query).maxTime(maxTime, TimeUnit.SECONDS);
 		if(order!=null) {
-			Document sortDoc = new Document(order.getAttributeName(), order.getOrder());
+			String attributeName = fixAttributeName(order.getAttributeName());
+			Document sortDoc = new Document(attributeName, order.getOrder());
 			find.sort(sortDoc);
 		}
 		if(skip!=null) {
@@ -128,6 +127,15 @@ public class MongoDBCollection<T> extends AbstractCollection<T> implements Colle
 		};
 		
 		return Streams.stream(enrichedIterator);
+	}
+
+	private String fixAttributeName(String attributeName) {
+		if(attributeName.equals(AbstractIdentifiableObject.ID)) {
+			attributeName = "_id";
+		} else if (attributeName.contains("."+AbstractIdentifiableObject.ID)) {
+			attributeName = attributeName.replace("."+AbstractIdentifiableObject.ID, "._id");
+		} 
+		return attributeName;
 	}
 	
 	private void fixIdAfterRead(T next) {
