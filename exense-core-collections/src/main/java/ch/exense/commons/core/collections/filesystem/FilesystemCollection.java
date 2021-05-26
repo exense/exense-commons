@@ -15,23 +15,30 @@
  ******************************************************************************/
 package ch.exense.commons.core.collections.filesystem;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.bson.types.ObjectId;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.bson.types.ObjectId;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+
 import ch.exense.commons.core.accessors.DefaultJacksonMapperProvider;
 import ch.exense.commons.core.collections.Collection;
 import ch.exense.commons.core.collections.Filter;
 import ch.exense.commons.core.collections.PojoFilter;
 import ch.exense.commons.core.collections.PojoFilters.PojoFilterFactory;
+import ch.exense.commons.core.collections.PojoUtils;
 import ch.exense.commons.core.collections.SearchOrder;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class FilesystemCollection<T> extends AbstractCollection<T> implements Collection<T> {
 
@@ -44,7 +51,10 @@ public class FilesystemCollection<T> extends AbstractCollection<T> implements Co
 		super();
 		this.repository = repository;
 		this.entityClass = entityClass;
-		this.mapper = DefaultJacksonMapperProvider.getObjectMapper(new YAMLFactory());
+		YAMLFactory factory = new YAMLFactory();
+		// Disable native type id to enable conversion to generic Documents
+		factory.disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID);
+		this.mapper = DefaultJacksonMapperProvider.getObjectMapper(factory);
 		if (!repository.exists()) {
 			repository.mkdirs();
 		}
@@ -89,15 +99,8 @@ public class FilesystemCollection<T> extends AbstractCollection<T> implements Co
 			}
 		});
 		if(order != null) {
-			Comparator<T> comparing = Comparator.comparing(e->{
-				try {
-					return PropertyUtils.getProperty(e, order.getAttributeName()).toString();
-				} catch (NoSuchMethodException e1) {
-					return "";
-				} catch (IllegalAccessException | InvocationTargetException e1) {
-					throw new RuntimeException(e1);
-				}
-			});
+			@SuppressWarnings("unchecked")
+			Comparator<T> comparing = (Comparator<T>) PojoUtils.comparator(order.getAttributeName());
 			if(order.getOrder()<0) {
 				comparing = comparing.reversed();
 			}

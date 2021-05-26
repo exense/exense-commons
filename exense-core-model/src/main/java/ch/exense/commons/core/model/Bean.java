@@ -3,8 +3,13 @@ package ch.exense.commons.core.model;
 import ch.exense.commons.core.accessors.serialization.DottedKeyMap;
 import ch.exense.commons.core.model.accessors.AbstractOrganizableObject;
 import org.json.JSONObject;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import javax.json.JsonObject;
 
+@JsonTypeInfo(use=Id.CLASS,property="_class")
 public class Bean extends AbstractOrganizableObject {
 
     private String property1;
@@ -16,6 +21,8 @@ public class Bean extends AbstractOrganizableObject {
     private JSONObject jsonOrgObject;
 
     private DottedKeyMap<String, String> map;
+    
+    private Bean nested;
 
     public Bean() {
         super();
@@ -74,7 +81,15 @@ public class Bean extends AbstractOrganizableObject {
         this.jsonOrgObject = jsonOrgObject;
     }
 
-    @Override
+    public Bean getNested() {
+		return nested;
+	}
+
+	public void setNested(Bean nested) {
+		this.nested = nested;
+	}
+
+	@Override
     public String toString() {
         return this.getId().toHexString();
     }

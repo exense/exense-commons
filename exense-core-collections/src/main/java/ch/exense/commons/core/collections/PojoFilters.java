@@ -15,18 +15,27 @@
  ******************************************************************************/
 package ch.exense.commons.core.collections;
 
-import ch.exense.commons.core.model.accessors.AbstractIdentifiableObject;
-import org.apache.commons.beanutils.NestedNullException;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.bson.types.ObjectId;
-import ch.exense.commons.core.collections.Filters.*;
-
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.bson.types.ObjectId;
+
+import ch.exense.commons.core.collections.Filters.And;
+import ch.exense.commons.core.collections.Filters.Equals;
+import ch.exense.commons.core.collections.Filters.FilterFactory;
+import ch.exense.commons.core.collections.Filters.Gt;
+import ch.exense.commons.core.collections.Filters.Gte;
+import ch.exense.commons.core.collections.Filters.Lt;
+import ch.exense.commons.core.collections.Filters.Lte;
+import ch.exense.commons.core.collections.Filters.Not;
+import ch.exense.commons.core.collections.Filters.Or;
+import ch.exense.commons.core.collections.Filters.Regex;
+import ch.exense.commons.core.collections.Filters.True;
+import ch.exense.commons.core.model.accessors.AbstractIdentifiableObject;
 
 public class PojoFilters {
 
@@ -310,21 +319,6 @@ public class PojoFilters {
 	
 	private static Object getBeanProperty(Object t, String fieldName)
 			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		try {
-			if(fieldName.equals("_class")) {
-				return t.getClass().getName();
-			} else if(fieldName.equals(AbstractIdentifiableObject.ID)) {
-				if(t instanceof Document) {
-					return ((Document) t).getId();
-				} else {
-					return PropertyUtils.getProperty(t, fieldName);
-				}
-			} else {
-				return PropertyUtils.getProperty(t, fieldName);
-			}
-		} catch (NestedNullException e) {
-			return null;
-		}
-		
+		return PojoUtils.getProperty(t, fieldName);
 	}
 }

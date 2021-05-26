@@ -53,6 +53,12 @@ public class MongoDBFilterFactory implements FilterFactory<Bson> {
 				if (expectedValue instanceof String) {
 					expectedValue = new ObjectId((String) expectedValue);
 				}
+			} else if(field.contains(".id")) {
+				// Nested fields
+				field = field.replace(".id", "._id");
+				if (expectedValue instanceof String) {
+					expectedValue = new ObjectId((String) expectedValue);
+				}
 			}
 			return com.mongodb.client.model.Filters.eq(field, expectedValue);
 		} else if (filter instanceof Regex) {

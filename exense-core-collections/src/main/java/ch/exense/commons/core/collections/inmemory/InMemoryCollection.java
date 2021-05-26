@@ -15,20 +15,25 @@
  ******************************************************************************/
 package ch.exense.commons.core.collections.inmemory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.bson.types.ObjectId;
-import ch.exense.commons.core.accessors.DefaultJacksonMapperProvider;
-import ch.exense.commons.core.collections.*;
-import ch.exense.commons.core.collections.PojoFilters.PojoFilterFactory;
-import ch.exense.commons.core.collections.filesystem.AbstractCollection;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+
+import org.bson.types.ObjectId;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ch.exense.commons.core.accessors.DefaultJacksonMapperProvider;
+import ch.exense.commons.core.collections.Collection;
+import ch.exense.commons.core.collections.Document;
+import ch.exense.commons.core.collections.Filter;
+import ch.exense.commons.core.collections.PojoFilter;
+import ch.exense.commons.core.collections.PojoFilters.PojoFilterFactory;
+import ch.exense.commons.core.collections.PojoUtils;
+import ch.exense.commons.core.collections.SearchOrder;
+import ch.exense.commons.core.collections.filesystem.AbstractCollection;
 
 public class InMemoryCollection<T> extends AbstractCollection<T> implements Collection<T> {
 
@@ -59,15 +64,7 @@ public class InMemoryCollection<T> extends AbstractCollection<T> implements Coll
 	public Stream<T> find(Filter filter, SearchOrder order, Integer skip, Integer limit, int maxTime) {
 		Stream<T> stream = filteredStream(filter);
 		if(order != null) {
-			Comparator<T> comparing = Comparator.comparing(e->{
-				try {
-					return PropertyUtils.getProperty(e, order.getAttributeName()).toString();
-				} catch (NoSuchMethodException e1) {
-					return "";
-				} catch (IllegalAccessException | InvocationTargetException e1) {
-					throw new RuntimeException(e1);
-				}
-			});
+			Comparator<T> comparing = (Comparator<T>) PojoUtils.comparator(order.getAttributeName());
 			if(order.getOrder()<0) {
 				comparing = comparing.reversed();
 			}
