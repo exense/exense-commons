@@ -19,14 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.persistence.Id;
-
-import ch.exense.commons.core.accessors.serialization.MapDeserializer;
-import ch.exense.commons.core.accessors.serialization.MapSerializer;
 import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import ch.exense.commons.core.accessors.serialization.MapDeserializer;
+import ch.exense.commons.core.accessors.serialization.MapSerializer;
 
 /**
  * This class is the parent class of all objects that have to be identified
@@ -35,14 +34,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 public class AbstractIdentifiableObject {
 
-	public static final String ID = "id";
-
-	private ObjectId _id;
-
+	protected ObjectId _id;
+	
 	@JsonSerialize(using = MapSerializer.class)
-	@JsonDeserialize(using = MapDeserializer.class)
+	@JsonDeserialize(using = MapDeserializer.class) 
 	protected Map<String, Object> customFields;
-
+	
 	public AbstractIdentifiableObject() {
 		super();
 		_id = new ObjectId();
@@ -51,11 +48,10 @@ public class AbstractIdentifiableObject {
 	/**
 	 * @return the unique ID of this object
 	 */
-	@Id
 	public ObjectId getId() {
 		return _id;
 	}
-
+	
 	/**
 	 * @param _id the unique ID of this object
 	 */
@@ -70,7 +66,7 @@ public class AbstractIdentifiableObject {
 	public void setCustomFields(Map<String, Object> customFields) {
 		this.customFields = customFields;
 	}
-
+	
 	public Object getCustomField(String key) {
 		if(customFields!=null) {
 			return customFields.get(key);
@@ -78,14 +74,9 @@ public class AbstractIdentifiableObject {
 			return null;
 		}
 	}
-
-	@SuppressWarnings("unchecked")
-	public <T> T computeCustomFieldIfAbsent(String key, Function<? super String, T> mappingFunction) {
-		if(customFields!=null) {
-			return (T) customFields.computeIfAbsent(key, mappingFunction);
-		} else {
-			return mappingFunction.apply(key);
-		}
+	
+	public Object computeCustomFieldIfAbsent(String key, Function<? super String, ? extends Object> mappingFunction) {
+		return customFields.computeIfAbsent(key, mappingFunction);
 	}
 
 	@SuppressWarnings("unchecked")

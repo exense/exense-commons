@@ -34,10 +34,11 @@
 			<artifactId>jackson-datatype-json-org</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
+		<!--  For ObjectId type-->
 		<dependency>
 			<groupId>org.mongodb</groupId>
-			<artifactId>bson</artifactId>
-			<version>${mongodb.version}</version>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>${mongo.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

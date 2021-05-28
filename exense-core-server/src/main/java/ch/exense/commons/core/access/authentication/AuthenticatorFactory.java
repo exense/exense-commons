@@ -15,6 +15,8 @@
  ******************************************************************************/
 package ch.exense.commons.core.access.authentication;
 
+import javax.naming.NamingException;
+
 import ch.exense.commons.core.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
