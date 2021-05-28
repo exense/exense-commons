@@ -106,6 +106,10 @@ public class Configuration implements Closeable {
 		return sb.toString();
 	}
 	
+	public Properties getUnderlyingPropertyObject(){
+		return this.properties;
+	}
+	
 	public String getProperty(String name) {
 		return properties.getProperty(name);
 	}
