@@ -207,6 +207,7 @@ public class ManagedProcess implements Closeable {
 		}
 	}
 
+
 	/**
 	 * Causes the current thread to wait, if necessary, until the process has
 	 * terminated, or the specified waiting time elapses.
