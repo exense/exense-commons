@@ -178,25 +178,29 @@ public class ManagedProcess implements Closeable {
 
 	public void start() throws ManagedProcessException {
 		synchronized (this) {
-			if (process == null) {
-				logger.debug("Starting managed process " + builder.command());
-				builder.directory(executionDirectory);
-				
-				if (redirectOuput) {
-					processOutputLog = new File(executionDirectory + "/ProcessOut.log");
-					builder.redirectOutput(processOutputLog);
+			try {
+				if (process == null) {
+					logger.debug("Starting managed process " + builder.command());
+					builder.directory(executionDirectory);
+
+					if (redirectOuput) {
+						processOutputLog = new File(executionDirectory + "/ProcessOut.log");
+						builder.redirectOutput(processOutputLog);
+					}
+
+					processErrorLog = new File(executionDirectory + "/ProcessError.log");
+					builder.redirectError(processErrorLog);
+					try {
+						process = builder.start();
+					} catch (IOException e) {
+						throw new ManagedProcessException("Unable to start the process " + id, e);
+					}
+					logger.debug("Started managed process " + builder.command());
+				} else {
+					throw new ManagedProcessException("Unable to start the process " + id + " twice. The process has already been started.");
 				}
-				
-				processErrorLog = new File(executionDirectory + "/ProcessError.log");
-				builder.redirectError(processErrorLog);
-				try {
-					process = builder.start();
-				} catch (IOException e) {
-					throw new ManagedProcessException("Unable to start the process " + id, e);
-				}
-				logger.debug("Started managed process " + builder.command());
-			} else {
-				throw new ManagedProcessException("Unable to start the process " + id + " twice. The process has already been started.");
+			} catch (Throwable t) {
+				removeFolder();
 			}
 		}
 	}
@@ -214,6 +218,7 @@ public class ManagedProcess implements Closeable {
 	public int waitFor(long timeout) throws TimeoutException, InterruptedException {
 		boolean terminated = process.waitFor(timeout, TimeUnit.MILLISECONDS);
 		if (!terminated) {
+			removeFolder();
 			throw new TimeoutException(
 					"The process " + id + " didn't exit within the defined timeout of " + timeout + "ms");
 		}
@@ -231,37 +236,42 @@ public class ManagedProcess implements Closeable {
 		public ManagedProcessException(String message) {
 			super(message);
 		}
-
 	}
 
 	@Override
 	public void close() throws IOException {
-		if(logger.isDebugEnabled()) {
-			try {
-				String errorLog = new String(Files.readAllBytes(getProcessErrorLog().toPath()), Charset.defaultCharset());
-				logger.debug("Error output from managed process "+id+": " + errorLog);
-				logger.debug("End of error output from managed process "+id);
+        if (logger.isDebugEnabled()) {
+            try {
+                String errorLog = new String(Files.readAllBytes(getProcessErrorLog().toPath()), Charset.defaultCharset());
+                logger.debug("Error output from managed process " + id + ": " + errorLog);
+                logger.debug("End of error output from managed process " + id);
 
-				if (redirectOuput) {
-					String stdOut = new String(Files.readAllBytes(getProcessOutputLog().toPath()), Charset.defaultCharset());
-					logger.debug("Standard output from managed process "+id+": " + stdOut);
-				} else {
-					logger.debug("Standard output from managed process "+id+" was not redirected, nothing to display.");
-				}
-				logger.debug("End of standard output from managed process "+id);
-			} catch (IOException e) {
-				logger.error("Error while logging output of process "+id, e);
-			}
-		}
-		
-		if (process != null) {
-			process.destroy();
-			try {
-				process.waitFor();
-			} catch (InterruptedException e) {
-			}
-		}
-		FileHelper.deleteFolder(executionDirectory);
+                if (redirectOuput) {
+                    String stdOut = new String(Files.readAllBytes(getProcessOutputLog().toPath()), Charset.defaultCharset());
+                    logger.debug("Standard output from managed process " + id + ": " + stdOut);
+                } else {
+                    logger.debug("Standard output from managed process " + id + " was not redirected, nothing to display.");
+                }
+                logger.debug("End of standard output from managed process " + id);
+            } catch (IOException e) {
+                logger.error("Error while logging output of process " + id, e);
+            }
+        }
+
+        if (process != null) {
+            process.destroy();
+            try {
+                process.waitFor();
+            } catch (InterruptedException e) {
+            }
+        }
+		removeFolder();
+    }
+
+    private void removeFolder() {
+		try {
+			FileHelper.deleteFolder(executionDirectory);
+		} catch (Throwable t) {}
 	}
 
 }
