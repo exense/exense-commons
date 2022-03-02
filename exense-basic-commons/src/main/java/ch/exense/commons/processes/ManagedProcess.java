@@ -199,6 +199,8 @@ public class ManagedProcess implements Closeable {
 				} else {
 					throw new ManagedProcessException("Unable to start the process " + id + " twice. The process has already been started.");
 				}
+			} catch (ManagedProcessException e) {
+				throw e;
 			} catch (Throwable t) {
 				removeFolder();
 			}
@@ -218,7 +220,6 @@ public class ManagedProcess implements Closeable {
 	public int waitFor(long timeout) throws TimeoutException, InterruptedException {
 		boolean terminated = process.waitFor(timeout, TimeUnit.MILLISECONDS);
 		if (!terminated) {
-			removeFolder();
 			throw new TimeoutException(
 					"The process " + id + " didn't exit within the defined timeout of " + timeout + "ms");
 		}
