@@ -48,7 +48,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<slf4j.version>1.7.5</slf4j.version>
 		<junit.version>4.13.1</junit.version>
-		<mongo.version>3.12.11</mongo.version>
+		<mongo.version>4.0.5</mongo.version>
 		<jersey.version>2.29.1</jersey.version>
 		<jackson.version>2.13.2</jackson.version>
 		<hk2.version>2.6.1</hk2.version>
