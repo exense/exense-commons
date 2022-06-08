@@ -15,8 +15,7 @@
  ******************************************************************************/
 package ch.exense.commons.core.web.container;
 
-import javax.inject.Inject;
-
+import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
