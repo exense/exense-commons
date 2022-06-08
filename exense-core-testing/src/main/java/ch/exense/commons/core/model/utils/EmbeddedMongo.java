@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2021 exense GmbH
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -21,122 +21,118 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import org.bson.Document;
+import de.flapdoodle.embed.mongo.config.Defaults;
+import de.flapdoodle.embed.mongo.config.MongodConfig;
+import de.flapdoodle.embed.process.config.RuntimeConfig;
+import de.flapdoodle.embed.process.config.io.ProcessOutput;
+import de.flapdoodle.embed.process.io.StreamProcessor;
 
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-import de.flapdoodle.embed.mongo.Command;
+import de.flapdoodle.embed.mongo.packageresolver.Command;
+
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.DownloadConfigBuilder;
-import de.flapdoodle.embed.mongo.config.ExtractedArtifactStoreBuilder;
-import de.flapdoodle.embed.mongo.config.IMongodConfig;
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.config.IRuntimeConfig;
-import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.extract.UserTempNaming;
-import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
 
-public class EmbeddedMongo{
+public class EmbeddedMongo {
 
-	private MongodProcess mongod;
-	private MongoClient client;
-	private MongoDatabase database;
+    private MongodProcess mongod;
+    private MongoClient client;
+    private MongoDatabase database;
 
-	private String bindIp;
-	private int port;
-	private String dbpath;
+    private String bindIp;
+    private int port;
+    private String dbpath;
 
-	public static EmbeddedMongo INSTANCE = new EmbeddedMongo();
-	public static EmbeddedMongo getInstance() { return INSTANCE;}
+    public static EmbeddedMongo INSTANCE = new EmbeddedMongo();
 
-	public void start(String dbpath, String bind, int port) throws UnknownHostException, IOException {
-		this.bindIp = bind;
-		this.port = port;
-		this.dbpath = dbpath;
+    public static EmbeddedMongo getInstance() {
+        return INSTANCE;
+    }
+
+    public void start(String dbpath, String bind, int port) throws UnknownHostException, IOException {
+        this.bindIp = bind;
+        this.port = port;
+        this.dbpath = dbpath;
 
 
-		IMongodConfig mongodConfig = new MongodConfigBuilder()
-				.version(Version.Main.PRODUCTION)
-				.net(new Net(bindIp, this.port, Network.localhostIsIPv6()))
-				.replication(new Storage(this.dbpath, null, 0))
-				.build();
-		
-		IStreamProcessor mongodOutput = Processors.named("[mongod>]",
-				new FileStreamProcessor(new File("./mongod.log")));
-		IStreamProcessor mongodError = new FileStreamProcessor(File.createTempFile("mongod-error", "log"));
-		IStreamProcessor commandsOutput = Processors.namedConsole("[console>]");
+        MongodConfig mongodConfig = MongodConfig.builder()
+                .version(Version.Main.PRODUCTION)
+                .net(new Net(bindIp, this.port, Network.localhostIsIPv6()))
+                .replication(new Storage(this.dbpath, null, 0))
+                .build();
 
-		IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
-		.defaults(Command.MongoD)
-		.processOutput(new ProcessOutput(mongodOutput, mongodError, commandsOutput))
-		.artifactStore(new ExtractedArtifactStoreBuilder()
-				.defaults(Command.MongoD)
-				.download(new DownloadConfigBuilder()
-						.defaultsForCommand(Command.MongoD).build())
-				.executableNaming(new UserTempNaming()))
-		.build();
-		MongodStarter starter = MongodStarter.getInstance(runtimeConfig);
-		
+        StreamProcessor mongodOutput = Processors.named("[mongod>]",
+                new FileStreamProcessor(new File("./mongod.log")));
+        StreamProcessor mongodError = new FileStreamProcessor(File.createTempFile("mongod-error", "log"));
+        StreamProcessor commandsOutput = Processors.namedConsole("[console>]");
 
-		MongodExecutable mongodExecutable = null;
-		try {
-			mongodExecutable = starter.prepare(mongodConfig);
-			this.mongod = mongodExecutable.start();
-			client = new MongoClient(bindIp, port);
-			database = client.getDatabase("licensing");
-		}catch(IOException e1) {
-			System.err.println("A problem occured at start of EmbeddedMongo (Check mongo.lock file?)");
-			e1.printStackTrace();
-			try {
-				if(mongodExecutable != null) {
-					mongodExecutable.stop();
-				}
-			}catch(Exception e2) {
-				System.err.println("Could not stop executable.");
-				e2.printStackTrace();
-			}
-		}
-	}
+        RuntimeConfig runtimeConfig = Defaults.runtimeConfigFor(Command.MongoD)
+                .processOutput(new ProcessOutput(mongodOutput, mongodError, commandsOutput))
+                .artifactStore(Defaults.extractedArtifactStoreFor(Command.MongoD)
+                        .download(Defaults.downloadConfigFor(Command.MongoD))
+                        .executableNaming(new UserTempNaming()))
+                .build();
+        MongodStarter starter = MongodStarter.getInstance(runtimeConfig);
 
-	public void stop() {
-		this.client.close();
-		this.mongod.stop();
-	}
-	
-	public class FileStreamProcessor implements IStreamProcessor {
 
-		private FileOutputStream outputStream;
+        MongodExecutable mongodExecutable = null;
+        try {
+            mongodExecutable = starter.prepare(mongodConfig);
+            this.mongod = mongodExecutable.start();
+            client = new MongoClient(bindIp, port);
+            database = client.getDatabase("licensing");
+        } catch (IOException e1) {
+            System.err.println("A problem occured at start of EmbeddedMongo (Check mongo.lock file?)");
+            e1.printStackTrace();
+            try {
+                if (mongodExecutable != null) {
+                    mongodExecutable.stop();
+                }
+            } catch (Exception e2) {
+                System.err.println("Could not stop executable.");
+                e2.printStackTrace();
+            }
+        }
+    }
 
-		public FileStreamProcessor(File file) throws FileNotFoundException {
-			outputStream = new FileOutputStream(file);
-		}
+    public void stop() {
+        this.client.close();
+        this.mongod.stop();
+    }
 
-		@Override
-		public void process(String block) {
-			try {
-				outputStream.write(block.getBytes());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+    public class FileStreamProcessor implements StreamProcessor {
 
-		@Override
-		public void onProcessed() {
-			try {
-				outputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+        private FileOutputStream outputStream;
+
+        public FileStreamProcessor(File file) throws FileNotFoundException {
+            outputStream = new FileOutputStream(file);
+        }
+
+        @Override
+        public void process(String block) {
+            try {
+                outputStream.write(block.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onProcessed() {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
