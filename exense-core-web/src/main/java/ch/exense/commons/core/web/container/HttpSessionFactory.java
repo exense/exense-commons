@@ -16,8 +16,9 @@
 package ch.exense.commons.core.web.container;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import org.glassfish.hk2.api.Factory;
 

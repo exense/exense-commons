@@ -17,8 +17,7 @@ package ch.exense.commons.core.web.container;
 
 import java.io.IOException;
 
-import javax.ws.rs.ext.ContextResolver;
-
+import jakarta.ws.rs.ext.ContextResolver;
 import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.core.JsonGenerator;

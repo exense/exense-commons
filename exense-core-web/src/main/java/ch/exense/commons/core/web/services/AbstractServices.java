@@ -15,12 +15,11 @@
  ******************************************************************************/
 package ch.exense.commons.core.web.services;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
-
 import ch.exense.commons.app.Configuration;
 import ch.exense.commons.core.web.container.ServerContext;
 import ch.exense.commons.core.web.session.Session;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpSession;
 
 public abstract class AbstractServices {
 

@@ -17,18 +17,12 @@ package ch.exense.commons.core.access;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
 import ch.exense.commons.core.access.authentication.AuthenticationManager;
+import jakarta.annotation.PostConstruct;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -18,8 +18,7 @@ package ch.exense.commons.core.web.container;
 import java.io.IOException;
 import java.util.logging.LogManager;
 
-import javax.servlet.http.HttpSession;
-
+import jakarta.servlet.http.HttpSession;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -54,7 +53,7 @@ import ch.exense.commons.app.Configuration;
  * 
  * Concrete implementations based on this class define the actual services and concrete webapp to be deployed on the web container.
  */
-public abstract class AbstractJettyContainer implements ExenseServer{
+public abstract class AbstractJettyContainer implements ExenseServer {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractJettyContainer.class);
 
@@ -252,7 +251,7 @@ public abstract class AbstractJettyContainer implements ExenseServer{
 			HttpConfiguration https = new HttpConfiguration();
 			https.addCustomizer(new SecureRequestCustomizer());
 
-			SslContextFactory sslContextFactory = new SslContextFactory();
+			SslContextFactory.Server sslContextFactory =  new SslContextFactory.Server();
 			sslContextFactory.setKeyStorePath(configuration.getProperty("ui.ssl.keystore.path"));
 			sslContextFactory.setKeyStorePassword(configuration.getProperty("ui.ssl.keystore.password"));
 			sslContextFactory.setKeyManagerPassword(configuration.getProperty("ui.ssl.keymanager.password"));
