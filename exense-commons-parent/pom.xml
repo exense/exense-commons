@@ -51,7 +51,7 @@
 		<mongo.version>3.12.11</mongo.version>
 		<jersey.version>3.0.4</jersey.version>
 		<jackson.version>2.13.3</jackson.version>
-		<hk2.version>2.6.1</hk2.version>
+		<hk2.version>3.0.1</hk2.version>
 		<jetty.version>11.0.9</jetty.version>
 	</properties>
 
