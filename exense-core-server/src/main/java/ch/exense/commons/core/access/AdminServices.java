@@ -17,7 +17,7 @@ package ch.exense.commons.core.access;
 
 import java.util.List;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import ch.exense.commons.core.access.authentication.AuthenticationManager;
 import jakarta.annotation.PostConstruct;

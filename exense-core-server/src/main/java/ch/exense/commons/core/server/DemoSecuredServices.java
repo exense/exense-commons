@@ -15,8 +15,8 @@
  ******************************************************************************/
 package ch.exense.commons.core.server;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.GET;

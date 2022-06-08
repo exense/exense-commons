@@ -17,8 +17,8 @@ package ch.exense.commons.core.access;
 
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.*;
