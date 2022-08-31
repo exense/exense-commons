@@ -66,15 +66,7 @@
 	</dependencies>
 
 	<modules>
-		<module>../exense-basic-commons</module>
-		<module>../exense-core-model</module>
-		<module>../exense-core-testing</module>
-		<module>../exense-core-accessors</module>
-		<module>../exense-core-serialization</module>
-		<module>../exense-core-mongo</module>
-		<module>../exense-core-web</module>
-		<module>../exense-auth-core</module>
-		<module>../exense-core-server</module>
+		<module>exense-basic-commons</module>
 	</modules>
 	
 	<build>
