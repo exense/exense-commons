@@ -17,7 +17,6 @@ package ch.exense.commons.io;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -51,32 +50,38 @@ public class FileWatchService extends Thread implements Closeable {
 	@Override
 	public void run() {
 		super.run();
-		
-		try {
-			while(running) {
+
+		while (running) {
+			try {
 				Thread.sleep(interval);
-				
+			} catch (InterruptedException e) {
+				logger.error("Thread interrupted while sleeping", e);
+			}
+
+
+			try {
 				synchronized (subscriptions) {
-					for(Entry<File, Subscription> entry:subscriptions.entrySet()) {
+					for (Entry<File, Subscription> entry : subscriptions.entrySet()) {
 						long lastModificationDate = FileHelper.getLastModificationDateRecursive(entry.getKey());
-						if(lastModificationDate>entry.getValue().lastupdate) {
+						logger.trace("Checking for modifications: file={} lastModified={} lastKnownModified={} changed={}", entry.getKey(), lastModificationDate, entry.getValue().lastupdate, lastModificationDate > entry.getValue().lastupdate);
+						if (lastModificationDate > entry.getValue().lastupdate) {
 							logger.info("Reloading file: " + entry.getKey().getAbsolutePath());
 							entry.getValue().lastupdate = lastModificationDate;
 							try {
 								entry.getValue().callback.run();
-							} catch (Exception e) {
+							} catch (Throwable e) {
 								logger.error("An error occurred while calling callback for file " + entry.getKey(), e);
 							}
 						}
 					}
 				}
+			} catch (Throwable t) {
+				logger.error("Unexpected exception", t);
 			}
-		} catch (InterruptedException e) {
-			logger.error("Thread interrupted", e);
 		}
 	}
 
-	private class Subscription {
+	private static class Subscription {
 		
 		long lastupdate;
 		
@@ -110,7 +115,8 @@ public class FileWatchService extends Thread implements Closeable {
 	private volatile boolean running = true;
 	
 	@Override
-	public void close() throws IOException {
+	public void close() {
+		logger.info("Closing and terminating");
 		running = false;
 	}
 }
