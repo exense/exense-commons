@@ -15,13 +15,15 @@
  ******************************************************************************/
 package ch.exense.commons.io;
 
-import java.io.Closeable;
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Closeable;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class FileWatchService extends Thread implements Closeable {
 	
@@ -60,18 +62,21 @@ public class FileWatchService extends Thread implements Closeable {
 
 
 			try {
+				List<Entry<File, Subscription>> subscriptionsList;
 				synchronized (subscriptions) {
-					for (Entry<File, Subscription> entry : subscriptions.entrySet()) {
-						long lastModificationDate = FileHelper.getLastModificationDateRecursive(entry.getKey());
-						logger.trace("Checking for modifications: file={} lastModified={} lastKnownModified={} changed={}", entry.getKey(), lastModificationDate, entry.getValue().lastupdate, lastModificationDate > entry.getValue().lastupdate);
-						if (lastModificationDate > entry.getValue().lastupdate) {
-							logger.info("Reloading file: " + entry.getKey().getAbsolutePath());
-							entry.getValue().lastupdate = lastModificationDate;
-							try {
-								entry.getValue().callback.run();
-							} catch (Throwable e) {
-								logger.error("An error occurred while calling callback for file " + entry.getKey(), e);
-							}
+					// defensive copy in case a callback itself modifies subscriptions
+					subscriptionsList = new ArrayList<>(subscriptions.entrySet());
+				}
+				for (Entry<File, Subscription> entry : subscriptionsList) {
+					long lastModificationDate = FileHelper.getLastModificationDateRecursive(entry.getKey());
+					logger.trace("Checking for modifications: file={} lastModified={} lastKnownModified={} changed={}", entry.getKey(), lastModificationDate, entry.getValue().lastupdate, lastModificationDate > entry.getValue().lastupdate);
+					if (lastModificationDate > entry.getValue().lastupdate) {
+						logger.info("Reloading file: " + entry.getKey().getAbsolutePath());
+						entry.getValue().lastupdate = lastModificationDate;
+						try {
+							entry.getValue().callback.run();
+						} catch (Throwable e) {
+							logger.error("An error occurred while calling callback for file " + entry.getKey(), e);
 						}
 					}
 				}
