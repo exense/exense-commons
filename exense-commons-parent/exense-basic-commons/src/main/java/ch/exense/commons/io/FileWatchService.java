@@ -21,15 +21,15 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FileWatchService extends Thread implements Closeable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileWatchService.class);
 		
-	private final HashMap<File, Subscription> subscriptions = new HashMap<>();
+	private final ConcurrentHashMap<File, Subscription> subscriptions = new ConcurrentHashMap<>();
 	
 	private int interval = 1000;
 	
@@ -63,10 +63,8 @@ public class FileWatchService extends Thread implements Closeable {
 
 			try {
 				List<Entry<File, Subscription>> subscriptionsList;
-				synchronized (subscriptions) {
-					// defensive copy in case a callback itself modifies subscriptions
-					subscriptionsList = new ArrayList<>(subscriptions.entrySet());
-				}
+				// defensive copy in case a callback itself modifies subscriptions
+				subscriptionsList = new ArrayList<>(subscriptions.entrySet());
 				for (Entry<File, Subscription> entry : subscriptionsList) {
 					long lastModificationDate = FileHelper.getLastModificationDateRecursive(entry.getKey());
 					logger.trace("Checking for modifications: file={} lastModified={} lastKnownModified={} changed={}", entry.getKey(), lastModificationDate, entry.getValue().lastupdate, lastModificationDate > entry.getValue().lastupdate);
@@ -104,17 +102,13 @@ public class FileWatchService extends Thread implements Closeable {
 	}
 	
 	public void register(File file, Runnable callback, boolean callOnRegistration) {
-		synchronized (subscriptions) {
-			logger.debug("Registering file " + file);
-			subscriptions.put(file, new Subscription(callOnRegistration?0:FileHelper.getLastModificationDateRecursive(file), callback));
-		}
+		logger.debug("Registering file " + file);
+		subscriptions.put(file, new Subscription(callOnRegistration?0:FileHelper.getLastModificationDateRecursive(file), callback));
 	}
 	
 	public void unregister(File file) {
-		synchronized (subscriptions) {
-			logger.debug("Unregistering file " + file);
-			subscriptions.remove(file);
-		}
+		logger.debug("Unregistering file " + file);
+		subscriptions.remove(file);
 	}
 
 	private volatile boolean running = true;
