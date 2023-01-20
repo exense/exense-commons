@@ -79,6 +79,7 @@ public class ManagedProcessTest  {
 				"\n" +
 				"    public static void main(String[] args) {\n" +
 				"        System.out.println(\"Hello World!\");\n" +
+				"        System.err.println(\"Error World\");\n" +
 				"    }\n" +
 				"\n" +
 				"}");
@@ -88,6 +89,11 @@ public class ManagedProcessTest  {
 		try(ManagedProcess managedProcess = new ManagedProcess("MyJavaProcess", Arrays.asList("java", "test.java"), tempExecutionFolder, tempLogFolder, true)) {
 			managedProcess.startAndWaitFor(5000);
 			assertTrue(managedProcess.getProcessOutputLogAsString().startsWith("Hello World!"));
+			assertTrue(managedProcess.getProcessErrorLogAsString().startsWith("Error World"));
+			String processLog = managedProcess.getProcessLog();
+			assertTrue(processLog.contains("Hello World!"));
+			assertTrue(processLog.contains("Error World"));
+
 			// Assert that the process logs have been created within the log directory
 			assertEquals(2, tempLogFolder.toPath().resolve(managedProcess.getId()).toFile().listFiles().length);
 			// Assert that the process returns the correct execution directory
@@ -96,6 +102,44 @@ public class ManagedProcessTest  {
 		// Assert that the process log have been deleted
 		assertEquals(0, tempLogFolder.listFiles().length);
 		// Assert that the execution directory still exist
+		assertEquals(1, tempExecutionFolder.listFiles().length);
+	}
+
+	@Test
+	public void testExecutionDirectory2() throws IOException, ManagedProcessException, TimeoutException, InterruptedException {
+		File tempExecutionFolder = FileHelper.createTempFolder();
+
+		// Create a simple java program
+		FileWriter fileWriter = new FileWriter(tempExecutionFolder.toPath().resolve("test.java").toFile());
+		fileWriter.write("public class HelloWorld {\n" +
+				"\n" +
+				"    public static void main(String[] args) {\n" +
+				"        System.out.println(\"Hello World!\");\n" +
+				"        System.err.println(\"Error World\");\n" +
+				"    }\n" +
+				"\n" +
+				"}");
+		fileWriter.close();
+
+		File logFolder = null;
+		try(ManagedProcess managedProcess = new ManagedProcess("MyJavaProcess", Arrays.asList("java", "test.java"), tempExecutionFolder)) {
+			managedProcess.startAndWaitFor(5000);
+			assertTrue(managedProcess.getProcessOutputLogAsString().startsWith("Hello World!"));
+			assertTrue(managedProcess.getProcessErrorLogAsString().startsWith("Error World"));
+			String processLog = managedProcess.getProcessLog();
+			assertTrue(processLog.contains("Hello World!"));
+			assertTrue(processLog.contains("Error World"));
+
+			logFolder = tempExecutionFolder.toPath().resolve(managedProcess.getId()).toFile();
+			// Assert that the process logs have been created within the log directory
+			assertEquals(2, logFolder.listFiles().length);
+			// Assert that the process returns the correct execution directory
+			assertEquals(tempExecutionFolder, managedProcess.getExecutionDirectory());
+		}
+		// Assert that the process log have been deleted
+		assertFalse(logFolder.exists());
+		// Assert that the execution directory still exist
+		assertTrue(tempExecutionFolder.exists());
 		assertEquals(1, tempExecutionFolder.listFiles().length);
 	}
 

@@ -101,6 +101,16 @@ public class ManagedProcess implements Closeable {
 
     /**
      * @param name               a string describing the process. This is used to prefix
+     *                           the ID which uniquely identifies the process instance
+     * @param commands           the list containing the program and its arguments
+     * @param executionDirectory the directory in which the process will be executed
+     */
+    public ManagedProcess(String name, List<String> commands, File executionDirectory) {
+        this(name, commands, executionDirectory, executionDirectory, true);
+    }
+
+    /**
+     * @param name               a string describing the process. This is used to prefix
      *                           the ID wich uniquely identifies the process instance
      * @param commands           the list containing the program and its arguments
      * @param executionDirectory the directory in which the process will be executed
@@ -171,13 +181,29 @@ public class ManagedProcess implements Closeable {
         return readProcessLog(getProcessErrorLog());
     }
 
+    /**
+     * @return the standard output and error of this process formatted for logging purposes
+     */
+    public String getProcessLog() {
+        StringBuilder log = new StringBuilder();
+        log.append("The output of the process " + id + " was:\n");
+        log.append(getProcessOutputLogAsString());
+        log.append("The error output of the process " + id + " was:\n");
+        log.append(getProcessErrorLogAsString());
+        return log.toString();
+    }
+
     private static String readProcessLog(File file) {
-        try {
-            return Files.readString(file.toPath(), Charset.defaultCharset());
-        } catch (IOException e) {
-            String errorMessage = "Error while reading process log file " + file.getAbsolutePath();
-            logger.error(errorMessage, e);
-            throw new RuntimeException(errorMessage, e);
+        if(file.exists() && file.canRead()) {
+            try {
+                return Files.readString(file.toPath(), Charset.defaultCharset());
+            } catch (IOException e) {
+                String errorMessage = "Error while reading process log file " + file.getAbsolutePath();
+                logger.error(errorMessage, e);
+                throw new RuntimeException(errorMessage, e);
+            }
+        } else {
+            return "";
         }
     }
 
@@ -199,34 +225,32 @@ public class ManagedProcess implements Closeable {
         return tokens;
     }
 
-    public void start() throws ManagedProcessException {
-        synchronized (this) {
-            try {
-                if (process == null) {
-                    logger.debug("Starting managed process " + builder.command());
-                    builder.directory(executionDirectory);
+    public synchronized void start() throws ManagedProcessException {
+        try {
+            if (process == null) {
+                logger.debug("Starting managed process " + builder.command());
+                builder.directory(executionDirectory);
 
-                    if (redirectOuput) {
-                        processOutputLog = new File(tempLogDirectory + "/ProcessOut.log");
-                        builder.redirectOutput(processOutputLog);
-                    }
-
-                    processErrorLog = new File(tempLogDirectory + "/ProcessError.log");
-                    builder.redirectError(processErrorLog);
-                    try {
-                        process = builder.start();
-                    } catch (IOException e) {
-                        throw new ManagedProcessException("Unable to start the process " + id, e);
-                    }
-                    logger.debug("Started managed process " + builder.command());
-                } else {
-                    throw new ManagedProcessException("Unable to start the process " + id + " twice. The process has already been started.");
+                if (redirectOuput) {
+                    processOutputLog = new File(tempLogDirectory + "/ProcessOut.log");
+                    builder.redirectOutput(processOutputLog);
                 }
-            } catch (ManagedProcessException e) {
-                throw e;
-            } catch (Throwable t) {
-                removeTempLogDirectory();
+
+                processErrorLog = new File(tempLogDirectory + "/ProcessError.log");
+                builder.redirectError(processErrorLog);
+                try {
+                    process = builder.start();
+                } catch (IOException e) {
+                    throw new ManagedProcessException("Unable to start the process " + id, e);
+                }
+                logger.debug("Started managed process " + builder.command());
+            } else {
+                throw new ManagedProcessException("Unable to start the process " + id + " twice. The process has already been started.");
             }
+        } catch (ManagedProcessException e) {
+            throw e;
+        } catch (Throwable t) {
+            removeTempLogDirectory();
         }
     }
 
