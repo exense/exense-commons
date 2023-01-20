@@ -70,6 +70,22 @@ public class ManagedProcessTest  {
 	}
 
 	@Test
+	public void testClose() throws ManagedProcessException, InterruptedException, TimeoutException, IOException {
+		File tempFolder = FileHelper.createTempFolder();
+		ManagedProcess managedProcess = new ManagedProcess("MyJavaProcess", Arrays.asList("java", "-version"), tempFolder, true);
+		runAndTestProcess(managedProcess);
+		try {
+			managedProcess.close();
+		} catch (IOException e) {
+			// Ensure that the method close throws an IOException to not break backward compatibility
+			throw new RuntimeException(e);
+		}
+
+		// Assert that the process log have been deleted
+		assertEquals(0, tempFolder.listFiles().length);
+	}
+
+	@Test
 	public void testExecutionDirectory() throws IOException, ManagedProcessException, TimeoutException, InterruptedException {
 		File tempExecutionFolder = FileHelper.createTempFolder();
 

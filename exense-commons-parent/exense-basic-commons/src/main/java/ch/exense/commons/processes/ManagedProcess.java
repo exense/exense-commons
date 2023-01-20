@@ -298,7 +298,7 @@ public class ManagedProcess implements Closeable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         if (logger.isDebugEnabled()) {
             try {
                 String errorLog = readProcessLog(getProcessErrorLog());
