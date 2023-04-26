@@ -15,6 +15,9 @@
  ******************************************************************************/
 package ch.exense.commons.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,11 +35,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
+import java.util.concurrent.TimeoutException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class FileHelper {
+
+	private static final Logger logger = LoggerFactory.getLogger(FileHelper.class);
 
 	public static final int DEFAULT_BUFFER_SIZE = 2048;
 	
@@ -87,6 +93,43 @@ public class FileHelper {
 			}
 		}
 		folder.delete();
+	}
+
+	/**
+	 * Deletes a folder recursively, retrying in case of error
+	 * @param folder the {@link File} to be deleted
+	 */
+	public static void deleteFolderWithRetryOnError(File folder) {
+		File[] files = folder.listFiles();
+		// delete folder contents
+		if (files != null) {
+			for (File f : files) {
+				if (f.isDirectory()) {
+					deleteFolderWithRetryOnError(f);
+				} else {
+					deleteFileWithRetryOnError(f);
+				}
+			}
+		}
+		// delete folder itself
+		deleteFileWithRetryOnError(folder);
+	}
+
+	private static void deleteFileWithRetryOnError(File f) {
+		try {
+			Poller.waitFor(() ->{
+				return f.delete();
+			}, 10000);
+		} catch (TimeoutException e) {
+			//Final try, logging actual exception in case of error
+			try {
+				Files.delete(f.toPath());
+			} catch (IOException ex) {
+				logger.error("Unable to delete file " + f.getAbsolutePath(), e);
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	/**
