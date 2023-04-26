@@ -101,19 +101,21 @@ public class FileHelper {
 	 */
 	public static void deleteFolderWithRetryOnError(File folder) {
 		File[] files = folder.listFiles();
+		// delete folder contents
 		if (files != null) {
 			for (File f : files) {
 				if (f.isDirectory()) {
 					deleteFolderWithRetryOnError(f);
 				} else {
-					deleteFileWithRetryOneError(f);
+					deleteFileWithRetryOnError(f);
 				}
 			}
 		}
-		deleteFileWithRetryOneError(folder);
+		// delete folder itself
+		deleteFileWithRetryOnError(folder);
 	}
 
-	private static void deleteFileWithRetryOneError(File f) {
+	private static void deleteFileWithRetryOnError(File f) {
 		try {
 			Poller.waitFor(() ->{
 				return f.delete();
