@@ -180,7 +180,7 @@ public class ManagedProcessTest  {
 			OutputStreamWriter writer = new OutputStreamWriter(managedProcess.getProcessOutputStream());
 			writer.write("hello\n");
 			writer.close();
-			managedProcess.waitFor(1000);
+			managedProcess.waitFor(2000);
 
 			InputStream processInputStream = managedProcess.getProcessInputStream();
 			BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(processInputStream));

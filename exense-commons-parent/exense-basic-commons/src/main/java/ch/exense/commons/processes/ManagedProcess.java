@@ -318,19 +318,64 @@ public class ManagedProcess implements Closeable {
         }
 
         if (process != null) {
-            process.destroy();
             try {
-                process.waitFor();
+                stopProcess(process);
             } catch (InterruptedException ignored) {
             }
+            //Close all streams just in case
+            try {
+                process.getInputStream().close();
+            } catch (Exception ignored) {
+            }
+            try {
+                process.getOutputStream().close();
+            } catch (Exception ignored) {
+            }
+            try {
+                process.getErrorStream().close();
+            } catch (Exception ignored) {
+            }
+        }
+        //the process should be stopped by now
+        if (process.isAlive()) {
+            logger.error("Process is still alive");
         }
         removeTempLogDirectory();
     }
 
+    private void stopProcess(Process process) throws InterruptedException {
+        //For process starting child processes there is no guaranty that stopping the parent
+        //and waiting on it to finish is sufficient, so stopping all children explicitly
+        process.descendants().forEach( d -> {
+            d.destroy();
+            try {
+                int counter=0;
+                while (d.isAlive() && counter < 100) {
+                    counter++;
+                    Thread.sleep(100);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        //Stop parent process and wait for completion
+        process.destroy();
+        process.waitFor();
+    }
+
     private void removeTempLogDirectory() {
+        Thread thread = new Thread(() -> {
+            try {
+                FileHelper.deleteFolderWithRetryOnError(tempLogDirectory);
+            } catch (Throwable ignored) {
+                logger.error("Unable to delete the managed process temp folder " + tempLogDirectory.getAbsolutePath(), ignored);
+            }
+        });
+        thread.start();
         try {
-            FileHelper.deleteFolder(tempLogDirectory);
-        } catch (Throwable ignored) {
+            thread.join(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
