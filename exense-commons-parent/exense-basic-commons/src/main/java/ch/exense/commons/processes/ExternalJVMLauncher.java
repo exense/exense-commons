@@ -38,11 +38,11 @@ public class ExternalJVMLauncher {
 		String[] classPathEntries = System.getProperty("java.class.path").split(File.pathSeparator);
 
 		StringBuilder cp = new StringBuilder();
-		cp.append("\"");
+		//cp.append("\"");
 		for(String path:classPathEntries) {
 			cp.append(new File(path).getAbsolutePath()+File.pathSeparator);
 		}
-		cp.append("\"");
+		//cp.append("\"");
 		return cp.toString();
 	}
 
@@ -63,7 +63,7 @@ public class ExternalJVMLauncher {
 		cmd.add(mainClass.getName());
 		
 		cmd.addAll(progargs);
-		
+
 		ManagedProcess process = new ManagedProcess(name, cmd, processLogFolder, redirectOutput);
 		process.start();
 		return process;
