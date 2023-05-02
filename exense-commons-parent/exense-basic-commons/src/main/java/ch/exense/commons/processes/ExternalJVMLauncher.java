@@ -38,11 +38,9 @@ public class ExternalJVMLauncher {
 		String[] classPathEntries = System.getProperty("java.class.path").split(File.pathSeparator);
 
 		StringBuilder cp = new StringBuilder();
-		//cp.append("\"");
 		for(String path:classPathEntries) {
 			cp.append(new File(path).getAbsolutePath()+File.pathSeparator);
 		}
-		//cp.append("\"");
 		return cp.toString();
 	}
 
