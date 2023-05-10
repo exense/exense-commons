@@ -16,32 +16,49 @@
 package ch.exense.commons.processes;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.exense.commons.io.FileHelper;
 import ch.exense.commons.processes.ManagedProcess.ManagedProcessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExternalJVMLauncher {
 
+	private static final Logger logger = LoggerFactory.getLogger(ExternalJVMLauncher.class);
 	private final String javaPath;
 	
 	private final File processLogFolder;
-	
+
 	public ExternalJVMLauncher(String javaPath, File processLogFolder) {
 		super();
 		this.javaPath = javaPath;
 		this.processLogFolder = processLogFolder;
 	}
 
-	private String buildClasspath() {
+	private File buildClasspath() throws IOException {
 		//Fix for Java11 compatibility (Classloader is no more an instance of URLClassLoader)
 		String[] classPathEntries = System.getProperty("java.class.path").split(File.pathSeparator);
 
-		StringBuilder cp = new StringBuilder();
-		for(String path:classPathEntries) {
-			cp.append(new File(path).getAbsolutePath()+File.pathSeparator);
+		File javaClassPathArgsFile = FileHelper.createTempFile();
+
+		try (OutputStreamWriter cp = new OutputStreamWriter(new FileOutputStream(javaClassPathArgsFile), StandardCharsets.UTF_8)) {
+			cp.append("-cp ");
+			cp.append("\"");
+			for(String path:classPathEntries) {
+				String absolutePath = new File(path).getCanonicalPath();
+				absolutePath = (isWindows()) ? absolutePath.replace("\\","/") : absolutePath;
+				cp.append(absolutePath);
+				cp.append(File.pathSeparator);
+			}
+			cp.append("\"");
 		}
-		return cp.toString();
+		return javaClassPathArgsFile;
 	}
 
 	public ManagedProcess launchExternalJVM(String name, Class<?> mainClass, List<String> vmargs, List<String> progargs) throws ManagedProcessException {
@@ -49,24 +66,47 @@ public class ExternalJVMLauncher {
 	}
 	
 	public ManagedProcess launchExternalJVM(String name, Class<?> mainClass, List<String> vmargs, List<String> progargs, boolean redirectOutput) throws ManagedProcessException {
-		String cp = buildClasspath();
-		
-		List<String> cmd = new ArrayList<>();
-		cmd.add(javaPath);
-		cmd.add("-cp");
-		cmd.add(cp);
-		
-		cmd.addAll(vmargs);
-		
-		cmd.add(mainClass.getName());
-		
-		cmd.addAll(progargs);
+		try {
+			File cpArgFile = buildClasspath();
+			List<String> cmd = new ArrayList<>();
+			cmd.add(javaPath);
+			cmd.add("@" + cpArgFile.getCanonicalPath());
 
-		ManagedProcess process = new ManagedProcess(name, cmd, processLogFolder, redirectOutput);
-		process.start();
-		return process;
+			cmd.addAll(vmargs);
+
+			cmd.add(mainClass.getName());
+
+			cmd.addAll(progargs);
+
+			ManagedProcess process = new JvmManagedProcess(cpArgFile, name, cmd, processLogFolder, redirectOutput);
+			process.start();
+			return process;
+		} catch (IOException e) {
+			throw new ManagedProcessException("Unable to create the java argument file specifying the classpath.",e);
+		}
 	}
 	public static boolean isWindows() {
-        return System.getProperty("os.name").toLowerCase().contains("win");
-    }
+		return System.getProperty("os.name").toLowerCase().contains("win");
+	}
+
+	private static class JvmManagedProcess extends ManagedProcess {
+
+		private File javaClassPathArgsFile;
+
+		public JvmManagedProcess(File javaClassPathArgsFile, String name, List<String> commands, File baseLogDirectory, boolean redirectOuput) throws ManagedProcessException {
+			super(name, commands, baseLogDirectory, redirectOuput);
+			this.javaClassPathArgsFile = javaClassPathArgsFile;
+		}
+
+		@Override
+		public void close() throws IOException {
+			super.close();
+			if (javaClassPathArgsFile != null && javaClassPathArgsFile.exists()) {
+				boolean delete = javaClassPathArgsFile.delete();
+				if (!delete) {
+					logger.error("Unable to delete temporary file: " + javaClassPathArgsFile.getCanonicalPath());
+				}
+			}
+		}
+	}
 }
