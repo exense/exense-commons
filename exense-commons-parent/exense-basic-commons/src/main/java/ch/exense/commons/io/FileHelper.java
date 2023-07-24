@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.  You may obtain a copy
  * of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
@@ -223,7 +223,7 @@ public class FileHelper {
 				Files.createDirectories(destinationParent.toPath());
 
 				if (!entry.isDirectory()) {
-					byte data[] = new byte[DEFAULT_BUFFER_SIZE];
+					byte[] data = new byte[DEFAULT_BUFFER_SIZE];
 
 					FileOutputStream fos = new FileOutputStream(destFile);
 					BufferedOutputStream dest = new BufferedOutputStream(fos, DEFAULT_BUFFER_SIZE);
@@ -252,7 +252,7 @@ public class FileHelper {
 			while ((entry = zip.getNextEntry()) != null) {
 				if (!entry.isDirectory() && entry.getName().equals(entryName)) {
 					f = FileHelper.createTempFile();				
-					byte data[] = new byte[DEFAULT_BUFFER_SIZE];
+					byte[] data = new byte[DEFAULT_BUFFER_SIZE];
 					FileOutputStream fos = new FileOutputStream(f);
 					BufferedOutputStream dest = new BufferedOutputStream(fos, DEFAULT_BUFFER_SIZE);
 					int currentByte;
