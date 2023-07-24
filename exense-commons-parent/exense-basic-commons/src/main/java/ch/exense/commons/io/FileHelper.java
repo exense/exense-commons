@@ -211,7 +211,7 @@ public class FileHelper {
 	 */
 	public static void unzip(InputStream stream, File target) throws IOException {
 		try (ZipInputStream zip = new ZipInputStream(stream)){
-			target.mkdir();
+			Files.createDirectory(target.toPath());
 
 			ZipEntry entry;
 			while ((entry = zip.getNextEntry()) != null) {
@@ -220,7 +220,7 @@ public class FileHelper {
 				File destFile = new File(target.getAbsolutePath(), currentEntry);
 				File destinationParent = destFile.getParentFile();
 
-				destinationParent.mkdirs();
+				Files.createDirectories(destinationParent.toPath());
 
 				if (!entry.isDirectory()) {
 					byte data[] = new byte[DEFAULT_BUFFER_SIZE];
@@ -376,7 +376,7 @@ public class FileHelper {
 	 * @return the content of the stream
 	 */
 	public static String readStream(InputStream is) {
-		try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
+		try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8)) {
 			return scanner.useDelimiter("\\A").next().replaceAll("\r\n", "\n");
 		}
 	}
