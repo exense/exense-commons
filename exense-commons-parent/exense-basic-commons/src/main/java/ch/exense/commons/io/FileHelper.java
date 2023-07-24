@@ -211,7 +211,11 @@ public class FileHelper {
 	 */
 	public static void unzip(InputStream stream, File target) throws IOException {
 		try (ZipInputStream zip = new ZipInputStream(stream)){
-			Files.createDirectory(target.toPath());
+			if (!target.exists()) {
+				Files.createDirectory(target.toPath());
+			} else if (!target.isDirectory()) {
+				throw new IOException("The target should be a directory");
+			}
 
 			ZipEntry entry;
 			while ((entry = zip.getNextEntry()) != null) {
