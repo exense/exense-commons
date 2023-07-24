@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
 import java.util.zip.ZipEntry;
@@ -49,7 +50,7 @@ public class FileHelper {
 	/**
 	 * Creates a temporary file that will be deleted on JVM exit
 	 * @return the {@link File} of the temporary file
-	 * @throws IOException
+	 * @throws IOException: I/O exception during file creation
 	 */
 	public static File createTempFile() throws IOException {
 		File file = Files.createTempFile(null, null).toFile();
@@ -59,22 +60,20 @@ public class FileHelper {
 	
 	/**
 	 * Creates a temporary folder
-	 * @throws IOException
+	 * @throws IOException: I/O exception during folder creation
 	 */
 	public static File createTempFolder() throws IOException {
-		File file = Files.createTempDirectory(null).toFile();
-		return file;
+		return createTempFolder(null);
 	}
 	
 	/**
 	 * Creates a temporary folder
 	 * @param prefix the prefix string to be used in generating the folder's name
 	 * @return the {@link File} of the temporary folder
-	 * @throws IOException
+	 * @throws IOException: I/O exception during folder creation
 	 */
 	public static File createTempFolder(String prefix) throws IOException {
-		File file = Files.createTempDirectory(prefix).toFile();
-		return file;
+		return Files.createTempDirectory(prefix).toFile();
 	}
 
 	/**
@@ -88,11 +87,16 @@ public class FileHelper {
 				if (f.isDirectory()) {
 					deleteFolder(f);
 				} else {
-					f.delete();
+					if (!f.delete()) {
+						logger.warn("Could not delete file '"+f.getAbsolutePath()+"'");
+					}
 				}
 			}
 		}
-		folder.delete();
+
+		if (!folder.delete()) {
+			logger.warn("Could not delete folder '"+folder.getAbsolutePath()+"'");
+		}
 	}
 
 	/**
@@ -117,9 +121,7 @@ public class FileHelper {
 
 	private static void deleteFileWithRetryOnError(File f) {
 		try {
-			Poller.waitFor(() ->{
-				return f.delete();
-			}, 10000);
+			Poller.waitFor(f::delete, 10_000);
 		} catch (TimeoutException e) {
 			//Final try, logging actual exception in case of error
 			try {
@@ -152,21 +154,21 @@ public class FileHelper {
 
 	/**
 	 * Computes the last modification date of a file or a folder recursively
-	 * @param file 
+	 * @param file: the file
 	 * @return the time that the file was last modified. 
 	 */
-	public static final long getLastModificationDateRecursive(File file) {
+	public static long getLastModificationDateRecursive(File file) {
 		return computeLastModification(file);
 	}
 
-	protected static final long computeLastModification(File file) {
+	protected static long computeLastModification(File file) {
 		return computeLastModificationDateRecursive(file);
 	}
 
-	protected static final long computeLastModificationDateRecursive(File file) {
+	protected static long computeLastModificationDateRecursive(File file) {
 		if (file.isDirectory()) {
 			long lastModificationDate = file.lastModified();
-			for (File f : file.listFiles()) {
+			for (File f : Objects.requireNonNull(file.listFiles())) {
 				long lastChange = computeLastModificationDateRecursive(f);
 				if (lastChange > lastModificationDate) {
 					lastModificationDate = lastChange;
@@ -182,7 +184,7 @@ public class FileHelper {
 	 * Extracts the zip file to the target folder provided as argument
 	 * @param zipFile the zip file to be extracted
 	 * @param target the target folder to extract to
-	 * @throws IOException
+	 * @throws IOException: I/O exception during unzip
 	 */
 	public static void unzip(File zipFile, File target) throws IOException {
 		try (FileInputStream in = new FileInputStream(zipFile)) {
@@ -195,7 +197,7 @@ public class FileHelper {
 	 * Extracts the zip provided as byte array to the target folder provided as argument
 	 * @param bytes the byte array of the zip to be extracted
 	 * @param target the target folder to extract to
-	 * @throws IOException
+	 * @throws IOException: I/O exception during unzip
 	 */
 	public static void unzip(byte[] bytes, File target) throws IOException {
 		unzip(new ByteArrayInputStream(bytes), target);
@@ -205,7 +207,7 @@ public class FileHelper {
 	 * Extracts the zip provided as stream to the target folder provided as argument
 	 * @param stream the {@link InputStream} of the zip to be extracted
 	 * @param target the target folder to extract to
-	 * @throws IOException
+	 * @throws IOException: I/O exception during unzip
 	 */
 	public static void unzip(InputStream stream, File target) throws IOException {
 		try (ZipInputStream zip = new ZipInputStream(stream)){
@@ -241,7 +243,7 @@ public class FileHelper {
 	 * Extracts zip entry to file
 	 * @param stream the {@link InputStream} of the zip to be extracted
 	 * @return the extracted file
-	 * @throws IOException
+	 * @throws IOException: I/O exception during unzip
 	 */
 	public static File unzip(InputStream stream, String entryName) throws IOException {
 		File f = null;
@@ -268,9 +270,9 @@ public class FileHelper {
 	 * Create a zip file of the directory denoted by the {@link File} passed as argument 
 	 * @param directory the directory to be zipped
 	 * @param target the path to the target zip file
-	 * @throws IOException
+	 * @throws IOException: I/O exception during zip
 	 */
-	public static final void zip(File directory, File target) throws IOException {
+	public static void zip(File directory, File target) throws IOException {
 		FileOutputStream fileOutputStream = new FileOutputStream(target);
 		zip(directory, fileOutputStream);
 		fileOutputStream.close();
@@ -280,9 +282,9 @@ public class FileHelper {
 	 * Create a zip file of the directory denoted by the {@link File} passed as argument 
 	 * @param directory the directory to be zipped
 	 * @param out the output stream of the target zip file
-	 * @throws IOException
+	 * @throws IOException: I/O exception during zip
 	 */
-	public static final void zip(File directory, OutputStream out) throws IOException {
+	public static void zip(File directory, OutputStream out) throws IOException {
 		ZipOutputStream zos = new ZipOutputStream(out);
 		zos.setLevel(ZipOutputStream.STORED);
 		zip(directory, directory, zos);
@@ -293,15 +295,15 @@ public class FileHelper {
 	 * Create a zip file of the directory denoted by the {@link File} passed as argument 
 	 * @param directory the directory to be zipped
 	 * @return the byte array of the target zip
-	 * @throws IOException
+	 * @throws IOException: I/O exception during zip
 	 */
-	public static final byte[] zip(File directory) throws IOException {
+	public static byte[] zip(File directory) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		zip(directory, out);
 		return out.toByteArray();
 	}
 
-	private static final void zip(File directory, File base, ZipOutputStream zos) throws IOException {
+	private static void zip(File directory, File base, ZipOutputStream zos) throws IOException {
 		File[] files = directory.listFiles();
 		byte[] buffer = new byte[8192];
 		int read = 0;
@@ -338,7 +340,7 @@ public class FileHelper {
 	 * @param file to be added to the zip
 	 * @param basePath path of the file to be removed from the zip entry
 	 */
-	public static void zipFile(ZipOutputStream zos, File file, String basePath) throws IOException {
+	public static void zipFile(ZipOutputStream zos, File file, String basePath) {
 		try {
 			byte[] buffer = new byte[8192];
 			int read = 0;
@@ -404,7 +406,7 @@ public class FileHelper {
 	 * @param clazz the class the resource is associated with
 	 * @param resourceName the name of the resource
 	 * @return the content of the resource as byte array
-	 * @throws IOException
+	 * @throws IOException: I/O exception when reading resource
 	 */
 	public static byte[] readResourceAsByteArray(Class<?> clazz, String resourceName) throws IOException {
 		try(InputStream resourceAsStream = clazz.getResourceAsStream(resourceName); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -418,7 +420,7 @@ public class FileHelper {
 	 * @param classLoader the classloader to access the resource
 	 * @param resourceName the name of the resource
 	 * @return the content of the resource as byte array
-	 * @throws IOException
+	 * @throws IOException: I/O exception when reading resource
 	 */
 	public static byte[] readClassLoaderResourceAsByteArray(ClassLoader classLoader, String resourceName) throws IOException {
 		try(InputStream resourceAsStream = classLoader.getResourceAsStream(resourceName); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -447,7 +449,7 @@ public class FileHelper {
 	 * @param clazz the class the resource is associated with
 	 * @param resourceName the name of the resource
 	 * @return the temporary {@link File}
-	 * @throws IOException
+	 * @throws IOException: I/O exception during resource extraction
 	 */
 	public static File extractResourceToTempFile(Class<?> clazz, String resourceName) throws IOException {
 		Path tempFile = Files.createTempFile("resourceName",".tmp");
@@ -459,8 +461,8 @@ public class FileHelper {
 	/**
 	 * Copy a {@link InputStream} to an {@link OutputStream} using a buffer size of 2048
 	 * @param input the {@link InputStream} to be read
-	 * @param output the target {@link OutputStream} 
-	 * @throws IOException
+	 * @param output the target {@link OutputStream}
+	 * @throws IOException: I/O exception during copy
 	 */
 	public static void copy(final InputStream input, final OutputStream output) throws IOException {
 		copy(input, output, 2048);
@@ -470,8 +472,8 @@ public class FileHelper {
 	 * Copy a {@link InputStream} to an {@link OutputStream}
 	 * @param input the {@link InputStream} to be read
 	 * @param output the target {@link OutputStream} 
-	 * @param bufferSize the buffersize to be used 
-	 * @throws IOException
+	 * @param bufferSize the buffer size to be used
+	 * @throws IOException: I/O exception during copy
 	 */
 	public static void copy(final InputStream input, final OutputStream output, int bufferSize) throws IOException {
 		final byte[] buffer = new byte[bufferSize];
