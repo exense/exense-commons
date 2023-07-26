@@ -48,6 +48,6 @@ public class Poller {
 			}
 			Thread.sleep(pollingIntervalMs);
 		}
-		throw new TimeoutException();
+		throw new TimeoutException("Timeout (waiting for "+timeout+"ms)");
 	}
 }
