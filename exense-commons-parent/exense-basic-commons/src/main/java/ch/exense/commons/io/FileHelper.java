@@ -125,7 +125,7 @@ public class FileHelper {
 			try {
 				Files.delete(f.toPath());
 			} catch (IOException ex) {
-				logger.error("Unable to delete file " + f.getAbsolutePath(), e);
+				logger.error("Unable to delete file " + f.getAbsolutePath(), ex);
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
