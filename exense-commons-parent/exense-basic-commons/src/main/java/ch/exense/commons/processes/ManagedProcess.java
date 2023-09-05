@@ -194,7 +194,7 @@ public class ManagedProcess implements Closeable {
     }
 
     private static String readProcessLog(File file) {
-        if(file.exists() && file.canRead()) {
+        if(file!=null && file.exists() && file.canRead()) {
             try {
                 return Files.readString(file.toPath(), Charset.defaultCharset());
             } catch (IOException e) {
