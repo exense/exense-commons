@@ -28,15 +28,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Test if the Managed process can properly kill child processes
+ * Note: this manual test can be heavy on your machine
+ */
 @Ignore
 public class RecursiveProcessTest {
 
-    private static final String NB_PROCESS = "2";
-    private static final String DEPTH = "50";
+    private static final String NB_PROCESS = "5";
+    private static final String DEPTH = "2";
 
     public static void main(String[] args) throws Exception {
-        int nbProcess = 0;
-        int depth = 0;
+        int nbProcess;
+        int depth;
 
         if (args.length != 2) {
             throw new Exception("Two arguments were expected");
@@ -53,19 +57,17 @@ public class RecursiveProcessTest {
             List<String> argsForChild = new ArrayList<>();
             argsForChild.add(String.valueOf(nbProcess));
             argsForChild.add(String.valueOf(depth - 1));
-
+               
             for (int i = 0; i < nbProcess; i++) {
                 ExternalJVMLauncher externalJVMLauncher = new ExternalJVMLauncher("java", Files.createTempDirectory("log_").toFile());
                 externalJVMLauncher.launchExternalJVM("MyExternalProcess", RecursiveProcessTest.class, new ArrayList<>(),
                         argsForChild);
             }
         }
-
         // and wait
         while (true) {
             try {
-
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 break;
             }
@@ -83,22 +85,22 @@ public class RecursiveProcessTest {
 
         ExternalJVMLauncher externalJVMLauncher = new ExternalJVMLauncher("java.exe", new File("log"));
         try (ManagedProcess externalVM = externalJVMLauncher.launchExternalJVM("MyExternalProcess", RecursiveProcessTest.class, new ArrayList<>(), args)) {
-            externalVM.waitFor(15000);
+            externalVM.waitFor(10000);
         } catch (TimeoutException ignore) {
 
         }
     }
 
-    private static final int NB_THREADS = 5;
+    private static final int NB_THREADS = 50;
 
     private void startRandomProcesses() {
         ExecutorService threadPool = Executors.newFixedThreadPool(NB_THREADS);
 
         for (int i = 0; i < NB_THREADS; i++) {
             threadPool.submit(() -> {
-                for (int j = 0; j < 150; j++) {
+                while (true) {
                     try(ManagedProcess managedProcess = new ManagedProcess("MyJavaProcess", "java -version")) {
-                        managedProcess.waitFor(100);
+                        managedProcess.waitFor(10);
                     } catch (InterruptedException | TimeoutException | ManagedProcessException | IOException e) {
                         throw new RuntimeException(e);
                     }

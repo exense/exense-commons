@@ -117,7 +117,7 @@ public class ManagedProcess implements Closeable {
      * @param executionDirectory the directory in which the process will be executed
      * @param baseLogDirectory   the directory where the temporary directory containing the logs (stdout and stderr) of the
      *                           process will be created
-     * @param redirectOutput      if the std output of the process should be redirected to a temporary file or kept in the output stream
+     * @param redirectOutput     if the std output of the process should be redirected to a temporary file or kept in the output stream
      */
     public ManagedProcess(String name, List<String> commands, File executionDirectory, File baseLogDirectory, boolean redirectOutput) {
         super();
@@ -189,7 +189,7 @@ public class ManagedProcess implements Closeable {
     }
 
     private static String readProcessLog(File file) {
-        if(file!=null && file.exists() && file.canRead()) {
+        if (file != null && file.exists() && file.canRead()) {
             try {
                 return Files.readString(file.toPath(), Charset.defaultCharset());
             } catch (IOException e) {
@@ -313,10 +313,7 @@ public class ManagedProcess implements Closeable {
         }
 
         if (process != null) {
-            try {
-                stopProcess(process);
-            } catch (InterruptedException ignored) {
-            }
+            stopProcess(process);
             //Close all streams just in case
             try {
                 process.getInputStream().close();
@@ -338,24 +335,26 @@ public class ManagedProcess implements Closeable {
         removeTempLogDirectory();
     }
 
-    private void stopProcess(Process process) throws InterruptedException {
+    private void stopProcess(Process process) {
         //For process starting child processes there is no guaranty that stopping the parent
         //and waiting on it to finish is sufficient, so stopping all children explicitly
-        process.descendants().forEach( d -> {
-            d.destroy();
-            try {
-                int counter=0;
-                while (d.isAlive() && counter < 100) {
-                    counter++;
-                    Thread.sleep(100);
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
-        //Stop parent process and wait for completion
+        recursiveStopProcess(process.toHandle());
+    }
+
+    private void recursiveStopProcess(ProcessHandle process)  {
+        // kill all the children, depth first
+        process.children().forEach(this::recursiveStopProcess);
+        //Stop process and wait for completion
         process.destroy();
-        process.waitFor();
+        try {
+            int counter=0;
+            while (process.isAlive() && counter < 100) {
+                counter++;
+                Thread.sleep(100);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void removeTempLogDirectory() {
