@@ -18,16 +18,7 @@ package ch.exense.commons.io;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -344,20 +335,16 @@ public class FileHelper {
 	 * @param file to be added to the zip
 	 * @param basePath path of the file to be removed from the zip entry
 	 */
-	public static void zipFile(ZipOutputStream zos, File file, String basePath) {
-		try {
-			byte[] buffer = new byte[8192];
-			int read = 0;
-			FileInputStream in = new FileInputStream(file);
-			ZipEntry entry = new ZipEntry(file.getPath().substring(basePath.length() + 1).replaceAll("\\\\","/"));
-			zos.putNextEntry(entry);
-			while (-1 != (read = in.read(buffer))) {
-				zos.write(buffer, 0, read);
-			}
-			in.close();
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to create archive",e);
+	public static void zipFile(ZipOutputStream zos, File file, String basePath) throws IOException {
+		byte[] buffer = new byte[8192];
+		int read = 0;
+		FileInputStream in = new FileInputStream(file);
+		ZipEntry entry = new ZipEntry(file.getPath().substring(basePath.length() + 1).replaceAll("\\\\","/"));
+		zos.putNextEntry(entry);
+		while (-1 != (read = in.read(buffer))) {
+			zos.write(buffer, 0, read);
 		}
+		in.close();
 	}
 	
 	/**
