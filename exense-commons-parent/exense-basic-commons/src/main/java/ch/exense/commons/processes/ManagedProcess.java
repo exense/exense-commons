@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -111,7 +112,7 @@ public class ManagedProcess implements Closeable {
 
     /**
      * @param name               a string describing the process. This is used to prefix
-     *                           the ID wich uniquely identifies the process instance
+     *                           the ID which uniquely identifies the process instance
      * @param commands           the list containing the program and its arguments
      * @param executionDirectory the directory in which the process will be executed
      * @param baseLogDirectory   the directory where the temporary directory containing the logs (stdout and stderr) of the
@@ -131,11 +132,7 @@ public class ManagedProcess implements Closeable {
 
         this.tempLogDirectory = new File(baseLogDirectory.getAbsolutePath() + "/" + id);
 
-        if (executionDirectory == null) {
-            this.executionDirectory = tempLogDirectory;
-        } else {
-            this.executionDirectory = executionDirectory;
-        }
+        this.executionDirectory = Objects.requireNonNullElse(executionDirectory, tempLogDirectory);
 
         createDirectoryIfNotExisting(this.tempLogDirectory);
         createDirectoryIfNotExisting(this.executionDirectory);
@@ -185,12 +182,10 @@ public class ManagedProcess implements Closeable {
      * @return the standard output and error of this process formatted for logging purposes
      */
     public String getProcessLog() {
-        StringBuilder log = new StringBuilder();
-        log.append("The output of the process " + id + " was:\n");
-        log.append(getProcessOutputLogAsString());
-        log.append("The error output of the process " + id + " was:\n");
-        log.append(getProcessErrorLogAsString());
-        return log.toString();
+        return "The output of the process " + id + " was:\n" +
+                getProcessOutputLogAsString() +
+                "The error output of the process " + id + " was:\n" +
+                getProcessErrorLogAsString();
     }
 
     private static String readProcessLog(File file) {
@@ -337,7 +332,7 @@ public class ManagedProcess implements Closeable {
             }
         }
         //the process should be stopped by now
-        if (process.isAlive()) {
+        if (process != null && process.isAlive()) {
             logger.error("Process is still alive");
         }
         removeTempLogDirectory();
@@ -367,8 +362,8 @@ public class ManagedProcess implements Closeable {
         Thread thread = new Thread(() -> {
             try {
                 FileHelper.deleteFolderWithRetryOnError(tempLogDirectory);
-            } catch (Throwable ignored) {
-                logger.error("Unable to delete the managed process temp folder " + tempLogDirectory.getAbsolutePath(), ignored);
+            } catch (Throwable t) {
+                logger.error("Unable to delete the managed process temp folder " + tempLogDirectory.getAbsolutePath(), t);
             }
         });
         thread.start();
