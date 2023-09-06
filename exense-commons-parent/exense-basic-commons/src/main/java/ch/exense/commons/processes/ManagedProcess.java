@@ -23,10 +23,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -48,6 +45,7 @@ public class ManagedProcess implements Closeable {
     private final File tempLogDirectory;
 
     private final boolean redirectOutput;
+    private final Map<String, String> environments;
 
     private Process process;
     private File processOutputLog;
@@ -120,8 +118,24 @@ public class ManagedProcess implements Closeable {
      * @param redirectOutput     if the std output of the process should be redirected to a temporary file or kept in the output stream
      */
     public ManagedProcess(String name, List<String> commands, File executionDirectory, File baseLogDirectory, boolean redirectOutput) {
+        this(name, commands, executionDirectory, baseLogDirectory, redirectOutput, new HashMap<>());
+    }
+
+    /**
+     * @param name               a string describing the process. This is used to prefix
+     *                           the ID witch uniquely identifies the process instance
+     * @param commands           the list containing the program and its arguments
+     * @param executionDirectory the directory in which the process will be executed
+     * @param baseLogDirectory   the directory where the temporary directory containing the logs (stdout and stderr) of the
+     *                           process will be created
+     * @param redirectOutput     if the std output of the process should be redirected to a temporary file or kept in the output stream
+     * @param environments       list of environment variables to pass to the process
+     */
+    public ManagedProcess(String name, List<String> commands, File executionDirectory, File baseLogDirectory,
+                          boolean redirectOutput, Map<String,String> environments) {
         super();
 
+        this.environments = environments;
         this.redirectOutput = redirectOutput;
         this.id = name + "_" + UUID.randomUUID();
         this.builder = new ProcessBuilder(commands);
@@ -233,6 +247,9 @@ public class ManagedProcess implements Closeable {
 
                 processErrorLog = new File(tempLogDirectory + "/ProcessError.log");
                 builder.redirectError(processErrorLog);
+
+                builder.environment().putAll(environments);
+
                 try {
                     process = builder.start();
                 } catch (IOException e) {
@@ -372,5 +389,4 @@ public class ManagedProcess implements Closeable {
             Thread.currentThread().interrupt();
         }
     }
-
 }
