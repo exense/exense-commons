@@ -328,23 +328,27 @@ public class FileHelper {
 		zos.putNextEntry(entryJson);
 		zos.write(jsonStream.toByteArray());
 	}
-	
+
 	/**
 	 * Add provided file to the zip output stream removing the base path
 	 * @param zos zip output stream
 	 * @param file to be added to the zip
 	 * @param basePath path of the file to be removed from the zip entry
 	 */
-	public static void zipFile(ZipOutputStream zos, File file, String basePath) throws IOException {
-		byte[] buffer = new byte[8192];
-		int read = 0;
-		FileInputStream in = new FileInputStream(file);
-		ZipEntry entry = new ZipEntry(file.getPath().substring(basePath.length() + 1).replaceAll("\\\\","/"));
-		zos.putNextEntry(entry);
-		while (-1 != (read = in.read(buffer))) {
-			zos.write(buffer, 0, read);
+	public static void zipFile(ZipOutputStream zos, File file, String basePath) {
+		try {
+			byte[] buffer = new byte[8192];
+			int read = 0;
+			FileInputStream in = new FileInputStream(file);
+			ZipEntry entry = new ZipEntry(file.getPath().substring(basePath.length() + 1).replaceAll("\\\\","/"));
+			zos.putNextEntry(entry);
+			while (-1 != (read = in.read(buffer))) {
+				zos.write(buffer, 0, read);
+			}
+			in.close();
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to create archive",e);
 		}
-		in.close();
 	}
 	
 	/**
