@@ -91,10 +91,10 @@ public class ExternalJVMLauncher {
 
 	private static class JvmManagedProcess extends ManagedProcess {
 
-		private File javaClassPathArgsFile;
+		private final File javaClassPathArgsFile;
 
-		public JvmManagedProcess(File javaClassPathArgsFile, String name, List<String> commands, File baseLogDirectory, boolean redirectOuput) throws ManagedProcessException {
-			super(name, commands, baseLogDirectory, redirectOuput);
+		public JvmManagedProcess(File javaClassPathArgsFile, String name, List<String> commands, File baseLogDirectory, boolean redirectOutput) throws ManagedProcessException {
+			super(name, commands, baseLogDirectory, redirectOutput);
 			this.javaClassPathArgsFile = javaClassPathArgsFile;
 		}
 
