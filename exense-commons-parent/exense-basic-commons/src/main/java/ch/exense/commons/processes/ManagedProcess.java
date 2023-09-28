@@ -330,7 +330,6 @@ public class ManagedProcess implements Closeable {
         }
 
         if (process != null) {
-            stopProcess(process);
             //Close all streams just in case
             try {
                 if (process.getInputStream() != null) {
@@ -350,6 +349,7 @@ public class ManagedProcess implements Closeable {
                 }
             } catch (Exception ignored) {
             }
+            stopProcess(process);
         }
         //the process should be stopped by now
         if (process != null && process.isAlive()) {
@@ -368,8 +368,8 @@ public class ManagedProcess implements Closeable {
         // kill all the children, depth first
         process.children().forEach(p -> recursiveStopProcess(p, process.pid()));
         //Stop process and wait for completion
-        if (parentId != -1 && process.parent().isPresent() &&
-                process.parent().get().pid() == parentId) {
+        if ((process.parent().isPresent() && process.parent().get().pid() == parentId)
+                || parentId == -1) {
             process.destroy();
             try {
                 int counter = 0;
