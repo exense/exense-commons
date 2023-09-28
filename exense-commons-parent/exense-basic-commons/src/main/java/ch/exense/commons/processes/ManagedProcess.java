@@ -132,7 +132,7 @@ public class ManagedProcess implements Closeable {
      * @param environments       list of environment variables to pass to the process
      */
     public ManagedProcess(String name, List<String> commands, File executionDirectory, File baseLogDirectory,
-                          boolean redirectOutput, Map<String,String> environments) {
+                          boolean redirectOutput, Map<String, String> environments) {
         super();
 
         this.environments = environments;
@@ -333,15 +333,21 @@ public class ManagedProcess implements Closeable {
             stopProcess(process);
             //Close all streams just in case
             try {
-                process.getInputStream().close();
+                if (process.getInputStream() != null) {
+                    process.getInputStream().close();
+                }
             } catch (Exception ignored) {
             }
             try {
-                process.getOutputStream().close();
+                if (process.getOutputStream() != null) {
+                    process.getOutputStream().close();
+                }
             } catch (Exception ignored) {
             }
             try {
-                process.getErrorStream().close();
+                if (process.getErrorStream() != null) {
+                    process.getErrorStream().close();
+                }
             } catch (Exception ignored) {
             }
         }
@@ -355,22 +361,25 @@ public class ManagedProcess implements Closeable {
     private void stopProcess(Process process) {
         //For process starting child processes there is no guaranty that stopping the parent
         //and waiting on it to finish is sufficient, so stopping all children explicitly
-        recursiveStopProcess(process.toHandle());
+        recursiveStopProcess(process.toHandle(), -1);
     }
 
-    private void recursiveStopProcess(ProcessHandle process)  {
+    private void recursiveStopProcess(ProcessHandle process, long parentId) {
         // kill all the children, depth first
-        process.children().forEach(this::recursiveStopProcess);
+        process.children().forEach(p -> recursiveStopProcess(p, process.pid()));
         //Stop process and wait for completion
-        process.destroy();
-        try {
-            int counter=0;
-            while (process.isAlive() && counter < 100) {
-                counter++;
-                Thread.sleep(100);
+        if (parentId != -1 && process.parent().isPresent() &&
+                process.parent().get().pid() == parentId) {
+            process.destroy();
+            try {
+                int counter = 0;
+                while (process.isAlive() && counter < 100) {
+                    counter++;
+                    Thread.sleep(100);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 
