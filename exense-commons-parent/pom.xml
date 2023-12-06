@@ -47,7 +47,7 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 		<!-- external dependencies -->
-		<slf4j.version>1.7.36</slf4j.version>
+		<slf4j.version>2.0.9</slf4j.version>
 		<junit.version>4.13.1</junit.version>
 		<mongo.version>3.12.11</mongo.version>
 		<jersey.version>3.0.4</jersey.version>
