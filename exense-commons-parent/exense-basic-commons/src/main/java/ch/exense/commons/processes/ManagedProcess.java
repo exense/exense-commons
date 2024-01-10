@@ -309,6 +309,13 @@ public class ManagedProcess implements Closeable {
         }
     }
 
+    /**
+     * Recursively destroy the process without cleaning up the logs and temporary directory
+     */
+    public void stop() {
+        stopProcess(process);
+    }
+
     @Override
     public void close() throws IOException {
         if (logger.isDebugEnabled()) {
