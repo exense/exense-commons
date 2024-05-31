@@ -97,12 +97,7 @@ public class FileHelper {
 	 * @param folder the {@link File} to be deleted
 	 */
 	public static boolean safeDeleteFolder(File folder) {
-		boolean result = isFolderDeletable(folder);
-		if (result) {
-			return deleteFolder(folder);
-		} else {
-			return false;
-		}
+		return isFolderDeletable(folder) && deleteFolder(folder);
 	}
 
 	private static boolean isFolderDeletable(File folder) {
