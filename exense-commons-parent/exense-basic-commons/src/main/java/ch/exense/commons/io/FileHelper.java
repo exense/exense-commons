@@ -71,7 +71,7 @@ public class FileHelper {
 	 * Deletes a folder recursively
 	 * @param folder the {@link File} to be deleted
 	 */
-	public static void deleteFolder(File folder) {
+	public static boolean deleteFolder(File folder) {
 		File[] files = folder.listFiles();
 		if (files != null) {
 			for (File f : files) {
@@ -85,9 +85,23 @@ public class FileHelper {
 			}
 		}
 
-		if (!folder.delete()) {
+		boolean deleted = folder.delete();
+		if (!deleted) {
 			logger.warn("Could not delete folder '"+folder.getAbsolutePath()+"'");
 		}
+		return deleted;
+	}
+
+	/**
+	 * Deletes a folder recursively making sure the folder and his content can safely be deleted beforehand
+	 * @param folder the {@link File} to be deleted
+	 */
+	public static boolean safeDeleteFolder(File folder) {
+		return isFolderDeletable(folder) && deleteFolder(folder);
+	}
+
+	private static boolean isFolderDeletable(File folder) {
+		return folder.renameTo(folder);
 	}
 
 	/**
