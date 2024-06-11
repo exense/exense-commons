@@ -23,10 +23,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import ch.exense.commons.io.FileHelper;
-import junit.framework.Assert;
 
 public class ConfigurationTest {
 
@@ -36,7 +36,7 @@ public class ConfigurationTest {
 			Assert.assertEquals("myProp1", configuration.getProperty("my.prop1"));
 			Assert.assertEquals((int)1000, (int)configuration.getPropertyAsInteger("my.prop2"));
 			Assert.assertEquals(false, configuration.getPropertyAsBoolean("my.prop3"));
-			Assert.assertEquals(100000000000000l, (long)configuration.getPropertyAsLong("my.prop5"));
+			Assert.assertEquals(100000000000000L, (long)configuration.getPropertyAsLong("my.prop5"));
 			Assert.assertEquals(new File("."), configuration.getPropertyAsFile("my.prop6"));
 			Assert.assertEquals(new File("."), configuration.getPropertyAsDirectory("my.prop6"));
 			

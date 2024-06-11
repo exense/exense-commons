@@ -6,12 +6,12 @@
 		{
 			"NAME": "DEVELOPMENT",
 			"URL": "nexus-staging::https://nexus-enterprise-staging.exense.ch/repository/staging-maven/",
-			"CONFIG": "DefaultBuild"
+			"CONFIG": "SkipJavadoc"
 		},
 		{
 			"NAME": "PRODUCTION",
 			"URL": "sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
-			"CONFIG": "DefaultBuild"
+			"CONFIG": "SignedBuild"
 		}
 	]
 }
