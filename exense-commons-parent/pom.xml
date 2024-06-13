@@ -69,7 +69,7 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<!-- explicit dependencies, exported to all modules and also externally referring projects -->
+	<!-- explicit dependencies, exported to all modules (but not externally referring projects) -->
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
