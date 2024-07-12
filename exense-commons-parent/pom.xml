@@ -38,7 +38,7 @@
 		<maven.compiler.target>11</maven.compiler.target>
 
 		<!-- external dependencies -->
-		<dependencies.version>2024.6.19-6672de8798006b6bee29c2ad</dependencies.version>
+		<dependencies.version>2024.7.12-669121da4fe7006fcd2fe5c4</dependencies.version>
 <!--		<dependencies.version>0.0.0-SNAPSHOT</dependencies.version>-->
 
 		<!-- maven build dependencies -->
