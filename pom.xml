@@ -4,25 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ch.exense.commons</groupId>
-	<artifactId>exense-commons-parent</artifactId>
+	<artifactId>exense-commons</artifactId>
 	<version>0.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	
-	<name>Exense Commons</name>
-	<description>Exense Commons</description>
-	<url>https://exense.ch/</url>
- 	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<scm>
-		<connection>scm:git:https://github.com/exense/exense-commons/</connection>
-		<developerConnection>scm:git:https://github.com/exense/exense-commons.git</developerConnection>
-		<url>https://github.com/exense/exense-commons/</url>
-	</scm>
 
 	<repositories>
 		<!-- staging nexus, used for non-release versions -->
@@ -37,9 +21,8 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 
-		<!-- external dependencies -->
-		<dependencies.version>2024.7.12-669121da4fe7006fcd2fe5c4</dependencies.version>
-<!--		<dependencies.version>0.0.0-SNAPSHOT</dependencies.version>-->
+		<!-- external dependencies provided using exense-dependencies -->
+		<dependencies.version>2024.8.8-66b4bbe662cc6a1a0934c750</dependencies.version>
 
 		<!-- maven build dependencies -->
 		<dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
@@ -48,7 +31,7 @@
 		<dep.mvn.javadoc.version>3.3.2</dep.mvn.javadoc.version> <!-- newest: 3.7.0 -->
 		<dep.mvn.source.version>3.0.1</dep.mvn.source.version> <!-- newest: 3.3.1 -->
 		<dep.mvn.gpg.version>1.6</dep.mvn.gpg.version>
-		<dep.mvn.dependency-check.version>9.2.0</dep.mvn.dependency-check.version>
+		<dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
 	</properties>
 
 	<!-- available dependencies, can be used in dependent projects WITHOUT specifying a version number -->
@@ -71,7 +54,7 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<!-- explicit dependencies, exported to all modules (but not externally referring projects) -->
+	<!-- actually used dependencies, exported to all modules (but not externally referring projects) -->
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -202,15 +185,29 @@
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
-			<!-- Profile use for checking security issues in external dependencies -->
+			<!-- Profile use for checking security issues in external dependencies. -->
+			<!-- This may take a LOOONG time (possibly multiple minutes), even when using an API key -->
+			<!-- To quickly check the results, run this (in the project directory):
+                 find . -name dependency-check-report.csv | xargs wc -l
+             -->
+			<!-- Anything that returns more than 1 line (the CSV header line) is potentially vulnerable. -->
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.owasp</groupId>
 						<artifactId>dependency-check-maven</artifactId>
 						<version>${dep.mvn.dependency-check.version}</version>
+						<configuration>
+							<formats>HTML,CSV</formats>
+							<skipDependencyManagement>false</skipDependencyManagement>
+							<!--                            <nvdApiKey>KEY_HERE</nvdApiKey>-->
+							<failOnError>false</failOnError>
+						</configuration>
 						<executions>
 							<execution>
+								<phase>
+									verify
+								</phase>
 								<goals>
 									<goal>check</goal>
 								</goals>

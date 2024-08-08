@@ -1,7 +1,7 @@
 {
 	"ACTION": "COMPILE",
 	"TYPE": "POM",
-	"FOLDER": "exense-commons-parent/",
+	"FOLDER": ".",
 	"PARAMETERS": [
 		{
 			"NAME": "DEVELOPMENT",
