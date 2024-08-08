@@ -34,9 +34,15 @@
 		<dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
 	</properties>
 
+	<!-- Reminder: don't forget to add all modules to the end of the dependencyManagement section just below -->
+	<modules>
+		<module>exense-basic-commons</module>
+	</modules>
+
 	<!-- available dependencies, can be used in dependent projects WITHOUT specifying a version number -->
 	<dependencyManagement>
 		<dependencies>
+			<!-- actual external dependencies -->
 			<dependency>
 				<groupId>ch.exense.dependencies</groupId>
 				<artifactId>dependencies-junit</artifactId>
@@ -51,7 +57,16 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+
+			<!-- BOM of *this* project, exporting our OWN modules -->
+			<dependency>
+				<groupId>ch.exense.commons</groupId>
+				<artifactId>exense-basic-commons</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
 		</dependencies>
+
 	</dependencyManagement>
 
 	<!-- actually used dependencies, exported to all modules (but not externally referring projects) -->
@@ -63,10 +78,6 @@
 		</dependency>
 	</dependencies>
 
-	<modules>
-		<module>exense-basic-commons</module>
-	</modules>
-	
 	<build>
 		<plugins>
 			<plugin>
