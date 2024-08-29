@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) exense GmbH -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -16,13 +18,41 @@
 		</repository>
 	</repositories>
 
+	<!-- required metadata for maven central -->
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>Exense Dependencies</description>
+	<url>https://github.com/exense/exense-dependencies</url>
+
+	<licenses>
+		<license>
+			<name>The GNU Affero General Public License, Version 3</name>
+			<url>https://www.gnu.org/licenses/#AGPL</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Exense GmbH</name>
+			<organization>Exense GmbH</organization>
+			<organizationUrl>https://exense.ch</organizationUrl>
+			<email>support@exense.ch</email>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:https://github.com/exense/exense-dependencies.git</connection>
+		<developerConnection>scm:git:https://github.com/exense/exense-dependencies.git</developerConnection>
+		<url>https://github.com/exense/exense-dependencies</url>
+	</scm>
+	<!-- metadata end -->
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 
 		<!-- external dependencies provided using exense-dependencies -->
-		<dependencies.version>2024.8.8-66b4bbe662cc6a1a0934c750</dependencies.version>
+		<dependencies.version>2024.8.27</dependencies.version>
 
 		<!-- maven build dependencies -->
 		<dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
