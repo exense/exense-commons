@@ -20,13 +20,13 @@
 
 	<!-- required metadata for maven central -->
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>Exense Dependencies</description>
-	<url>https://github.com/exense/exense-dependencies</url>
+	<description>Exense Commons</description>
+	<url>https://github.com/exense/exense-commons</url>
 
 	<licenses>
 		<license>
-			<name>The GNU Affero General Public License, Version 3</name>
-			<url>https://www.gnu.org/licenses/#AGPL</url>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
 
@@ -40,9 +40,9 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:https://github.com/exense/exense-dependencies.git</connection>
-		<developerConnection>scm:git:https://github.com/exense/exense-dependencies.git</developerConnection>
-		<url>https://github.com/exense/exense-dependencies</url>
+		<connection>scm:git:https://github.com/exense/exense-commons.git</connection>
+		<developerConnection>scm:git:https://github.com/exense/exense-commons.git</developerConnection>
+		<url>https://github.com/exense/exense-commons</url>
 	</scm>
 	<!-- metadata end -->
 
