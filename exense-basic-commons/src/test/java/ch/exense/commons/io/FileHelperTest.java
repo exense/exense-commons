@@ -23,14 +23,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.Assert;
 import org.junit.Test;
-
-import junit.framework.Assert;
 
 public class FileHelperTest {
 
 	@Test
-	public void test() throws IOException {
+	public void test() throws Exception {
 		File tempFile = FileHelper.createTempFile();
 		
 		Path tempDirectory = Files.createTempDirectory(null);
@@ -49,6 +48,7 @@ public class FileHelperTest {
 		
 		Path targetDirectory = Files.createTempDirectory(null);
 		long t1 = System.currentTimeMillis();
+		Thread.sleep(10); // don't ask, otherwise the first Assert occasionally fails on some systems, probably because of FS caching/optimizations
 		FileHelper.unzip(tempFile, targetDirectory.toFile());
 		
 		Path targetDirectory2 = Files.createTempDirectory(null);
@@ -56,7 +56,7 @@ public class FileHelperTest {
 		
 		long lastModificationDate = FileHelper.getLastModificationDateRecursive(targetDirectory.toFile());
 		
-		Assert.assertTrue(lastModificationDate>=t1);
+		Assert.assertTrue("lastModificationDate >= t1 failed, lastModificationDate="+lastModificationDate+"; t1="+t1, lastModificationDate>=t1);
 		
 		String contentFile1 = new String(Files.readAllBytes(Paths.get(targetDirectory.toAbsolutePath().toString(), "file1")));
 		Assert.assertEquals("TEST", contentFile1);

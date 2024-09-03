@@ -15,9 +15,9 @@
  ******************************************************************************/
 package ch.exense.commons.app;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import junit.framework.Assert;
 
 public class ArgumentParserTest {
 
