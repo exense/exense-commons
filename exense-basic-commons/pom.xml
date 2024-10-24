@@ -30,6 +30,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>${dep.mvn.maven-jar.version}</version>
 				<executions>
 					<execution>
 						<goals>
