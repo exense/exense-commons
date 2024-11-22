@@ -28,6 +28,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -286,6 +287,19 @@ public class FileHelper {
 		zip(directory, fileOutputStream);
 		fileOutputStream.close();
 	}
+
+	/**
+	 * Create a zip file of the directory denoted by the {@link File} passed as argument
+	 * @param directory the directory to be zipped
+	 * @param target the path to the target zip file
+	 * @param fileFilter filter for files or directories in directory
+	 * @throws IOException if an error occurs during file zip
+	 */
+	public static void zip(File directory, File target, Function<File, Boolean> fileFilter) throws IOException {
+		FileOutputStream fileOutputStream = new FileOutputStream(target);
+		zip(directory, fileOutputStream, fileFilter);
+		fileOutputStream.close();
+	}
 	
 	/**
 	 * Create a zip file of the directory denoted by the {@link File} passed as argument 
@@ -296,7 +310,21 @@ public class FileHelper {
 	public static void zip(File directory, OutputStream out) throws IOException {
 		ZipOutputStream zos = new ZipOutputStream(out);
 		zos.setLevel(ZipOutputStream.STORED);
-		zip(directory, directory, zos);
+		zip(directory, directory, zos, null);
+		zos.close();
+	}
+
+	/**
+	 * Create a zip file of the directory denoted by the {@link File} passed as argument
+	 * @param directory the directory to be zipped
+	 * @param out the output stream of the target zip file
+	 * @param fileFilter filter for files or directories in directory
+	 * @throws IOException if an error occurs during file zip
+	 */
+	public static void zip(File directory, OutputStream out, Function<File, Boolean> fileFilter) throws IOException {
+		ZipOutputStream zos = new ZipOutputStream(out);
+		zos.setLevel(ZipOutputStream.STORED);
+		zip(directory, directory, zos, fileFilter);
 		zos.close();
 	}
 
@@ -308,25 +336,27 @@ public class FileHelper {
 	 */
 	public static byte[] zip(File directory) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		zip(directory, out);
+		zip(directory, out, null);
 		return out.toByteArray();
 	}
 
-	private static void zip(File directory, File base, ZipOutputStream zos) throws IOException {
+	private static void zip(File directory, File base, ZipOutputStream zos, Function<File, Boolean> fileFilter) throws IOException {
 		File[] files = directory.listFiles();
 		byte[] buffer = new byte[8192];
 		int read = 0;
 		for (File file : Objects.requireNonNull(files)) {
-			if (file.isDirectory()) {
-				zip(file, base, zos);
-			} else {
-				FileInputStream in = new FileInputStream(file);
-				ZipEntry entry = new ZipEntry(file.getPath().substring(base.getPath().length() + 1).replaceAll("\\\\", "/"));
-				zos.putNextEntry(entry);
-				while (-1 != (read = in.read(buffer))) {
-					zos.write(buffer, 0, read);
+			if (fileFilter == null || Boolean.TRUE.equals(fileFilter.apply(file))) {
+				if (file.isDirectory()) {
+					zip(file, base, zos, fileFilter);
+				} else {
+					FileInputStream in = new FileInputStream(file);
+					ZipEntry entry = new ZipEntry(file.getPath().substring(base.getPath().length() + 1).replaceAll("\\\\", "/"));
+					zos.putNextEntry(entry);
+					while (-1 != (read = in.read(buffer))) {
+						zos.write(buffer, 0, read);
+					}
+					in.close();
 				}
-				in.close();
 			}
 		}
 	}
