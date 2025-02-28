@@ -235,8 +235,8 @@ public class ManagedProcess implements Closeable {
     }
 
     public synchronized void start() throws ManagedProcessException {
-        try {
-            if (process == null) {
+        if (process == null) {
+            try {
                 logger.debug("Starting managed process " + builder.command());
                 builder.directory(executionDirectory);
 
@@ -253,21 +253,32 @@ public class ManagedProcess implements Closeable {
                 try {
                     process = builder.start();
                 } catch (IOException e) {
-                    throw new ManagedProcessException("Unable to start the process " + id, e);
+                    throw loggedManagedProcessException("Unable to start the process " + id, e);
                 }
                 logger.debug("Started managed process " + builder.command());
-            } else {
-                throw new ManagedProcessException("Unable to start the process " + id + " twice. The process has already been started.");
+            } catch (Throwable t) {
+                try {
+                    removeTempLogDirectory();
+                } finally {
+                    if(t instanceof ManagedProcessException) {
+                        throw t;
+                    } else {
+                        throw loggedManagedProcessException("Unexpected error while starting the process " + id, t);
+                    }
+                }
             }
-        } catch (ManagedProcessException e) {
-            throw e;
-        } catch (Throwable t) {
-            try {
-                removeTempLogDirectory();
-            } finally {
-                throw new ManagedProcessException("Unexpected error while starting the process " + id, t);
-            }
+        } else {
+            throw loggedManagedProcessException("Unable to start the process " + id + " twice. The process has already been started.", null);
         }
+    }
+
+    private static ManagedProcessException loggedManagedProcessException(String message, Throwable e) {
+        if (e != null) {
+            logger.error(message, e);
+        } else {
+            logger.error(message);
+        }
+        return new ManagedProcessException(message, e);
     }
 
     /**
