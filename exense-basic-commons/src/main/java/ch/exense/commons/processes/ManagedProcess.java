@@ -262,7 +262,11 @@ public class ManagedProcess implements Closeable {
         } catch (ManagedProcessException e) {
             throw e;
         } catch (Throwable t) {
-            removeTempLogDirectory();
+            try {
+                removeTempLogDirectory();
+            } finally {
+                throw new ManagedProcessException("Unexpected error while starting the process " + id, t);
+            }
         }
     }
 
