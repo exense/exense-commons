@@ -52,7 +52,7 @@
 		<maven.compiler.target>11</maven.compiler.target>
 
 		<!-- external dependencies provided using exense-dependencies -->
-		<dependencies.version>2024.9.26</dependencies.version>
+		<dependencies.version>2025.3.14</dependencies.version>
 
 		<!-- maven build dependencies -->
 		<dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
