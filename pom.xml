@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (c) exense GmbH -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ch.exense.commons</groupId>
@@ -50,11 +50,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.release>11</maven.compiler.release>
 
 		<!-- external dependencies provided using exense-dependencies -->
 		<dependencies.version>2025.3.14</dependencies.version>
 
 		<!-- maven build dependencies -->
+		<dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
+		<dep.mvn.jar.version>3.4.2</dep.mvn.jar.version>
 		<dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
 		<dep.mvn.deploy.version>3.0.0-M1</dep.mvn.deploy.version>
 		<dep.mvn.surefire.version>2.19.1</dep.mvn.surefire.version> <!-- newest: 3.2.5 -->
@@ -109,16 +112,66 @@
 	</dependencies>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${dep.mvn.compiler.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${dep.mvn.jar.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>${dep.mvn.deploy.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${dep.mvn.source.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${dep.mvn.javadoc.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${dep.mvn.jacoco.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${dep.mvn.surefire.version}</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.maven.surefire</groupId>
+							<artifactId>surefire-junit47</artifactId>
+							<version>${dep.mvn.surefire.version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<plugin>
+					<groupId>org.owasp</groupId>
+					<artifactId>dependency-check-maven</artifactId>
+					<version>${dep.mvn.dependency-check.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>${dep.mvn.gpg.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>${dep.mvn.deploy.version}</version>
-			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${dep.mvn.jacoco.version}</version>
 				<executions>
 					<execution>
 						<id>default-prepare-agent</id>
@@ -137,14 +190,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${dep.mvn.surefire.version}</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.surefire</groupId>
-						<artifactId>surefire-junit47</artifactId>
-						<version>${dep.mvn.surefire.version}</version>
-					</dependency>
-				</dependencies>
 				<configuration>
 					<systemPropertyVariables>
 						<logback.configurationFile>${basedir}/../logback-maven.xml</logback.configurationFile>
@@ -155,7 +200,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>${dep.mvn.source.version}</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -169,7 +213,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${dep.mvn.javadoc.version}</version>
 				<configuration>
 					<header><![CDATA[<meta name='viewport' content='width=device-width, initial-scale=1.0'>]]></header>
 					<!-- detectLinks MUST NOT be set to true in a production context, as it derives random domain names
@@ -237,7 +280,6 @@
 					<plugin>
 						<groupId>org.owasp</groupId>
 						<artifactId>dependency-check-maven</artifactId>
-						<version>${dep.mvn.dependency-check.version}</version>
 						<configuration>
 							<formats>HTML,CSV</formats>
 							<skipDependencyManagement>false</skipDependencyManagement>
@@ -269,7 +311,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>${dep.mvn.gpg.version}</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
