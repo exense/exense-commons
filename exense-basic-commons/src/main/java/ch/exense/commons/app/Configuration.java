@@ -92,7 +92,7 @@ public class Configuration implements Closeable {
 		while (m.find()) {
             String key = m.group(1);
             if(placeholders!=null) {
-            	String replacement = placeholders.get(key);
+            	String replacement = placeholders.get(key.toLowerCase());
             	if(replacement == null) {
             		throw new RuntimeException("Missing placeholder '"+key+"'.");
             	} else {
