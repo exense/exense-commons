@@ -15,10 +15,9 @@
  ******************************************************************************/
 package ch.exense.commons.io;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +42,27 @@ public class FileHelperTest {
 		Files.write(file2, "TEST".getBytes());
 		
 		FileHelper.zip(tempDirectory.toFile(), tempFile);
-		
+
+		// classloader should see all files and folders as zip entires
+		try (URLClassLoader classLoader = new URLClassLoader(new URL[]{tempFile.toURI().toURL()}, null)) {
+			URL url = classLoader.getResource("file1");
+			Assert.assertNotNull(url);
+			try (InputStream fileUrlStream = url.openStream()) {
+				byte[] bytes = fileUrlStream.readAllBytes();
+				Assert.assertTrue(bytes.length > 0);
+			}
+
+			url = classLoader.getResource("subfolder1/");
+			Assert.assertNotNull(url);
+
+			url = classLoader.getResource("subfolder1/file2");
+			Assert.assertNotNull(url);
+			try (InputStream fileUrlStream = url.openStream()) {
+				byte[] bytes = fileUrlStream.readAllBytes();
+				Assert.assertTrue(bytes.length > 0);
+			}
+		}
+
 		byte[] bytes = FileHelper.zip(tempDirectory.toFile());
 		
 		Path targetDirectory = Files.createTempDirectory(null);
