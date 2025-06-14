@@ -347,10 +347,13 @@ public class FileHelper {
 		for (File file : Objects.requireNonNull(files)) {
 			if (fileFilter == null || Boolean.TRUE.equals(fileFilter.apply(file))) {
 				if (file.isDirectory()) {
+					// ZipOutputStream can handle directories by adding a forward-slash / after the folder name
+					ZipEntry dirEntry = new ZipEntry(createZipEntryName(base, file) + "/");
+					zos.putNextEntry(dirEntry);
 					zip(file, base, zos, fileFilter);
 				} else {
 					FileInputStream in = new FileInputStream(file);
-					ZipEntry entry = new ZipEntry(file.getPath().substring(base.getPath().length() + 1).replaceAll("\\\\", "/"));
+					ZipEntry entry = new ZipEntry(createZipEntryName(base, file));
 					zos.putNextEntry(entry);
 					while (-1 != (read = in.read(buffer))) {
 						zos.write(buffer, 0, read);
@@ -360,7 +363,11 @@ public class FileHelper {
 			}
 		}
 	}
-	
+
+	private static String createZipEntryName(File base, File file) {
+		return file.getPath().substring(base.getPath().length() + 1).replaceAll("\\\\", "/");
+	}
+
 	/**
 	 * Add provided file as byte array to the zip output stream
 	 * @param zos zip output stream
