@@ -53,7 +53,7 @@
 		<maven.compiler.release>11</maven.compiler.release>
 
 		<!-- external dependencies provided using exense-dependencies -->
-		<dependencies.version>2025.3.14</dependencies.version>
+		<dependencies.version>2025.6.25-685bc81164523b01b096223c</dependencies.version>
 
 		<!-- maven build dependencies -->
 		<dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
