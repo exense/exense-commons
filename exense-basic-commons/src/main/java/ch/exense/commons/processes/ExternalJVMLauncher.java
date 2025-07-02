@@ -64,8 +64,12 @@ public class ExternalJVMLauncher {
 	public ManagedProcess launchExternalJVM(String name, Class<?> mainClass, List<String> vmargs, List<String> progargs) throws ManagedProcessException {
 		return launchExternalJVM(name, mainClass, vmargs, progargs, true);
 	}
-	
+
 	public ManagedProcess launchExternalJVM(String name, Class<?> mainClass, List<String> vmargs, List<String> progargs, boolean redirectOutput) throws ManagedProcessException {
+		return launchExternalJVM(name, mainClass.getName(), vmargs, progargs, redirectOutput);
+	}
+
+	public ManagedProcess launchExternalJVM(String name, String mainClass, List<String> vmargs, List<String> progargs, boolean redirectOutput) throws ManagedProcessException {
 		try {
 			File cpArgFile = buildClasspath();
 			List<String> cmd = new ArrayList<>();
@@ -74,7 +78,7 @@ public class ExternalJVMLauncher {
 
 			cmd.addAll(vmargs);
 
-			cmd.add(mainClass.getName());
+			cmd.add(mainClass);
 
 			cmd.addAll(progargs);
 
