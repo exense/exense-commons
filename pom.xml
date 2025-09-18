@@ -14,7 +14,7 @@
 		<!-- staging nexus, used for non-release versions -->
 		<repository>
 			<id>nexus-staging</id>
-			<url>https://nexus-enterprise-staging.exense.ch/repository/staging-maven/</url>
+			<url>https://nexus-enterprise-staging-new.exense.ch/repository/staging-maven/</url>
 		</repository>
 	</repositories>
 
