@@ -1,0 +1,62 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+########################################
+# Java
+########################################
+[*.java]
+indent_style = space
+indent_size = 4
+max_line_length = off
+
+########################################
+# XML (POM files, Spring XML, misc)
+########################################
+[*.xml]
+indent_style = space
+indent_size = 2
+
+########################################
+# JSON
+########################################
+[*.json]
+indent_style = space
+indent_size = 2
+
+########################################
+# YAML (docker-compose, GitHub actions, configs)
+# YAML SHOULD NEVER USE TABS — many parsers reject them
+########################################
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+
+########################################
+# Markdown
+# Keep indentation small; used mainly for lists and fenced blocks.
+########################################
+[*.md]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false # needed to preserve Markdown hard line breaks
+
+########################################
+# Properties files
+# Key-value pairs; indenting rarely matters but 2 spaces is common.
+########################################
+[*.properties]
+indent_style = space
+indent_size = 2
+
+########################################
+# HTML (simple default)
+########################################
+[*.html]
+indent_style = space
+indent_size = 2

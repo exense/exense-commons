@@ -1,17 +1,17 @@
 {
-	"ACTION": "COMPILE",
-	"TYPE": "POM",
-	"FOLDER": ".",
-	"PARAMETERS": [
-		{
-			"NAME": "DEVELOPMENT",
-			"URL": "nexus-staging::https://nexus-enterprise-staging.exense.ch/repository/staging-maven/",
-			"CONFIG": "SkipJavadoc"
-		},
-		{
-			"NAME": "PRODUCTION",
-			"URL": "sonatype::https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/",
-			"CONFIG": "SignedBuild"
-		}
-	]
+  "ACTION": "COMPILE",
+  "TYPE": "POM",
+  "FOLDER": ".",
+  "PARAMETERS": [
+    {
+      "NAME": "DEVELOPMENT",
+      "URL": "nexus-staging::https://nexus-enterprise-staging.exense.ch/repository/staging-maven/",
+      "CONFIG": "SkipJavadoc"
+    },
+    {
+      "NAME": "PRODUCTION",
+      "URL": "sonatype::https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/",
+      "CONFIG": "SignedBuild"
+    }
+  ]
 }
