@@ -41,9 +41,9 @@ public class ForkedJvmBuilder implements AutoCloseable {
         try (OutputStreamWriter cp = new OutputStreamWriter(new FileOutputStream(javaClassPathArgsFile), StandardCharsets.UTF_8)) {
             cp.append("-cp ");
             cp.append("\"");
-            for(String path:classPathEntries) {
+            for (String path : classPathEntries) {
                 String absolutePath = new File(path).getCanonicalPath();
-                absolutePath = (isWindows()) ? absolutePath.replace("\\","/") : absolutePath;
+                absolutePath = (isWindows()) ? absolutePath.replace("\\", "/") : absolutePath;
                 cp.append(absolutePath);
                 cp.append(File.pathSeparator);
             }

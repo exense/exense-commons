@@ -1,354 +1,354 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (c) exense GmbH -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<groupId>ch.exense.commons</groupId>
-	<artifactId>exense-commons</artifactId>
-	<version>0.0.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+  <groupId>ch.exense.commons</groupId>
+  <artifactId>exense-commons</artifactId>
+  <version>0.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-	<repositories>
-		<!-- staging nexus, used for non-release versions -->
-		<repository>
-			<id>nexus-staging</id>
-			<url>https://nexus-enterprise-staging.exense.ch/repository/staging-maven/</url>
-		</repository>
-	</repositories>
+  <repositories>
+    <!-- staging nexus, used for non-release versions -->
+    <repository>
+      <id>nexus-staging</id>
+      <url>https://nexus-enterprise-staging.exense.ch/repository/staging-maven/</url>
+    </repository>
+  </repositories>
 
-	<!-- required metadata for maven central -->
-	<name>${project.groupId}:${project.artifactId}</name>
-	<description>Exense Commons</description>
-	<url>https://github.com/exense/exense-commons</url>
+  <!-- required metadata for maven central -->
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Exense Commons</description>
+  <url>https://github.com/exense/exense-commons</url>
 
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-		</license>
-	</licenses>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
 
-	<developers>
-		<developer>
-			<name>Exense GmbH</name>
-			<organization>Exense GmbH</organization>
-			<organizationUrl>https://exense.ch</organizationUrl>
-			<email>support@exense.ch</email>
-		</developer>
-	</developers>
+  <developers>
+    <developer>
+      <name>Exense GmbH</name>
+      <organization>Exense GmbH</organization>
+      <organizationUrl>https://exense.ch</organizationUrl>
+      <email>support@exense.ch</email>
+    </developer>
+  </developers>
 
-	<scm>
-		<connection>scm:git:https://github.com/exense/exense-commons.git</connection>
-		<developerConnection>scm:git:https://github.com/exense/exense-commons.git</developerConnection>
-		<url>https://github.com/exense/exense-commons</url>
-	</scm>
-	<!-- metadata end -->
+  <scm>
+    <connection>scm:git:https://github.com/exense/exense-commons.git</connection>
+    <developerConnection>scm:git:https://github.com/exense/exense-commons.git</developerConnection>
+    <url>https://github.com/exense/exense-commons</url>
+  </scm>
+  <!-- metadata end -->
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.release>11</maven.compiler.release>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.release>11</maven.compiler.release>
 
-		<!-- external dependencies provided using exense-dependencies -->
-		<dependencies.version>2025.6.25</dependencies.version>
+    <!-- external dependencies provided using exense-dependencies -->
+    <dependencies.version>2025.6.25</dependencies.version>
 
-		<!-- maven build dependencies -->
-		<dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
-		<dep.mvn.jar.version>3.4.2</dep.mvn.jar.version>
-		<dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
-		<dep.mvn.deploy.version>3.0.0-M1</dep.mvn.deploy.version>
-		<dep.mvn.surefire.version>2.19.1</dep.mvn.surefire.version> <!-- newest: 3.2.5 -->
-		<dep.mvn.javadoc.version>3.3.2</dep.mvn.javadoc.version> <!-- newest: 3.7.0 -->
-		<dep.mvn.source.version>3.0.1</dep.mvn.source.version> <!-- newest: 3.3.1 -->
-		<dep.mvn.gpg.version>1.6</dep.mvn.gpg.version>
-		<dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
-	</properties>
+    <!-- maven build dependencies -->
+    <dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
+    <dep.mvn.jar.version>3.4.2</dep.mvn.jar.version>
+    <dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
+    <dep.mvn.deploy.version>3.0.0-M1</dep.mvn.deploy.version>
+    <dep.mvn.surefire.version>2.19.1</dep.mvn.surefire.version> <!-- newest: 3.2.5 -->
+    <dep.mvn.javadoc.version>3.3.2</dep.mvn.javadoc.version> <!-- newest: 3.7.0 -->
+    <dep.mvn.source.version>3.0.1</dep.mvn.source.version> <!-- newest: 3.3.1 -->
+    <dep.mvn.gpg.version>1.6</dep.mvn.gpg.version>
+    <dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
+  </properties>
 
-	<!-- Reminder: don't forget to add all modules to the end of the dependencyManagement section just below -->
-	<modules>
-		<module>exense-basic-commons</module>
-	</modules>
+  <!-- Reminder: don't forget to add all modules to the end of the dependencyManagement section just below -->
+  <modules>
+    <module>exense-basic-commons</module>
+  </modules>
 
-	<!-- available dependencies, can be used in dependent projects WITHOUT specifying a version number -->
-	<dependencyManagement>
-		<dependencies>
-			<!-- actual external dependencies -->
-			<dependency>
-				<groupId>ch.exense.dependencies</groupId>
-				<artifactId>dependencies-junit</artifactId>
-				<version>${dependencies.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>ch.exense.dependencies</groupId>
-				<artifactId>dependencies-logging</artifactId>
-				<version>${dependencies.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
+  <!-- available dependencies, can be used in dependent projects WITHOUT specifying a version number -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- actual external dependencies -->
+      <dependency>
+        <groupId>ch.exense.dependencies</groupId>
+        <artifactId>dependencies-junit</artifactId>
+        <version>${dependencies.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.exense.dependencies</groupId>
+        <artifactId>dependencies-logging</artifactId>
+        <version>${dependencies.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
 
-			<!-- BOM of *this* project, exporting our OWN modules -->
-			<dependency>
-				<groupId>ch.exense.commons</groupId>
-				<artifactId>exense-basic-commons</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+      <!-- BOM of *this* project, exporting our OWN modules -->
+      <dependency>
+        <groupId>ch.exense.commons</groupId>
+        <artifactId>exense-basic-commons</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
-		</dependencies>
+    </dependencies>
 
-	</dependencyManagement>
+  </dependencyManagement>
 
-	<!-- actually used dependencies, exported to all modules (but not externally referring projects) -->
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+  <!-- actually used dependencies, exported to all modules (but not externally referring projects) -->
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${dep.mvn.compiler.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>${dep.mvn.jar.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-deploy-plugin</artifactId>
-					<version>${dep.mvn.deploy.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>${dep.mvn.source.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>${dep.mvn.javadoc.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.jacoco</groupId>
-					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>${dep.mvn.jacoco.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>${dep.mvn.surefire.version}</version>
-					<dependencies>
-						<dependency>
-							<groupId>org.apache.maven.surefire</groupId>
-							<artifactId>surefire-junit47</artifactId>
-							<version>${dep.mvn.surefire.version}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-				<plugin>
-					<groupId>org.owasp</groupId>
-					<artifactId>dependency-check-maven</artifactId>
-					<version>${dep.mvn.dependency-check.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-gpg-plugin</artifactId>
-					<version>${dep.mvn.gpg.version}</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-		<plugins>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>default-prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>default-report</id>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<systemPropertyVariables>
-						<logback.configurationFile>${basedir}/../logback-maven.xml</logback.configurationFile>
-					</systemPropertyVariables>
-				</configuration>
-			</plugin>
-			<!-- Source -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Javadoc -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<header><![CDATA[<meta name='viewport' content='width=device-width, initial-scale=1.0'>]]></header>
-					<!-- detectLinks MUST NOT be set to true in a production context, as it derives random domain names
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${dep.mvn.compiler.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${dep.mvn.jar.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${dep.mvn.deploy.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${dep.mvn.source.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${dep.mvn.javadoc.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${dep.mvn.jacoco.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${dep.mvn.surefire.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.surefire</groupId>
+              <artifactId>surefire-junit47</artifactId>
+              <version>${dep.mvn.surefire.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>${dep.mvn.dependency-check.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${dep.mvn.gpg.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <logback.configurationFile>${basedir}/../logback-maven.xml</logback.configurationFile>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <!-- Source -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Javadoc -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <header><![CDATA[<meta name='viewport' content='width=device-width, initial-scale=1.0'>]]></header>
+          <!-- detectLinks MUST NOT be set to true in a production context, as it derives random domain names
                     from package names, then tries to download data from those random URLs. -->
-					<detectLinks>false</detectLinks>
+          <detectLinks>false</detectLinks>
 
-					<!-- detectOfflineLinks SHOULD also be set to false, because:  -->
-					<!-- a) it cannot generate meaningful links to the javadoc from other projects, anyway -->
-					<!-- b) it causes unnecessarily scary ERROR messages at build time  -->
-					<detectOfflineLinks>false</detectOfflineLinks>
+          <!-- detectOfflineLinks SHOULD also be set to false, because:  -->
+          <!-- a) it cannot generate meaningful links to the javadoc from other projects, anyway -->
+          <!-- b) it causes unnecessarily scary ERROR messages at build time  -->
+          <detectOfflineLinks>false</detectOfflineLinks>
 
-					<quiet>true</quiet>
-					<source>11</source>
-					<additionalOptions>
-						<additionalOption>-Xdoclint:none</additionalOption>
-					</additionalOptions>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+          <quiet>true</quiet>
+          <source>11</source>
+          <additionalOptions>
+            <additionalOption>-Xdoclint:none</additionalOption>
+          </additionalOptions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
-	<profiles>
-		<profile>
-			<!-- Skip javadoc generation -->
-			<id>SkipJavadoc</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<maven.javadoc.skip>true</maven.javadoc.skip>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<excludedGroups>ch.exense.commons.test.categories.PerformanceTest</excludedGroups>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>DependencyCheck</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<!-- Profile use for checking security issues in external dependencies. -->
-			<!-- This may take a LOOONG time (possibly multiple minutes), even when using an API key -->
-			<!-- To quickly check the results, run this (in the project directory):
+  <profiles>
+    <profile>
+      <!-- Skip javadoc generation -->
+      <id>SkipJavadoc</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludedGroups>ch.exense.commons.test.categories.PerformanceTest</excludedGroups>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>DependencyCheck</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <!-- Profile use for checking security issues in external dependencies. -->
+      <!-- This may take a LOOONG time (possibly multiple minutes), even when using an API key -->
+      <!-- To quickly check the results, run this (in the project directory):
                  find . -name dependency-check-report.csv | xargs wc -l
              -->
-			<!-- Anything that returns more than 1 line (the CSV header line) is potentially vulnerable. -->
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.owasp</groupId>
-						<artifactId>dependency-check-maven</artifactId>
-						<configuration>
-							<formats>HTML,CSV</formats>
-							<skipDependencyManagement>false</skipDependencyManagement>
-							<!--                            <nvdApiKey>KEY_HERE</nvdApiKey>-->
-							<failOnError>false</failOnError>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>
-									verify
-								</phase>
-								<goals>
-									<goal>check</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>SignedBuild</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<!-- Signature -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-								<configuration>
-									<gpgArguments>
-										<arg>--pinentry-mode</arg>
-										<arg>loopback</arg>
-									</gpgArguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
+      <!-- Anything that returns more than 1 line (the CSV header line) is potentially vulnerable. -->
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <configuration>
+              <formats>HTML,CSV</formats>
+              <skipDependencyManagement>false</skipDependencyManagement>
+              <!--                            <nvdApiKey>KEY_HERE</nvdApiKey>-->
+              <failOnError>false</failOnError>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>
+                  verify
+                </phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>SignedBuild</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <!-- Signature -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
 
-					<!-- Disable old maven-deploy plugin -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-deploy-plugin</artifactId>
-						<configuration>
-							<skip>true</skip>
-						</configuration>
-					</plugin>
+          <!-- Disable old maven-deploy plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
 
-					<!-- Publish directly to central instead -->
-					<plugin>
-						<groupId>org.sonatype.central</groupId>
-						<artifactId>central-publishing-maven-plugin</artifactId>
-						<version>0.8.0</version>
-						<extensions>true</extensions>
-						<configuration>
-							<publishingServerId>sonatype</publishingServerId>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+          <!-- Publish directly to central instead -->
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.8.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>sonatype</publishingServerId>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
