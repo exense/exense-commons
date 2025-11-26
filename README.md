@@ -11,6 +11,7 @@ Use an IDE that supports the `.editorconfig` standard and make sure that it is e
 apply the recommended settings to all files.
 
 ### Git blame history
+
 To ensure correct handling of "reformat-only" commits, use a recent git version (>= 2.23) with the following
 configuration. You can do this per-repository (in that case, omit the `--global` flag), but the filename used
 is a de-facto standard, and this way you'll only need to do this once, not for every repository:
