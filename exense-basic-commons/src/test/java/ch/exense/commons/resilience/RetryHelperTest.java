@@ -290,9 +290,9 @@ public class RetryHelperTest {
                     RetryHelper.COMMON_NETWORK_EXCEPTIONS,
                     "Test zero retries"
             );
-            fail("Should have thrown SocketTimeoutException");
-        } catch (SocketTimeoutException e) {
-            assertEquals("Should only attempt once with zero retries", 1, attemptCount.get());
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals("expected message: maxRetries must be greater than 0", "maxRetries must be greater than 0", e.getMessage());
         } catch (Exception e) {
             fail("Unexpected exception type: " + e.getClass().getName());
         }
