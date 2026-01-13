@@ -17,7 +17,7 @@ public class RetryHelper {
      * Common network and IO exceptions that are typically retryable.
      * These represent transient failures that may succeed on retry.
      */
-    public static final List<Class<? extends Exception>> COMMON_NETWORK_EXCEPTIONS = Arrays.asList(
+    public static final List<Class<? extends Exception>> COMMON_NETWORK_EXCEPTIONS = List.of(
             SocketTimeoutException.class,     // Read/connect timeout
             SocketException.class,            // Generic socket errors (connection reset, broken pipe, etc.)
             ConnectException.class,           // Connection refused or failed
@@ -56,7 +56,12 @@ public class RetryHelper {
             long retryDelayMs,
             List<Class<? extends Exception>> retryableExceptions,
             String operationDescription) throws Exception {
-
+        Objects.requireNonNull(operation);
+        Objects.requireNonNull(retryableExceptions);
+        Objects.requireNonNull(operationDescription);
+        if (maxRetries <= 0) {
+            throw new IllegalArgumentException("maxRetries must be greater than 0");
+        }
         Exception lastException = null;
 
         for (int attempt = 0; attempt <= maxRetries; attempt++) {
@@ -70,12 +75,13 @@ public class RetryHelper {
                     if (attempt < maxRetries) {
                         logger.warn("{} failed (attempt {}/{}). Retrying in {}ms...",
                                 operationDescription, attempt + 1, maxRetries + 1, retryDelayMs, e);
-
-                        try {
-                            Thread.sleep(retryDelayMs);
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                            throw new RuntimeException("Interrupted while waiting to retry " + operationDescription, ie);
+                        if (retryDelayMs > 0) {
+                            try {
+                                Thread.sleep(retryDelayMs);
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                                throw new RuntimeException("Interrupted while waiting to retry " + operationDescription, ie);
+                            }
                         }
                     } else {
                         logger.warn("{} failed (attempt {}/{}). Max retries reached, propagating the error...",
@@ -89,13 +95,8 @@ public class RetryHelper {
                 }
             }
         }
-
         // This should never be reached, but required for compilation
-        if (lastException != null) {
-            throw lastException;
-        } else {
-            throw new RuntimeException("Unexpected exception for operation " + operationDescription);
-        }
+        throw lastException;
     }
 
     private static boolean isRetryableException(Exception e, List<Class<? extends Exception>> retryableExceptions) {
