@@ -26,6 +26,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -93,33 +94,49 @@ public class FileHelper {
 
 	/**
 	 * Deletes a folder recursively using Java 11 capabilities  which is at least twice faster
+	 * As the legacy implementation we still try to delete as much content as possible even if errors occurs for one of the file or nested folders
 	 * @param folder the {@link File} to be deleted
 	 */
 	public static boolean deleteFolderWithWalkFileTree(File folder) {
 		try {
+			AtomicBoolean success = new AtomicBoolean(true);
 			Files.walkFileTree(folder.toPath(), new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					Files.delete(file);
+					try {
+						Files.delete(file);
+					} catch (IOException e) {
+						success.set(false);
+						logger.warn("Could not delete file '{}'. Reason: {}", file.toAbsolutePath(), e.getMessage());
+					}
 					return FileVisitResult.CONTINUE;
 				}
 
 				@Override
 				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 					if (exc != null) {
-						logger.warn("Errors occurred while trying to delete the content of the the directory {}. We still try to delete the directory itself. ", dir.toAbsolutePath(), exc);
-					};
-					Files.delete(dir);
+						success.set(false);
+						logger.warn("Could not fully traverse directory '{}', it may not be completely deleted: {}",
+								dir.toAbsolutePath(), exc.getMessage());
+						return FileVisitResult.CONTINUE;
+					}
+					try {
+						Files.delete(dir);
+					} catch (IOException e) {
+						success.set(false);
+						logger.warn("Could not delete directory '{}'. Reason: {}", dir.toAbsolutePath(), e.getMessage());
+					}
 					return FileVisitResult.CONTINUE;
 				}
 
 				@Override
 				public FileVisitResult visitFileFailed(Path file, IOException exc) {
+					success.set(false);
 					logger.warn("Could not delete file '{}'. Reason {}", file.toAbsolutePath(), exc.getMessage());
 					return FileVisitResult.CONTINUE;
 				}
 			});
-			return true;
+			return success.get();
 		} catch (IOException e) {
 			logger.warn("Could not delete folder '{}'", folder.getAbsolutePath());
 			return false;
