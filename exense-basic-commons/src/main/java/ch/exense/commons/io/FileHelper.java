@@ -27,7 +27,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -93,7 +92,7 @@ public class FileHelper {
 	}
 
 	/**
-	 * Deletes a folder recursively using Jave 11 capabilties which is at least twice faster
+	 * Deletes a folder recursively using Java 11 capabilities  which is at least twice faster
 	 * @param folder the {@link File} to be deleted
 	 */
 	public static boolean deleteFolderWithWalkFileTree(File folder) {
@@ -107,6 +106,9 @@ public class FileHelper {
 
 				@Override
 				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					if (exc != null) {
+						logger.warn("Errors occurred while trying to delete the content of the the directory {}. We still try to delete the directory itself. ", dir.toAbsolutePath(), exc);
+					};
 					Files.delete(dir);
 					return FileVisitResult.CONTINUE;
 				}
@@ -280,11 +282,71 @@ public class FileHelper {
 		}
 	}
 
+	/**
+	 * Extracts the zip file to the target folder provided as argument.
+	 * When resourcesOnly is true it will skip all *.class files and META-INF except potentially useful runtime files like services or manifests.
+	 * @param zipFile the zip file to be extracted
+	 * @param target the target folder to extract to
+	 * @param resourcesOnly whether to only include resources file for JAR archive
+	 * @throws IOException if an error occurs during file unzip
+	 */
+	public static void unzip(File zipFile, File target, boolean resourcesOnly) throws IOException {
+		// Create target directory if absent before canonicalizing,
+		// since toRealPath() requires the path to already exist
+		if (!target.exists()) {
+			Files.createDirectories(target.toPath());
+		} else if (!target.isDirectory()) {
+			throw new IOException("The target should be a directory");
+		}
+
+		// Canonicalize target once outside the loop — resolves symlinks and relative segments
+		final Path canonicalTarget = target.toPath().toRealPath();
+
+		// Cache created directories to avoid redundant createDirectories calls
+		Set<Path> createdDirs = new HashSet<>();
+		createdDirs.add(canonicalTarget);
+
+		try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile), 64 * 1024);
+			 ZipInputStream zip = new ZipInputStream(in)) {
+
+			ZipEntry entry;
+			while ((entry = zip.getNextEntry()) != null) {
+				String name = entry.getName().replace("\\", "/");
+
+				// Reject absolute paths in ZIP entries (e.g. /etc/passwd)
+				if (Paths.get(name).isAbsolute()) {
+					throw new IOException("ZIP entry with absolute path is not allowed: " + name);
+				}
+
+				// normalize() resolves syntactic ".." segments, combined with canonicalTarget
+				// (which has symlinks resolved) this prevents all known path traversal variants
+				Path destPath = canonicalTarget.resolve(name).normalize();
+				if (!destPath.startsWith(canonicalTarget)) {
+					throw new IOException("ZIP entry outside of target directory: " + name);
+				}
+
+				if (entry.isDirectory()) {
+					if (createdDirs.add(destPath)) {
+						Files.createDirectories(destPath);
+					}
+				} else if (!shouldSkip(name, resourcesOnly)) {
+					// Ensure parent directory exists
+					Path parent = destPath.getParent();
+					if (parent != null && createdDirs.add(parent)) {
+						Files.createDirectories(parent);
+					}
+					// Write directly to disk — no in-memory buffering of full entry
+					Files.copy(zip, destPath, StandardCopyOption.REPLACE_EXISTING);
+				}
+				zip.closeEntry();
+			}
+		}
+	}
 
 	/**
 	 * Extracts the zip file to the target folder provided as argument with a parallel implementation
 	 * Compared to the unzip methods that can takes up to 30 seconds for a 200 MB archive with 200 files, this method is by a factor 3-4 faster
-	 * However it needs to store the list of ZIP entries in memory for parallel streaming
+	 * However it needs to store the whole ZIP content in memory for parallel streaming
 	 * @param zipFile the zip file to be extracted
 	 * @param target the target folder to extract to
 	 * @throws IOException if an error occurs during file unzip
@@ -296,8 +358,8 @@ public class FileHelper {
 	/**
 	 * Extracts the zip file to the target folder provided as argument with a parallel implementation
 	 * When resourcesOnly is true it will skip all *.class files and META-INF except potentially useful runtime files like services or manifests
-	 * Compared to the unzip methods that can takes up to 30 seconds for a 200 MB archive with 200 files, this method complete in less than a second
-	 * However it needs to store the list of ZIP entries in memory for parallel streaming
+	 * Compared to the unzip methods that can takes up to 30 seconds for a 200 MB archive with 200 files, this method completes in less than a second
+	 * However it needs to store the whole ZIP content in memory for parallel streaming
 	 * @param zipFile the zip file to be extracted
 	 * @param target the target folder to extract to
 	 * @param resourcesOnly whether to only include resources file for JAR archive

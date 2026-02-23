@@ -49,17 +49,17 @@ public class FileHelperTest {
 		// classloader should see all files and folders as zip entires
 		try (URLClassLoader classLoader = new URLClassLoader(new URL[]{tempFile.toURI().toURL()}, null)) {
 			URL url = classLoader.getResource("file1");
-			Assert.assertNotNull(url);
+			assertNotNull(url);
 			try (InputStream fileUrlStream = url.openStream()) {
 				byte[] bytes = fileUrlStream.readAllBytes();
 				assertTrue(bytes.length > 0);
 			}
 
 			url = classLoader.getResource("subfolder1/");
-			Assert.assertNotNull(url);
+			assertNotNull(url);
 
 			url = classLoader.getResource("subfolder1/file2");
-			Assert.assertNotNull(url);
+			assertNotNull(url);
 			try (InputStream fileUrlStream = url.openStream()) {
 				byte[] bytes = fileUrlStream.readAllBytes();
 				assertTrue(bytes.length > 0);
@@ -81,14 +81,14 @@ public class FileHelperTest {
 		assertTrue("lastModificationDate >= t1 failed, lastModificationDate="+lastModificationDate+"; t1="+t1, lastModificationDate>=t1);
 		
 		String contentFile1 = new String(Files.readAllBytes(Paths.get(targetDirectory.toAbsolutePath().toString(), "file1")));
-		Assert.assertEquals("TEST", contentFile1);
+		assertEquals("TEST", contentFile1);
 		
 		String contentFile2 = new String(Files.readAllBytes(Paths.get(targetDirectory.toAbsolutePath().toString(), "subfolder1", "file2")));
-		Assert.assertEquals("TEST", contentFile2);
+		assertEquals("TEST", contentFile2);
 		
 		
 		FileHelper.deleteFolder(targetDirectory.toFile());
-		Assert.assertFalse(targetDirectory.toFile().exists());
+		assertFalse(targetDirectory.toFile().exists());
 		
 		FileHelper.deleteFolderOnExit(targetDirectory2.toFile());
 		assertTrue(targetDirectory2.toFile().exists());
@@ -131,32 +131,40 @@ public class FileHelperTest {
 		FileHelper.deleteFolder(sourceDir.toFile());
 		assertFalse(sourceDir.toFile().exists());
 
-		verifyParallelUnzip(zipFile, sourceDir, false);
+		verifyNewUnzip(zipFile, true, false);
 
-		verifyParallelUnzip(zipFile, sourceDir, true);
+		verifyNewUnzip(zipFile, true, true);
+
+		verifyNewUnzip(zipFile, false, false);
+
+		verifyNewUnzip(zipFile, false, true);
 
 		// Cleanup
 		assertTrue(zipFile.delete());
 		assertFalse(sourceDir.toFile().exists());
 	}
 
-	private static void verifyParallelUnzip(File zipFile, Path sourceDir, boolean resourcesOnly) throws IOException {
+	private static void verifyNewUnzip(File zipFile, boolean parallel, boolean resourcesOnly) throws IOException {
 		// Unzip using unzipParallel
 		Path targetDir = Files.createTempDirectory(null);
-		FileHelper.unzipParallel(zipFile, targetDir.toFile(), resourcesOnly);
+		if (parallel) {
+			FileHelper.unzipParallel(zipFile, targetDir.toFile(), resourcesOnly);
+		} else {
+			FileHelper.unzip(zipFile, targetDir.toFile(), resourcesOnly);
+		}
 
 		// Verify all files exist with correct content
 		String content1 = new String(Files.readAllBytes(targetDir.resolve("file1.txt")));
-		Assert.assertEquals("CONTENT_FILE1", content1);
+		assertEquals("CONTENT_FILE1", content1);
 
 		String content2 = new String(Files.readAllBytes(targetDir.resolve("file2.txt")));
-		Assert.assertEquals("CONTENT_FILE2", content2);
+		assertEquals("CONTENT_FILE2", content2);
 
 		String content3 = new String(Files.readAllBytes(targetDir.resolve("subdir/file3.txt")));
-		Assert.assertEquals("CONTENT_FILE3", content3);
+		assertEquals("CONTENT_FILE3", content3);
 
 		String content4 = new String(Files.readAllBytes(targetDir.resolve("subdir/nested/file4.txt")));
-		Assert.assertEquals("CONTENT_FILE4", content4);
+		assertEquals("CONTENT_FILE4", content4);
 
 		if (resourcesOnly) {
 			assertThrows(NoSuchFileException.class, () -> Files.readAllBytes(targetDir.resolve("file1.class")));
@@ -164,13 +172,13 @@ public class FileHelperTest {
 			assertThrows(NoSuchFileException.class, () -> Files.readAllBytes(targetDir.resolve("META-INF/someMetaInfFile.txt")));
 		} else {
 			String classFileContent = new String(Files.readAllBytes(targetDir.resolve("file1.class")));
-			Assert.assertEquals("CLASS_CONTENT_FILE1", classFileContent);
+			assertEquals("CLASS_CONTENT_FILE1", classFileContent);
 
 			String classFileContent4 = new String(Files.readAllBytes(targetDir.resolve("subdir/nested/file4.class")));
-			Assert.assertEquals("CLASS_CONTENT_FILE4", classFileContent4);
+			assertEquals("CLASS_CONTENT_FILE4", classFileContent4);
 
 			String someMetaInfFile = new String(Files.readAllBytes(targetDir.resolve("META-INF/someMetaInfFile.txt")));
-			Assert.assertEquals("META_INF_CONTENT_FILE", someMetaInfFile);
+			assertEquals("META_INF_CONTENT_FILE", someMetaInfFile);
 		}
 
 		// Cleanup
@@ -190,13 +198,13 @@ public class FileHelperTest {
 		// Target directory does NOT exist yet – unzipParallel must create it
 		Path targetDir = Files.createTempDirectory(null);
 		FileHelper.deleteFolder(targetDir.toFile());
-		Assert.assertFalse("Pre-condition: target must not exist", targetDir.toFile().exists());
+		assertFalse("Pre-condition: target must not exist", targetDir.toFile().exists());
 
 		FileHelper.unzipParallel(zipFile, targetDir.toFile());
 
 		assertTrue("Target directory must have been created", targetDir.toFile().isDirectory());
 		String content = new String(Files.readAllBytes(targetDir.resolve("hello.txt")));
-		Assert.assertEquals("HELLO", content);
+		assertEquals("HELLO", content);
 
 		FileHelper.deleteFolderWithWalkFileTree(sourceDir.toFile());
 		FileHelper.deleteFolderWithWalkFileTree(targetDir.toFile());
@@ -207,28 +215,28 @@ public class FileHelperTest {
 	@Test
 	public void test2() throws IOException {
 		String readResource = FileHelper.readResource(getClass(), "testFile.txt");
-		Assert.assertEquals("TEST FILE", readResource);
+		assertEquals("TEST FILE", readResource);
 		
 		byte[] readResourceAsByteArray = FileHelper.readResourceAsByteArray(getClass(), "testFile.txt");
-		Assert.assertEquals("TEST FILE", new String(readResourceAsByteArray));
+		assertEquals("TEST FILE", new String(readResourceAsByteArray));
 		
 		String readClassLoaderResource = FileHelper.readClassLoaderResource(getClass().getClassLoader(), "testClassloaderResource.txt");
-		Assert.assertEquals("TEST FILE", readClassLoaderResource);
+		assertEquals("TEST FILE", readClassLoaderResource);
 
 		byte[] readClassLoaderResourceAsByteArray = FileHelper.readClassLoaderResourceAsByteArray(getClass().getClassLoader(), "testClassloaderResource.txt");
-		Assert.assertEquals("TEST FILE", new String(readClassLoaderResourceAsByteArray));
+		assertEquals("TEST FILE", new String(readClassLoaderResourceAsByteArray));
 		
 		File classLoaderResourceAsFile = FileHelper.getClassLoaderResourceAsFile(getClass().getClassLoader(), "testClassloaderResource.txt");
 		String content = new String(Files.readAllBytes(classLoaderResourceAsFile.toPath()));
-		Assert.assertEquals("TEST FILE", content);
+		assertEquals("TEST FILE", content);
 		
 		File tempFile = FileHelper.createTempFile();
 		FileHelper.copy(new FileInputStream(classLoaderResourceAsFile), new FileOutputStream(tempFile));
 		String contentTempFile = new String(Files.readAllBytes(tempFile.toPath()));
-		Assert.assertEquals("TEST FILE", contentTempFile);
+		assertEquals("TEST FILE", contentTempFile);
 		
 		File tempFile2 = FileHelper.extractResourceToTempFile(getClass(), "testFile.txt");
 		String contentTempFile2 = new String(Files.readAllBytes(tempFile2.toPath()));
-		Assert.assertEquals("TEST FILE", contentTempFile2);
+		assertEquals("TEST FILE", contentTempFile2);
 	}
 }
