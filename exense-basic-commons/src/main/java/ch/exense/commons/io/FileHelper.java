@@ -113,7 +113,7 @@ public class FileHelper {
 
 				@Override
 				public FileVisitResult visitFileFailed(Path file, IOException exc) {
-					logger.warn("Could not delete file '{}'", file.toAbsolutePath());
+					logger.warn("Could not delete file '{}'. Reason {}", file.toAbsolutePath(), exc.getMessage());
 					return FileVisitResult.CONTINUE;
 				}
 			});
@@ -306,14 +306,37 @@ public class FileHelper {
 	public static void unzipParallel(File zipFile, File target, boolean resourcesOnly) throws IOException {
 		Map<String, byte[]> entries = new LinkedHashMap<>();
 
+		// Create target directory if absent
+		if (!target.exists()) {
+			Files.createDirectories(target.toPath());
+		} else if (!target.isDirectory()) {
+			throw new IOException("The target should be a directory");
+		}
+
 		try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile), 64 * 1024);
 			 ZipInputStream zip = new ZipInputStream(in)) {
 
 			ZipEntry entry;
+			// Canonicalize target once outside the loop — resolves symlinks and relative segments
+			final Path canonicalTarget;
+			try {
+				canonicalTarget = target.toPath().toRealPath();
+			} catch (IOException e) {
+				throw new IOException("Could not canonicalize target directory: " + target, e);
+			}
+
 			while ((entry = zip.getNextEntry()) != null) {
 				String name = entry.getName().replace("\\", "/");
-				Path destPath = target.toPath().resolve(name).normalize();
-				if (!destPath.startsWith(target.toPath())) {
+
+				// Reject absolute paths in ZIP entries (e.g. /etc/passwd)
+				if (Paths.get(name).isAbsolute()) {
+					throw new IOException("ZIP entry with absolute path is not allowed: " + name);
+				}
+
+				// normalize() resolves syntactic ".." segments, combined with canonicalTarget
+				// (which has symlinks resolved) this prevents all known path traversal variants
+				Path destPath = canonicalTarget.resolve(name).normalize();
+				if (!destPath.startsWith(canonicalTarget)) {
 					throw new IOException("ZIP entry outside of target directory: " + name);
 				}
 				if (!entry.isDirectory() && !shouldSkip(name, resourcesOnly)) {
@@ -329,21 +352,28 @@ public class FileHelper {
 			Path parent = target.toPath().resolve(name).getParent();
 			if (parent != null) dirs.add(parent);
 		}
-		dirs.stream()
-				.sorted(Comparator.comparingInt(Path::getNameCount))
-				.forEach(d -> {
-					try { Files.createDirectories(d); }
-					catch (IOException e) { throw new UncheckedIOException(e); }
-				});
+		try {
+			dirs.stream()
+					.sorted(Comparator.comparingInt(Path::getNameCount))
+					.forEach(d -> {
+						try {
+							Files.createDirectories(d);
+						} catch (IOException e) {
+							throw new UncheckedIOException(e);
+						}
+					});
 
-		// Write files in parallel
-		entries.entrySet().parallelStream().forEach(e -> {
-			try {
-				Files.write(target.toPath().resolve(e.getKey()).normalize(), e.getValue());
-			} catch (IOException ex) {
-				throw new UncheckedIOException(ex);
-			}
-		});
+			// Write files in parallel
+			entries.entrySet().parallelStream().forEach(e -> {
+				try {
+					Files.write(target.toPath().resolve(e.getKey()).normalize(), e.getValue());
+				} catch (IOException ex) {
+					throw new UncheckedIOException(ex);
+				}
+			});
+		} catch (UncheckedIOException e) {
+			throw e.getCause();
+		}
 	}
 
 	private static boolean shouldSkip(String name, boolean resourcesOnly) {
