@@ -23,6 +23,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import ch.exense.commons.classloader.ClassLoaderArchiver;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -144,7 +145,12 @@ public class FileHelperTest {
 	private static void verifyNewUnzip(File zipFile, boolean resourcesOnly) throws IOException {
 		// Unzip using unzipParallel
 		Path targetDir = Files.createTempDirectory(null);
-		FileHelper.unzip(zipFile, targetDir.toFile(), s -> !shouldSkip(s, resourcesOnly));
+		if (resourcesOnly) {
+			FileHelper.unzip(zipFile, targetDir.toFile(), ClassLoaderArchiver.getResourceFilter());
+		} else {
+			FileHelper.unzip(zipFile, targetDir.toFile());
+		}
+
 
 		// Verify all files exist with correct content
 		String content1 = new String(Files.readAllBytes(targetDir.resolve("file1.txt")));
@@ -178,24 +184,6 @@ public class FileHelperTest {
 		FileHelper.deleteFolder(targetDir.toFile());
 		assertFalse(targetDir.toFile().exists());
 	}
-
-	private static boolean shouldSkip(String name, boolean resourcesOnly) {
-		if (!resourcesOnly) {
-			return false;
-		}
-		// Skip .class files
-		if (name.endsWith(".class")) {
-			return true;
-		}
-		// Skip META-INF except potentially useful runtime files like services or manifests
-		if (name.startsWith("META-INF/")
-				&& !name.startsWith("META-INF/services/")
-				&& !name.equals("META-INF/MANIFEST.MF")) {
-			return true;
-		}
-		return false;
-	}
-
 
 	@Test
 	public void test2() throws IOException {

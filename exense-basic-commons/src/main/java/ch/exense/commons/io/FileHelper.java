@@ -219,7 +219,7 @@ public class FileHelper {
 	 */
 	public static void unzip(File zipFile, File target) throws IOException {
 		try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile), 64 * 1024)) {
-			unzip(in, target, null);
+			unzip(in, target, o -> true);
 		}
 	}
 
@@ -254,7 +254,7 @@ public class FileHelper {
 	 * @throws IOException if an error occurs during file unzip
 	 */
 	public static void unzip(InputStream stream, File target) throws IOException {
-		unzip(stream, target, null);
+		unzip(stream, target,  o -> true);
 	}
 
 	/**
@@ -266,6 +266,9 @@ public class FileHelper {
 	 * @throws IOException if an error occurs during file unzip
 	 */
 	public static void unzip(InputStream stream, File target, Predicate<String> filter) throws IOException {
+		Objects.requireNonNull(stream);
+		Objects.requireNonNull(target);
+		Objects.requireNonNull(filter);
 		Map<String, byte[]> entries = new LinkedHashMap<>();
 
 		// Create target directory if absent
@@ -300,7 +303,7 @@ public class FileHelper {
 				if (!destPath.startsWith(canonicalTarget)) {
 					throw new IOException("ZIP entry outside of target directory: " + name);
 				}
-				if (!entry.isDirectory() && (filter == null || filter.test(name))) {
+				if (!entry.isDirectory() && filter.test(name)) {
 					entries.put(name, zip.readAllBytes());
 				}
 				zip.closeEntry();
