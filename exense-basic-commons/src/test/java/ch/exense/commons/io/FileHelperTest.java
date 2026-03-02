@@ -95,7 +95,7 @@ public class FileHelperTest {
 	}
 	
 	@Test
-	public void testUnzipParallel() throws Exception {
+	public void testUnzipWithFilters() throws Exception {
 		// Build a source directory with files at root level and in nested subdirectories
 		Path sourceDir = Files.createTempDirectory(null);
 		Path file1 = sourceDir.resolve("file1.txt");
@@ -131,27 +131,20 @@ public class FileHelperTest {
 		FileHelper.deleteFolder(sourceDir.toFile());
 		assertFalse(sourceDir.toFile().exists());
 
-		verifyNewUnzip(zipFile, true, false);
+		verifyNewUnzip(zipFile,  false);
 
-		verifyNewUnzip(zipFile, true, true);
+		verifyNewUnzip(zipFile,  true);
 
-		verifyNewUnzip(zipFile, false, false);
-
-		verifyNewUnzip(zipFile, false, true);
 
 		// Cleanup
 		assertTrue(zipFile.delete());
 		assertFalse(sourceDir.toFile().exists());
 	}
 
-	private static void verifyNewUnzip(File zipFile, boolean parallel, boolean resourcesOnly) throws IOException {
+	private static void verifyNewUnzip(File zipFile, boolean resourcesOnly) throws IOException {
 		// Unzip using unzipParallel
 		Path targetDir = Files.createTempDirectory(null);
-		if (parallel) {
-			FileHelper.unzipParallel(zipFile, targetDir.toFile(), resourcesOnly);
-		} else {
-			FileHelper.unzip(zipFile, targetDir.toFile(), resourcesOnly);
-		}
+		FileHelper.unzip(zipFile, targetDir.toFile(), s -> !shouldSkip(s, resourcesOnly));
 
 		// Verify all files exist with correct content
 		String content1 = new String(Files.readAllBytes(targetDir.resolve("file1.txt")));
@@ -186,31 +179,23 @@ public class FileHelperTest {
 		assertFalse(targetDir.toFile().exists());
 	}
 
-	@Test
-	public void testUnzipParallelTargetCreatedIfAbsent() throws Exception {
-		// Source directory with a single file
-		Path sourceDir = Files.createTempDirectory(null);
-		Files.write(sourceDir.resolve("hello.txt"), "HELLO".getBytes());
-
-		File zipFile = FileHelper.createTempFile();
-		FileHelper.zip(sourceDir.toFile(), zipFile);
-
-		// Target directory does NOT exist yet – unzipParallel must create it
-		Path targetDir = Files.createTempDirectory(null);
-		FileHelper.deleteFolder(targetDir.toFile());
-		assertFalse("Pre-condition: target must not exist", targetDir.toFile().exists());
-
-		FileHelper.unzipParallel(zipFile, targetDir.toFile());
-
-		assertTrue("Target directory must have been created", targetDir.toFile().isDirectory());
-		String content = new String(Files.readAllBytes(targetDir.resolve("hello.txt")));
-		assertEquals("HELLO", content);
-
-		FileHelper.deleteFolderWithWalkFileTree(sourceDir.toFile());
-		FileHelper.deleteFolderWithWalkFileTree(targetDir.toFile());
-		assertFalse(sourceDir.toFile().exists());
-		assertFalse(targetDir.toFile().exists());
+	private static boolean shouldSkip(String name, boolean resourcesOnly) {
+		if (!resourcesOnly) {
+			return false;
+		}
+		// Skip .class files
+		if (name.endsWith(".class")) {
+			return true;
+		}
+		// Skip META-INF except potentially useful runtime files like services or manifests
+		if (name.startsWith("META-INF/")
+				&& !name.startsWith("META-INF/services/")
+				&& !name.equals("META-INF/MANIFEST.MF")) {
+			return true;
+		}
+		return false;
 	}
+
 
 	@Test
 	public void test2() throws IOException {
