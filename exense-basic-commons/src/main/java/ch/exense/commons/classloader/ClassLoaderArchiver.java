@@ -82,6 +82,26 @@ public class ClassLoaderArchiver {
     }
 
     /**
+     * Writes a zero-byte directory entry into the JAR so that
+     * {@link ClassLoader#getResource(String)} can resolve directory paths
+     * (e.g. {@code "folder/"}) when the archive is loaded via a
+     * {@link java.net.URLClassLoader}.
+     *
+     * @param jos       the target JAR output stream
+     * @param entryName the directory entry name; must end with {@code /}
+     * @throws IOException if an I/O error occurs while writing to {@code jos}
+     */
+    private static void addDirectoryEntryToJar(JarOutputStream jos, String entryName) throws IOException {
+        ZipEntry dirEntry = new ZipEntry(entryName);
+        dirEntry.setMethod(ZipEntry.STORED);
+        dirEntry.setSize(0);
+        dirEntry.setCompressedSize(0);
+        dirEntry.setCrc(0);
+        jos.putNextEntry(dirEntry);
+        jos.closeEntry();
+    }
+
+    /**
      * Streams a single file entry into the given {@link JarOutputStream} using
      * uncompressed ({@code STORED}) encoding.
      *
@@ -196,9 +216,11 @@ public class ClassLoaderArchiver {
      * how the original classpath entry was expressed (relative, with {@code .} or
      * {@code ..} components, etc.). Back-slashes in Windows paths are normalised
      * to forward slashes so that the archive is portable across operating systems.
-     * Directory entries are intentionally omitted; Java's {@link ClassLoader} does
-     * not require them to locate resources inside a JAR. Entries whose relative
-     * name is already present in {@code addedEntries} are skipped.</p>
+     * Directory entries (names ending with {@code /}) are emitted before their
+     * contents so that a {@link java.net.URLClassLoader} built from the archive
+     * can resolve directory paths via {@link ClassLoader#getResource(String)}.
+     * Entries whose relative name is already present in {@code addedEntries} are
+     * skipped.</p>
      *
      * <p>Each file is read twice: once to compute its CRC-32 (required by the ZIP
      * specification in the STORED entry header before the data), and once to stream
@@ -217,6 +239,18 @@ public class ClassLoaderArchiver {
      */
     private static void addDirectoryToArchive(Path root, JarOutputStream jos, Set<String> addedEntries, Predicate<String> filter) throws IOException {
         Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                if (!dir.equals(root)) {
+                    // Emit a directory entry so that URLClassLoader.getResource("dir/") works.
+                    String entryName = root.relativize(dir).toString().replace("\\", "/") + "/";
+                    if (addedEntries.add(entryName)) {
+                        addDirectoryEntryToJar(jos, entryName);
+                    }
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 String entryName = root.relativize(file).toString().replace("\\", "/");
@@ -243,10 +277,11 @@ public class ClassLoaderArchiver {
      * ({@value #BUFFER_SIZE} bytes) without loading any entry fully into
      * memory, regardless of compression method or entry size.</p>
      *
-     * <p>Directory entries (names ending with {@code /}) are omitted because
-     * Java's {@link ClassLoader} does not need them to locate resources, and
-     * keeping them would produce spurious empty entries in the output archive.
-     * The manifest is excluded because the output archive has its own minimal
+     * <p>Directory entries (names ending with {@code /}) are forwarded verbatim
+     * so that a {@link java.net.URLClassLoader} built from the archive can resolve
+     * directory paths via {@link ClassLoader#getResource(String)} (e.g.
+     * {@code "folder/"}). The manifest is excluded because the output archive
+     * has its own minimal
      * manifest; including original manifests from dependency JARs could create
      * conflicting or misleading metadata. All other entries — including other
      * files under {@code META-INF/} — are copied verbatim.</p>
@@ -265,7 +300,12 @@ public class ClassLoaderArchiver {
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 String entryName = entry.getName();
-                if (!entry.isDirectory() && filter.test(entryName) && !shouldExcludeFromJar(entryName) && addedEntries.add(entryName)) {
+                if (entry.isDirectory()) {
+                    // Forward directory entries so that URLClassLoader.getResource("dir/") works.
+                    if (!shouldExcludeFromJar(entryName) && addedEntries.add(entryName)) {
+                        addDirectoryEntryToJar(jos, entryName);
+                    }
+                } else if (filter.test(entryName) && !shouldExcludeFromJar(entryName) && addedEntries.add(entryName)) {
                     try (InputStream is = jar.getInputStream(entry)) {
                         addEntryToJar(jos, entryName, is, entry.getSize(), entry.getCrc());
                     }

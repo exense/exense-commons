@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.*;
 
@@ -107,26 +109,86 @@ public class ClassLoaderArchiverTest {
         assertArrayEquals("Content of folder/File.txt must be preserved verbatim", expected, actual);
     }
 
-    // ─── no directory entries (bug fix) ───────────────────────────────────────
+    // ─── URLClassLoader resource access (including directories) ──────────────
 
+    /**
+     * Verifies that a {@link URLClassLoader} created from the archive can locate
+     * both file resources and directory resources.  Directory lookup requires
+     * explicit directory entries (names ending with {@code /}) to be present in
+     * the JAR — this test reproduces the failure that occurs when they are absent.
+     */
     @Test
-    public void testNoDirectoryEntriesInFullArchive() throws Exception {
+    public void testURLClassLoaderCanAccessFileAndDirectoryResources() throws Exception {
         File archive = tmp.newFile("out.jar");
         ClassLoaderArchiver.createArchive(archive);
 
-        for (String name : entryNames(archive)) {
-            assertFalse("Archive must not contain directory entry: " + name, name.endsWith("/"));
+        // Use null parent so lookups go only to our archive, not the test classpath
+        try (URLClassLoader classLoader = new URLClassLoader(
+                new URL[]{archive.toURI().toURL()}, null)) {
+
+            // A plain file resource must always be reachable
+            URL fileResource = classLoader.getResource("folder/File.txt");
+            assertNotNull("URLClassLoader must find file resources", fileResource);
+
+            // A directory resource requires a directory entry (name ending with '/')
+            // to be present in the JAR; without it getResource returns null.
+            URL dirResourceWithSlash = classLoader.getResource("folder/");
+            assertNotNull(
+                    "URLClassLoader must find directory resources with trailing slash — JAR must contain directory entries",
+                    dirResourceWithSlash);
+
+            // ZipFile.getEntry() retries with name+"/" when the bare name is not found,
+            // so the no-slash form must also resolve once the directory entry exists.
+            URL dirResourceNoSlash = classLoader.getResource("folder");
+            assertNotNull(
+                    "URLClassLoader must find directory resources without trailing slash",
+                    dirResourceNoSlash);
         }
     }
 
     @Test
-    public void testNoDirectoryEntriesInResourcesOnlyArchive() throws Exception {
+    public void testURLClassLoaderCanAccessDirectoryResourcesInResourcesOnlyArchive() throws Exception {
         File archive = tmp.newFile("out.jar");
         ClassLoaderArchiver.createArchive(archive, ClassLoaderArchiver.getResourceFilter());
 
-        for (String name : entryNames(archive)) {
-            assertFalse("Archive must not contain directory entry: " + name, name.endsWith("/"));
+        try (URLClassLoader classLoader = new URLClassLoader(
+                new URL[]{archive.toURI().toURL()}, null)) {
+
+            URL fileResource = classLoader.getResource("folder/File.txt");
+            assertNotNull("URLClassLoader must find file resources", fileResource);
+
+            URL dirResourceWithSlash = classLoader.getResource("folder/");
+            assertNotNull(
+                    "URLClassLoader must find directory resources with trailing slash in resources-only archive",
+                    dirResourceWithSlash);
+
+            URL dirResourceNoSlash = classLoader.getResource("folder");
+            assertNotNull(
+                    "URLClassLoader must find directory resources without trailing slash in resources-only archive",
+                    dirResourceNoSlash);
         }
+    }
+
+    // ─── directory entries present ────────────────────────────────────────────
+
+    @Test
+    public void testDirectoryEntriesArePresentInFullArchive() throws Exception {
+        File archive = tmp.newFile("out.jar");
+        ClassLoaderArchiver.createArchive(archive);
+
+        Set<String> entries = entryNames(archive);
+        assertTrue("Archive must contain a directory entry for 'folder/'",
+                entries.contains("folder/"));
+    }
+
+    @Test
+    public void testDirectoryEntriesArePresentInResourcesOnlyArchive() throws Exception {
+        File archive = tmp.newFile("out.jar");
+        ClassLoaderArchiver.createArchive(archive, ClassLoaderArchiver.getResourceFilter());
+
+        Set<String> entries = entryNames(archive);
+        assertTrue("Resources-only archive must contain a directory entry for 'folder/'",
+                entries.contains("folder/"));
     }
 
     // ─── resourcesOnly flag ───────────────────────────────────────────────────
