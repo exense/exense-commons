@@ -66,7 +66,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testDirectoryStructurePreservedInFullArchive() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive);
+        ClassLoaderArchiver.createFatJar(archive);
 
         Set<String> entries = entryNames(archive);
 
@@ -83,7 +83,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testDirectoryStructurePreservedInResourcesOnlyArchive() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive, ClassLoaderArchiver.getResourceFilter());
+        ClassLoaderArchiver.createFatJar(archive, ClassLoaderArchiver.getResourceFilter());
 
         Set<String> entries = entryNames(archive);
 
@@ -96,7 +96,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testFileContentIsPreservedVerbatim() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive);
+        ClassLoaderArchiver.createFatJar(archive);
 
         byte[] expected;
         try (InputStream is = ClassLoaderArchiverTest.class.getResourceAsStream("/folder/File.txt")) {
@@ -120,7 +120,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testURLClassLoaderCanAccessFileAndDirectoryResources() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive);
+        ClassLoaderArchiver.createFatJar(archive);
 
         // Use null parent so lookups go only to our archive, not the test classpath
         try (URLClassLoader classLoader = new URLClassLoader(
@@ -149,7 +149,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testURLClassLoaderCanAccessDirectoryResourcesInResourcesOnlyArchive() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive, ClassLoaderArchiver.getResourceFilter());
+        ClassLoaderArchiver.createFatJar(archive, ClassLoaderArchiver.getResourceFilter());
 
         try (URLClassLoader classLoader = new URLClassLoader(
                 new URL[]{archive.toURI().toURL()}, null)) {
@@ -174,7 +174,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testDirectoryEntriesArePresentInFullArchive() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive);
+        ClassLoaderArchiver.createFatJar(archive);
 
         Set<String> entries = entryNames(archive);
         assertTrue("Archive must contain a directory entry for 'folder/'",
@@ -184,7 +184,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testDirectoryEntriesArePresentInResourcesOnlyArchive() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive, ClassLoaderArchiver.getResourceFilter());
+        ClassLoaderArchiver.createFatJar(archive, ClassLoaderArchiver.getResourceFilter());
 
         Set<String> entries = entryNames(archive);
         assertTrue("Resources-only archive must contain a directory entry for 'folder/'",
@@ -196,7 +196,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testResourcesOnlyExcludesClassFiles() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive, ClassLoaderArchiver.getResourceFilter());
+        ClassLoaderArchiver.createFatJar(archive, ClassLoaderArchiver.getResourceFilter());
 
         for (String name : entryNames(archive)) {
             assertFalse(".class files must be excluded when resourcesOnly=true: " + name,
@@ -207,7 +207,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testFullArchiveContainsClassFiles() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive);
+        ClassLoaderArchiver.createFatJar(archive);
 
         assertTrue("Full archive must contain .class files",
                 entryNames(archive).stream().anyMatch(e -> e.endsWith(".class")));
@@ -218,7 +218,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testArchiveManifestIsMinimal() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive);
+        ClassLoaderArchiver.createFatJar(archive);
 
         try (JarFile jar = new JarFile(archive)) {
             Manifest manifest = jar.getManifest();
@@ -235,7 +235,7 @@ public class ClassLoaderArchiverTest {
     @Test
     public void testNoDuplicateEntries() throws Exception {
         File archive = tmp.newFile("out.jar");
-        ClassLoaderArchiver.createArchive(archive);
+        ClassLoaderArchiver.createFatJar(archive);
 
         Set<String> seen = new HashSet<>();
         try (JarFile jar = new JarFile(archive)) {
@@ -258,7 +258,7 @@ public class ClassLoaderArchiverTest {
                     originalClasspath + File.pathSeparator + signedJar.getAbsolutePath());
 
             File archive = tmp.newFile("out.jar");
-            ClassLoaderArchiver.createArchive(archive);
+            ClassLoaderArchiver.createFatJar(archive);
 
             Set<String> entries = entryNames(archive);
             assertTrue("Regular entry from signed JAR must be included",

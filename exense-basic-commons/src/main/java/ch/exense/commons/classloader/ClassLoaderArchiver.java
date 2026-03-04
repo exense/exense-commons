@@ -43,8 +43,8 @@ public class ClassLoaderArchiver {
      * @throws IOException if an I/O error occurs while reading classpath entries
      *                     or writing the output file
      */
-    public static void createArchive(File outputFile) throws IOException {
-        createArchive(outputFile, s -> true);
+    public static void createFatJar(File outputFile) throws IOException {
+        createFatJar(outputFile, s -> true);
     }
 
     /**
@@ -63,7 +63,7 @@ public class ClassLoaderArchiver {
      * @throws IOException if an I/O error occurs while reading classpath entries
      *                     or writing the output file
      */
-    public static void createArchive(File outputFile, Predicate<String> filter) throws IOException {
+    public static void createFatJar(File outputFile, Predicate<String> filter) throws IOException {
         Objects.requireNonNull(filter,  "filter is null");
         Set<String> addedEntries = new HashSet<>();
         Set<File> classpathFiles = collectClasspathFiles();

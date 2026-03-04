@@ -218,9 +218,7 @@ public class FileHelper {
 	 * @throws IOException if an error occurs during file unzip
 	 */
 	public static void unzip(File zipFile, File target) throws IOException {
-		try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile), 64 * 1024)) {
-			unzip(in, target, o -> true);
-		}
+		unzip(zipFile, target, o -> true);
 	}
 
 	/**
@@ -258,8 +256,7 @@ public class FileHelper {
 	}
 
 	/**
-	 * Extracts the zip file to the target folder provided as argument.
-	 * When resourcesOnly is true it will skip all *.class files and META-INF except potentially useful runtime files like services or manifests.
+	 * Extracts the zip file to the target folder provided as argument and applying the provided filter to only extract matching entries
 	 * @param stream the {@link InputStream} of the zip to be extracted
 	 * @param target the target folder to extract to
 	 * @param filter predicate on ZIP entry names that can be used to do a partial extraction
