@@ -132,7 +132,7 @@ public class ManagedProcess implements Closeable {
      * @param environments       list of environment variables to pass to the process
      */
     public ManagedProcess(String name, List<String> commands, File executionDirectory, File baseLogDirectory,
-                          boolean redirectOutput, Map<String,String> environments) {
+                          boolean redirectOutput, Map<String, String> environments) {
         super();
 
         this.environments = environments;
@@ -156,7 +156,7 @@ public class ManagedProcess implements Closeable {
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
                 throw new InvalidParameterException("Unable to create directory for process " + id
-                        + ". Please ensure that the file " + directory.getAbsolutePath() + " is writable.");
+                    + ". Please ensure that the file " + directory.getAbsolutePath() + " is writable.");
             }
         }
     }
@@ -197,9 +197,9 @@ public class ManagedProcess implements Closeable {
      */
     public String getProcessLog() {
         return "The output of the process " + id + " was:\n" +
-                getProcessOutputLogAsString() +
-                "The error output of the process " + id + " was:\n" +
-                getProcessErrorLogAsString();
+            getProcessOutputLogAsString() +
+            "The error output of the process " + id + " was:\n" +
+            getProcessErrorLogAsString();
     }
 
     private static String readProcessLog(File file) {
@@ -260,7 +260,7 @@ public class ManagedProcess implements Closeable {
                 try {
                     removeTempLogDirectory();
                 } finally {
-                    if(t instanceof ManagedProcessException) {
+                    if (t instanceof ManagedProcessException) {
                         throw t;
                     } else {
                         throw loggedManagedProcessException("Unexpected error while starting the process " + id, t);
@@ -306,7 +306,7 @@ public class ManagedProcess implements Closeable {
         boolean terminated = process.waitFor(timeout, TimeUnit.MILLISECONDS);
         if (!terminated) {
             throw new TimeoutException(
-                    "The process " + id + " didn't exit within the defined timeout of " + timeout + "ms");
+                "The process " + id + " didn't exit within the defined timeout of " + timeout + "ms");
         }
         return process.exitValue();
     }
@@ -380,13 +380,13 @@ public class ManagedProcess implements Closeable {
         recursiveStopProcess(process.toHandle());
     }
 
-    private void recursiveStopProcess(ProcessHandle process)  {
+    private void recursiveStopProcess(ProcessHandle process) {
         // kill all the children, depth first
         process.children().forEach(this::recursiveStopProcess);
         //Stop process and wait for completion
         process.destroy();
         try {
-            int counter=0;
+            int counter = 0;
             while (process.isAlive() && counter < 100) {
                 counter++;
                 Thread.sleep(100);
