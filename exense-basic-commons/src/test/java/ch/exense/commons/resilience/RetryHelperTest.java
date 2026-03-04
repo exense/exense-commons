@@ -21,14 +21,14 @@ public class RetryHelperTest {
 
         // When
         String result = RetryHelper.executeWithRetryOnExceptions(
-                () -> {
-                    attemptCount.incrementAndGet();
-                    return expectedResult;
-                },
-                3,
-                100,
-                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                "Test operation"
+            () -> {
+                attemptCount.incrementAndGet();
+                return expectedResult;
+            },
+            3,
+            100,
+            RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+            "Test operation"
         );
 
         // Then
@@ -44,17 +44,17 @@ public class RetryHelperTest {
 
         // When
         String result = RetryHelper.executeWithRetryOnExceptions(
-                () -> {
-                    int attempt = attemptCount.incrementAndGet();
-                    if (attempt < 3) {
-                        throw new SocketTimeoutException("Simulated timeout");
-                    }
-                    return expectedResult;
-                },
-                3,
-                50,
-                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                "Test operation with retries"
+            () -> {
+                int attempt = attemptCount.incrementAndGet();
+                if (attempt < 3) {
+                    throw new SocketTimeoutException("Simulated timeout");
+                }
+                return expectedResult;
+            },
+            3,
+            50,
+            RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+            "Test operation with retries"
         );
 
         // Then
@@ -70,14 +70,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new SocketTimeoutException("Connection timeout");
-                    },
-                    3,
-                    50,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test timeout"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new SocketTimeoutException("Connection timeout");
+                },
+                3,
+                50,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test timeout"
             );
             fail("Should have thrown SocketTimeoutException");
         } catch (SocketTimeoutException e) {
@@ -96,14 +96,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new SocketException("Connection reset");
-                    },
-                    2,
-                    50,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test socket exception"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new SocketException("Connection reset");
+                },
+                2,
+                50,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test socket exception"
             );
             fail("Should have thrown SocketException");
         } catch (SocketException e) {
@@ -122,14 +122,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new ConnectException("Connection refused");
-                    },
-                    3,
-                    50,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test connect exception"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new ConnectException("Connection refused");
+                },
+                3,
+                50,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test connect exception"
             );
             fail("Should have thrown ConnectException");
         } catch (ConnectException e) {
@@ -148,14 +148,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new UnknownHostException("unknown.host.example.com");
-                    },
-                    2,
-                    50,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test unknown host"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new UnknownHostException("unknown.host.example.com");
+                },
+                2,
+                50,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test unknown host"
             );
             fail("Should have thrown UnknownHostException");
         } catch (UnknownHostException e) {
@@ -174,14 +174,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new IllegalArgumentException("Invalid argument");
-                    },
-                    3,
-                    50,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test non-retryable exception"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new IllegalArgumentException("Invalid argument");
+                },
+                3,
+                50,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test non-retryable exception"
             );
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException e) {
@@ -200,14 +200,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new CustomException("Custom error");
-                    },
-                    2,
-                    50,
-                    Collections.singletonList(CustomException.class),
-                    "Test custom exception"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new CustomException("Custom error");
+                },
+                2,
+                50,
+                Collections.singletonList(CustomException.class),
+                "Test custom exception"
             );
             fail("Should have thrown CustomException");
         } catch (CustomException e) {
@@ -227,14 +227,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new RuntimeException("Wrapper exception", cause);
-                    },
-                    2,
-                    50,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test exception with retryable cause"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new RuntimeException("Wrapper exception", cause);
+                },
+                2,
+                50,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test exception with retryable cause"
             );
             fail("Should have thrown RuntimeException");
         } catch (RuntimeException e) {
@@ -255,14 +255,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new RuntimeException("Wrapper exception", cause);
-                    },
-                    3,
-                    50,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test exception with non-retryable cause"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new RuntimeException("Wrapper exception", cause);
+                },
+                3,
+                50,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test exception with non-retryable cause"
             );
             fail("Should have thrown RuntimeException");
         } catch (RuntimeException e) {
@@ -281,14 +281,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new SocketTimeoutException("Timeout");
-                    },
-                    0,
-                    50,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test zero retries"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new SocketTimeoutException("Timeout");
+                },
+                0,
+                50,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test zero retries"
             );
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException e) {
@@ -307,14 +307,14 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new SocketTimeoutException("Timeout");
-                    },
-                    2,
-                    200,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test retry delay"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new SocketTimeoutException("Timeout");
+                },
+                2,
+                200,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test retry delay"
             );
             fail("Should have thrown SocketTimeoutException");
         } catch (SocketTimeoutException e) {
@@ -345,19 +345,19 @@ public class RetryHelperTest {
         // When/Then
         try {
             RetryHelper.executeWithRetryOnExceptions(
-                    () -> {
-                        attemptCount.incrementAndGet();
-                        throw new SocketTimeoutException("Timeout");
-                    },
-                    3,
-                    500,
-                    RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                    "Test interrupted"
+                () -> {
+                    attemptCount.incrementAndGet();
+                    throw new SocketTimeoutException("Timeout");
+                },
+                3,
+                500,
+                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+                "Test interrupted"
             );
             fail("Should have thrown RuntimeException");
         } catch (RuntimeException e) {
             assertTrue("Exception message should contain 'Interrupted'",
-                    e.getMessage().contains("Interrupted"));
+                e.getMessage().contains("Interrupted"));
             assertTrue("Interrupt flag should be cleared", Thread.interrupted());
             assertTrue("Should stop retrying after interrupt", attemptCount.get() < 4);
         } catch (Exception e) {
@@ -372,23 +372,23 @@ public class RetryHelperTest {
 
         // When
         String result = RetryHelper.executeWithRetryOnExceptions(
-                () -> {
-                    int attempt = attemptCount.incrementAndGet();
-                    switch (attempt) {
-                        case 1:
-                            throw new SocketTimeoutException("Timeout");
-                        case 2:
-                            throw new ConnectException("Connection refused");
-                        case 3:
-                            throw new UnknownHostException("Unknown host");
-                        default:
-                            return "success";
-                    }
-                },
-                5,
-                50,
-                RetryHelper.COMMON_NETWORK_EXCEPTIONS,
-                "Test multiple exception types"
+            () -> {
+                int attempt = attemptCount.incrementAndGet();
+                switch (attempt) {
+                    case 1:
+                        throw new SocketTimeoutException("Timeout");
+                    case 2:
+                        throw new ConnectException("Connection refused");
+                    case 3:
+                        throw new UnknownHostException("Unknown host");
+                    default:
+                        return "success";
+                }
+            },
+            5,
+            50,
+            RetryHelper.COMMON_NETWORK_EXCEPTIONS,
+            "Test multiple exception types"
         );
 
         // Then

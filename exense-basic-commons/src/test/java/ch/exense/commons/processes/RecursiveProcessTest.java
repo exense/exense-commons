@@ -57,11 +57,11 @@ public class RecursiveProcessTest {
             List<String> argsForChild = new ArrayList<>();
             argsForChild.add(String.valueOf(nbProcess));
             argsForChild.add(String.valueOf(depth - 1));
-               
+
             for (int i = 0; i < nbProcess; i++) {
                 ExternalJVMLauncher externalJVMLauncher = new ExternalJVMLauncher("java", Files.createTempDirectory("log_").toFile());
                 externalJVMLauncher.launchExternalJVM("MyExternalProcess", RecursiveProcessTest.class, new ArrayList<>(),
-                        argsForChild);
+                    argsForChild);
             }
         }
         // and wait
@@ -99,7 +99,7 @@ public class RecursiveProcessTest {
         for (int i = 0; i < NB_THREADS; i++) {
             threadPool.submit(() -> {
                 while (true) {
-                    try(ManagedProcess managedProcess = new ManagedProcess("MyJavaProcess", "java -version")) {
+                    try (ManagedProcess managedProcess = new ManagedProcess("MyJavaProcess", "java -version")) {
                         managedProcess.waitFor(10);
                     } catch (InterruptedException | TimeoutException | ManagedProcessException | IOException e) {
                         throw new RuntimeException(e);
