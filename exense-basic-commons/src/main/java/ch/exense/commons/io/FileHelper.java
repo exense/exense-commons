@@ -22,13 +22,13 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.Objects;
-import java.util.Scanner;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -77,24 +77,49 @@ public class FileHelper {
      * @param folder the {@link File} to be deleted
      */
     public static boolean deleteFolder(File folder) {
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                if (f.isDirectory()) {
-                    deleteFolder(f);
-                } else {
-                    if (!f.delete()) {
-                        logger.warn("Could not delete file '" + f.getAbsolutePath() + "'");
-                    }
-                }
-            }
-        }
+		try {
+			AtomicBoolean success = new AtomicBoolean(true);
+			Files.walkFileTree(folder.toPath(), new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					try {
+						Files.delete(file);
+					} catch (IOException e) {
+						success.set(false);
+						logger.warn("Could not delete file '{}'. Reason: {}", file.toAbsolutePath(), e.getMessage());
+					}
+					return FileVisitResult.CONTINUE;
+				}
 
-        boolean deleted = folder.delete();
-        if (!deleted) {
-            logger.warn("Could not delete folder '" + folder.getAbsolutePath() + "'");
-        }
-        return deleted;
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					if (exc != null) {
+						success.set(false);
+						logger.warn("Could not fully traverse directory '{}', it may not be completely deleted: {}",
+								dir.toAbsolutePath(), exc.getMessage());
+						return FileVisitResult.CONTINUE;
+					}
+					try {
+						Files.delete(dir);
+					} catch (IOException e) {
+						success.set(false);
+						logger.warn("Could not delete directory '{}'. Reason: {}", dir.toAbsolutePath(), e.getMessage());
+					}
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitFileFailed(Path file, IOException exc) {
+					success.set(false);
+					logger.warn("Could not delete file '{}'. Reason {}", file.toAbsolutePath(), exc.getMessage());
+					return FileVisitResult.CONTINUE;
+				}
+			});
+			return success.get();
+		} catch (IOException e) {
+			logger.warn("Could not delete folder '{}'", folder.getAbsolutePath());
+			return false;
+		}
     }
 
     /**
@@ -202,8 +227,19 @@ public class FileHelper {
      * @throws IOException if an error occurs during file unzip
      */
     public static void unzip(File zipFile, File target) throws IOException {
-        try (FileInputStream in = new FileInputStream(zipFile)) {
-            unzip(in, target);
+		unzip(zipFile, target, o -> true);
+	}
+
+	/**
+	 * Extracts the zip file to the target folder provided as argument
+	 * @param zipFile the zip file to be extracted
+	 * @param target the target folder to extract to
+	 * @param filter predicate on ZIP entry names that can be used to do a partial extraction
+	 * @throws IOException if an error occurs during file unzip
+	 */
+	public static void unzip(File zipFile, File target, Predicate<String> filter) throws IOException {
+		try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile), 64 * 1024)) {
+			unzip(in, target, filter);
         }
     }
 
@@ -227,41 +263,93 @@ public class FileHelper {
      * @throws IOException if an error occurs during file unzip
      */
     public static void unzip(InputStream stream, File target) throws IOException {
-        try (ZipInputStream zip = new ZipInputStream(stream)) {
-            if (!target.exists()) {
-                Files.createDirectory(target.toPath());
-            } else if (!target.isDirectory()) {
-                throw new IOException("The target should be a directory");
-            }
+		unzip(stream, target,  o -> true);
+	}
+
+	/**
+	 * Extracts the zip file to the target folder provided as argument and applying the provided filter to only extract matching entries
+	 * @param stream the {@link InputStream} of the zip to be extracted
+	 * @param target the target folder to extract to
+	 * @param filter predicate on ZIP entry names that can be used to do a partial extraction
+	 * @throws IOException if an error occurs during file unzip
+	 */
+	public static void unzip(InputStream stream, File target, Predicate<String> filter) throws IOException {
+		Objects.requireNonNull(stream);
+		Objects.requireNonNull(target);
+		Objects.requireNonNull(filter);
+		Map<String, byte[]> entries = new LinkedHashMap<>();
+
+		// Create target directory if absent
+		if (!target.exists()) {
+			Files.createDirectories(target.toPath());
+		} else if (!target.isDirectory()) {
+			throw new IOException("The target should be a directory");
+		}
+
+		try (ZipInputStream zip = new ZipInputStream(stream)) {
 
             ZipEntry entry;
+			// Canonicalize target once outside the loop — resolves symlinks and relative segments
+			final Path canonicalTarget;
+			try {
+				canonicalTarget = target.toPath().toRealPath();
+			} catch (IOException e) {
+				throw new IOException("Could not canonicalize target directory: " + target, e);
+			}
+
             while ((entry = zip.getNextEntry()) != null) {
-                String currentEntry = entry.getName().replaceAll("\\\\", "/");
+				String name = entry.getName().replace("\\", "/");
 
-                File destFile = new File(target.getAbsolutePath(), currentEntry);
-                File destinationParent = destFile.getParentFile();
+				// Reject absolute paths in ZIP entries (e.g. /etc/passwd)
+				if (Paths.get(name).isAbsolute()) {
+					throw new IOException("ZIP entry with absolute path is not allowed: " + name);
+				}
 
-                Files.createDirectories(destinationParent.toPath());
+				// normalize() resolves syntactic ".." segments, combined with canonicalTarget
+				// (which has symlinks resolved) this prevents all known path traversal variants
+				Path destPath = canonicalTarget.resolve(name).normalize();
+				if (!destPath.startsWith(canonicalTarget)) {
+					throw new IOException("ZIP entry outside of target directory: " + name);
+				}
+				if (!entry.isDirectory() && filter.test(name)) {
+					entries.put(name, zip.readAllBytes());
+				}
+				zip.closeEntry();
+			}
+		}
 
-                if (!entry.isDirectory()) {
-                    byte[] data = new byte[DEFAULT_BUFFER_SIZE];
+		// Pre-create all directories
+		Set<Path> dirs = new HashSet<>();
+		for (String name : entries.keySet()) {
+			Path parent = target.toPath().resolve(name).getParent();
+			if (parent != null) dirs.add(parent);
+		}
+		try {
+			dirs.stream()
+					.sorted(Comparator.comparingInt(Path::getNameCount))
+					.forEach(d -> {
+						try {
+							Files.createDirectories(d);
+						} catch (IOException e) {
+							throw new UncheckedIOException(e);
+						}
+					});
 
-                    FileOutputStream fos = new FileOutputStream(destFile);
-                    BufferedOutputStream dest = new BufferedOutputStream(fos, DEFAULT_BUFFER_SIZE);
+			// Write files in parallel
+			entries.entrySet().parallelStream().forEach(e -> {
+				try {
+					Files.write(target.toPath().resolve(e.getKey()).normalize(), e.getValue());
+				} catch (IOException ex) {
+					throw new UncheckedIOException(ex);
+				}
+			});
+		} catch (UncheckedIOException e) {
+			throw e.getCause();
+		}
+	}
 
-                    int currentByte;
-                    while ((currentByte = zip.read(data, 0, DEFAULT_BUFFER_SIZE)) != -1) {
-                        dest.write(data, 0, currentByte);
-                    }
-                    dest.flush();
-                    dest.close();
-                }
-            }
-        }
-    }
-
-    /**
-     * Extracts zip entry to file
+	/**
+	 * Extracts zip entry to file
      *
      * @param stream the {@link InputStream} of the zip to be extracted
      * @return the extracted file
