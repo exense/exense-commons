@@ -249,7 +249,7 @@
           <detectOfflineLinks>false</detectOfflineLinks>
 
           <quiet>true</quiet>
-          <source>11</source>
+          <source>21</source>
           <additionalOptions>
             <additionalOption>-Xdoclint:none</additionalOption>
           </additionalOptions>
