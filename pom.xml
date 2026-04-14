@@ -48,24 +48,10 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
-    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.release>21</maven.compiler.release>
 
     <!-- external dependencies provided using exense-dependencies -->
     <dependencies.version>0.0.0-MASTER-SNAPSHOT</dependencies.version>
-
-    <!-- maven build dependencies -->
-    <dep.mvn.compiler.version>3.14.0</dep.mvn.compiler.version>
-    <dep.mvn.jar.version>3.4.2</dep.mvn.jar.version>
-    <dep.mvn.jacoco.version>0.8.12</dep.mvn.jacoco.version>
-    <dep.mvn.deploy.version>3.0.0-M1</dep.mvn.deploy.version>
-    <dep.mvn.enforcer.version>3.1.0</dep.mvn.enforcer.version>
-    <dep.mvn.surefire.version>2.19.1</dep.mvn.surefire.version> <!-- newest: 3.2.5 -->
-    <dep.mvn.javadoc.version>3.3.2</dep.mvn.javadoc.version> <!-- newest: 3.7.0 -->
-    <dep.mvn.source.version>3.0.1</dep.mvn.source.version> <!-- newest: 3.3.1 -->
-    <dep.mvn.gpg.version>1.6</dep.mvn.gpg.version>
-    <dep.mvn.dependency-check.version>10.0.3</dep.mvn.dependency-check.version>
   </properties>
 
   <!-- Reminder: don't forget to add all modules to the end of the dependencyManagement section just below -->
@@ -116,61 +102,54 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${dep.mvn.compiler.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>${dep.mvn.jar.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>${dep.mvn.deploy.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>${dep.mvn.source.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${dep.mvn.javadoc.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${dep.mvn.jacoco.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${dep.mvn.surefire.version}</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.apache.maven.surefire</groupId>
-              <artifactId>surefire-junit47</artifactId>
-              <version>${dep.mvn.surefire.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>${dep.mvn.enforcer.version}</version>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.8.0</version>
         </plugin>
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>${dep.mvn.dependency-check.version}</version>
+          <version>12.1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.12</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.14.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.5.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>${dep.mvn.gpg.version}</version>
+          <version>3.2.7</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.4.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.11.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.3.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -249,7 +228,7 @@
           <detectOfflineLinks>false</detectOfflineLinks>
 
           <quiet>true</quiet>
-          <source>11</source>
+          <release>21</release>
           <additionalOptions>
             <additionalOption>-Xdoclint:none</additionalOption>
           </additionalOptions>
@@ -365,7 +344,6 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.8.0</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>sonatype</publishingServerId>
