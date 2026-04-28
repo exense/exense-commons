@@ -114,8 +114,10 @@ public class FileWatchService extends Thread implements Closeable {
     private volatile boolean running = true;
 
     @Override
-    public void close() {
-        logger.info("Closing and terminating");
-        running = false;
+    public synchronized void close() {
+        if (running) {
+            logger.info("Closing and terminating");
+            running = false;
+        }
     }
 }
