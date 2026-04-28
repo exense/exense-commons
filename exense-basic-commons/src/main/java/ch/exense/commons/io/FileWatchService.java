@@ -115,7 +115,9 @@ public class FileWatchService extends Thread implements Closeable {
 
     @Override
     public void close() {
-        logger.info("Closing and terminating");
-        running = false;
+        if (running) {
+            logger.info("Closing and terminating");
+            running = false;
+        }
     }
 }
