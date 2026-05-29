@@ -18,13 +18,34 @@ package ch.exense.commons.io;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -300,11 +321,17 @@ public class FileHelper {
             }
 
             while ((entry = zip.getNextEntry()) != null) {
-                String name = entry.getName().replace("\\", "/");
+                String originalName = entry.getName();
+                String name = originalName.replace("\\", "/");
 
-                // Reject absolute paths in ZIP entries (e.g. /etc/passwd)
-                if (Paths.get(name).isAbsolute()) {
-                    throw new IOException("ZIP entry with absolute path is not allowed: " + name);
+                name = name.replaceAll("^/+", "");
+
+                if (name.isEmpty()) {
+                    logger.warn("Skipping ZIP entry '{}' because it is empty after normalization", originalName);
+                    continue;
+                }
+                if (!name.equals(originalName)) {
+                    logger.warn("Normalized ZIP entry '{}' to '{}'", originalName, name);
                 }
 
                 // normalize() resolves syntactic ".." segments, combined with canonicalTarget

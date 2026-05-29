@@ -15,19 +15,31 @@
  ******************************************************************************/
 package ch.exense.commons.io;
 
-import java.io.*;
+import ch.exense.commons.classloader.ClassLoaderArchiver;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-import ch.exense.commons.classloader.ClassLoaderArchiver;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class FileHelperTest {
 
@@ -211,5 +223,45 @@ public class FileHelperTest {
         File tempFile2 = FileHelper.extractResourceToTempFile(getClass(), "testFile.txt");
         String contentTempFile2 = new String(Files.readAllBytes(tempFile2.toPath()));
         assertEquals("TEST FILE", contentTempFile2);
+    }
+
+    @Test
+    public void testWeirdZipEntries() throws Exception {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(bytes);
+        zos.putNextEntry(new ZipEntry("/")); // should be ignored altogether
+        zos.closeEntry();
+        zos.putNextEntry(new ZipEntry("\\test.txt")); // will be normalized to "test.txt"
+        zos.write("TEST\n".getBytes());
+        zos.closeEntry();
+        zos.close();
+
+        File tmpDir = FileHelper.createTempFolder();
+        tmpDir.deleteOnExit(); // just in case
+        FileHelper.unzip(new ByteArrayInputStream(bytes.toByteArray()), tmpDir);
+        String check = Files.readString(tmpDir.toPath().resolve("test.txt"));
+        assertEquals("TEST\n", check);
+        FileHelper.deleteFolder(tmpDir);
+    }
+
+    @Test
+    public void testMaliciousZipEntries() throws Exception {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(bytes);
+        zos.putNextEntry(new ZipEntry("../../test.txt")); // path traversal attack
+        zos.write("TEST\n".getBytes());
+        zos.closeEntry();
+        zos.close();
+
+        File tmpDir = FileHelper.createTempFolder();
+        tmpDir.deleteOnExit(); // just in case
+        try {
+            FileHelper.unzip(new ByteArrayInputStream(bytes.toByteArray()), tmpDir);
+            Assert.fail("Expected exception");
+        } catch (IOException ioe) {
+            assertEquals("ZIP entry outside of target directory: ../../test.txt", ioe.getMessage());
+        } finally {
+            FileHelper.deleteFolder(tmpDir);
+        }
     }
 }
