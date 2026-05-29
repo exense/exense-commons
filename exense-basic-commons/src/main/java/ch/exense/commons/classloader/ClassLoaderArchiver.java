@@ -38,8 +38,8 @@ public class ClassLoaderArchiver {
      * The archive uses uncompressed ({@code STORED}) entries to minimise CPU overhead
      * during creation.</p>
      *
-     * @param outputFile  the file to write the archive to; it is created or
-     *                    overwritten if it already exists
+     * @param outputFile the file to write the archive to; it is created or
+     *                   overwritten if it already exists
      * @throws IOException if an I/O error occurs while reading classpath entries
      *                     or writing the output file
      */
@@ -57,14 +57,14 @@ public class ClassLoaderArchiver {
      * The archive uses uncompressed ({@code STORED}) entries to minimise CPU overhead
      * during creation.</p>
      *
-     * @param outputFile  the file to write the archive to; it is created or
-     *                    overwritten if it already exists
-     * @param filter predicate on entries to be added to the archive based on the classpath URL
+     * @param outputFile the file to write the archive to; it is created or
+     *                   overwritten if it already exists
+     * @param filter     predicate on entries to be added to the archive based on the classpath URL
      * @throws IOException if an I/O error occurs while reading classpath entries
      *                     or writing the output file
      */
     public static void createFatJar(File outputFile, Predicate<String> filter) throws IOException {
-        Objects.requireNonNull(filter,  "filter is null");
+        Objects.requireNonNull(filter, "filter is null");
         Set<String> addedEntries = new HashSet<>();
         Set<File> classpathFiles = collectClasspathFiles();
 
@@ -72,7 +72,7 @@ public class ClassLoaderArchiver {
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
         try (JarOutputStream jos = new JarOutputStream(
-                new BufferedOutputStream(new FileOutputStream(outputFile), BUFFER_SIZE), manifest)) {
+            new BufferedOutputStream(new FileOutputStream(outputFile), BUFFER_SIZE), manifest)) {
             // Disable compression for speed (STORED instead of DEFLATED)
             jos.setLevel(ZipOutputStream.STORED);
             for (File file : classpathFiles) {
@@ -163,7 +163,7 @@ public class ClassLoaderArchiver {
      * <p>Non-existent paths are silently ignored.</p>
      *
      * @return an ordered set of existing {@link File} objects representing
-     *         classpath roots, in the order they appear on the classpath
+     * classpath roots, in the order they appear on the classpath
      */
     private static Set<File> collectClasspathFiles() {
         Set<File> files = new LinkedHashSet<>();
@@ -195,7 +195,7 @@ public class ClassLoaderArchiver {
      * @param jos          the target JAR output stream
      * @param addedEntries a mutable set of entry names already written to
      *                     {@code jos}; used to prevent duplicates
-     * @param filter predicate on entries to be added to the archive based on the classpath URL
+     * @param filter       predicate on entries to be added to the archive based on the classpath URL
      * @throws IOException if an I/O error occurs while reading {@code file}
      *                     or writing to {@code jos}
      */
@@ -227,13 +227,13 @@ public class ClassLoaderArchiver {
      * its content into the archive. Only a {@value #BUFFER_SIZE}-byte window is
      * held in memory at any time, regardless of file size.</p>
      *
-     * @param root          the absolute, normalised classpath root directory; used
-     *                      both as the walk starting point and to compute relative
-     *                      entry names
-     * @param jos           the target JAR output stream
-     * @param addedEntries  a mutable set of entry names already written to
-     *                      {@code jos}; updated in place as new entries are added
-     * @param filter predicate on entries to be added to the archive based on the classpath URL
+     * @param root         the absolute, normalised classpath root directory; used
+     *                     both as the walk starting point and to compute relative
+     *                     entry names
+     * @param jos          the target JAR output stream
+     * @param addedEntries a mutable set of entry names already written to
+     *                     {@code jos}; updated in place as new entries are added
+     * @param filter       predicate on entries to be added to the archive based on the classpath URL
      * @throws IOException if an I/O error occurs while traversing the directory
      *                     or writing to {@code jos}
      */
@@ -286,11 +286,11 @@ public class ClassLoaderArchiver {
      * conflicting or misleading metadata. All other entries — including other
      * files under {@code META-INF/} — are copied verbatim.</p>
      *
-     * @param jarFile       the source JAR file to unpack
-     * @param jos           the target JAR output stream
-     * @param addedEntries  a mutable set of entry names already written to
-     *                      {@code jos}; updated in place as new entries are added
-     * @param filter predicate on entries to be added to the archive based on the classpath URL
+     * @param jarFile      the source JAR file to unpack
+     * @param jos          the target JAR output stream
+     * @param addedEntries a mutable set of entry names already written to
+     *                     {@code jos}; updated in place as new entries are added
+     * @param filter       predicate on entries to be added to the archive based on the classpath URL
      * @throws IOException if an I/O error occurs while reading {@code jarFile}
      *                     or writing to {@code jos}
      */
@@ -324,6 +324,7 @@ public class ClassLoaderArchiver {
      *     <li>MANIFEST.MF: manifest files of existing JARs, we create our own</li>
      *     <li>.SF, .DSA, .RSA, .EC: signature files that would not be valid for the fatJAR</li>
      * </ul>
+     *
      * @param entryName the entry to be checked
      * @return whether the entry should be excluded
      */
@@ -339,9 +340,9 @@ public class ClassLoaderArchiver {
         if (entryName.startsWith("META-INF/")) {
             String upperName = entryName.toUpperCase();
             if (upperName.endsWith(".SF")   // signature file
-                    || upperName.endsWith(".DSA")  // DSA signature block
-                    || upperName.endsWith(".RSA")  // RSA signature block
-                    || upperName.endsWith(".EC")) {// EC signature block
+                || upperName.endsWith(".DSA")  // DSA signature block
+                || upperName.endsWith(".RSA")  // RSA signature block
+                || upperName.endsWith(".EC")) {// EC signature block
                 return true;
             }
         }
@@ -355,7 +356,7 @@ public class ClassLoaderArchiver {
         }
         // Skip META-INF except potentially useful runtime files like services or manifests
         if (entryName.startsWith("META-INF/")
-                && !entryName.startsWith("META-INF/services/")) {
+            && !entryName.startsWith("META-INF/services/")) {
             return false;
         }
         return true;

@@ -72,12 +72,12 @@ public class ClassLoaderArchiverTest {
 
         // Resources under src/test/resources/folder/ must keep their sub-path
         assertTrue("folder/File.txt must be stored under its subdirectory",
-                entries.contains("folder/File.txt"));
+            entries.contains("folder/File.txt"));
         assertTrue("folder/File2.txt must be stored under its subdirectory",
-                entries.contains("folder/File2.txt"));
+            entries.contains("folder/File2.txt"));
         // Deeper nesting (step/reporting/...) must also be preserved
         assertTrue("Deeply nested resources must keep their full path",
-                entries.stream().anyMatch(e -> e.startsWith("step/reporting/")));
+            entries.stream().anyMatch(e -> e.startsWith("step/reporting/")));
     }
 
     @Test
@@ -88,9 +88,9 @@ public class ClassLoaderArchiverTest {
         Set<String> entries = entryNames(archive);
 
         assertTrue("folder/File.txt must be stored under its subdirectory",
-                entries.contains("folder/File.txt"));
+            entries.contains("folder/File.txt"));
         assertTrue("folder/File2.txt must be stored under its subdirectory",
-                entries.contains("folder/File2.txt"));
+            entries.contains("folder/File2.txt"));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class ClassLoaderArchiverTest {
 
         // Use null parent so lookups go only to our archive, not the test classpath
         try (URLClassLoader classLoader = new URLClassLoader(
-                new URL[]{archive.toURI().toURL()}, null)) {
+            new URL[]{archive.toURI().toURL()}, null)) {
 
             // A plain file resource must always be reachable
             URL fileResource = classLoader.getResource("folder/File.txt");
@@ -134,15 +134,15 @@ public class ClassLoaderArchiverTest {
             // to be present in the JAR; without it getResource returns null.
             URL dirResourceWithSlash = classLoader.getResource("folder/");
             assertNotNull(
-                    "URLClassLoader must find directory resources with trailing slash — JAR must contain directory entries",
-                    dirResourceWithSlash);
+                "URLClassLoader must find directory resources with trailing slash — JAR must contain directory entries",
+                dirResourceWithSlash);
 
             // ZipFile.getEntry() retries with name+"/" when the bare name is not found,
             // so the no-slash form must also resolve once the directory entry exists.
             URL dirResourceNoSlash = classLoader.getResource("folder");
             assertNotNull(
-                    "URLClassLoader must find directory resources without trailing slash",
-                    dirResourceNoSlash);
+                "URLClassLoader must find directory resources without trailing slash",
+                dirResourceNoSlash);
         }
     }
 
@@ -152,20 +152,20 @@ public class ClassLoaderArchiverTest {
         ClassLoaderArchiver.createFatJar(archive, ClassLoaderArchiver.getResourceFilter());
 
         try (URLClassLoader classLoader = new URLClassLoader(
-                new URL[]{archive.toURI().toURL()}, null)) {
+            new URL[]{archive.toURI().toURL()}, null)) {
 
             URL fileResource = classLoader.getResource("folder/File.txt");
             assertNotNull("URLClassLoader must find file resources", fileResource);
 
             URL dirResourceWithSlash = classLoader.getResource("folder/");
             assertNotNull(
-                    "URLClassLoader must find directory resources with trailing slash in resources-only archive",
-                    dirResourceWithSlash);
+                "URLClassLoader must find directory resources with trailing slash in resources-only archive",
+                dirResourceWithSlash);
 
             URL dirResourceNoSlash = classLoader.getResource("folder");
             assertNotNull(
-                    "URLClassLoader must find directory resources without trailing slash in resources-only archive",
-                    dirResourceNoSlash);
+                "URLClassLoader must find directory resources without trailing slash in resources-only archive",
+                dirResourceNoSlash);
         }
     }
 
@@ -178,7 +178,7 @@ public class ClassLoaderArchiverTest {
 
         Set<String> entries = entryNames(archive);
         assertTrue("Archive must contain a directory entry for 'folder/'",
-                entries.contains("folder/"));
+            entries.contains("folder/"));
     }
 
     @Test
@@ -188,7 +188,7 @@ public class ClassLoaderArchiverTest {
 
         Set<String> entries = entryNames(archive);
         assertTrue("Resources-only archive must contain a directory entry for 'folder/'",
-                entries.contains("folder/"));
+            entries.contains("folder/"));
     }
 
     // ─── resourcesOnly flag ───────────────────────────────────────────────────
@@ -200,7 +200,7 @@ public class ClassLoaderArchiverTest {
 
         for (String name : entryNames(archive)) {
             assertFalse(".class files must be excluded when resourcesOnly=true: " + name,
-                    name.endsWith(".class"));
+                name.endsWith(".class"));
         }
     }
 
@@ -210,7 +210,7 @@ public class ClassLoaderArchiverTest {
         ClassLoaderArchiver.createFatJar(archive);
 
         assertTrue("Full archive must contain .class files",
-                entryNames(archive).stream().anyMatch(e -> e.endsWith(".class")));
+            entryNames(archive).stream().anyMatch(e -> e.endsWith(".class")));
     }
 
     // ─── manifest ─────────────────────────────────────────────────────────────
@@ -224,9 +224,9 @@ public class ClassLoaderArchiverTest {
             Manifest manifest = jar.getManifest();
             assertNotNull("Archive must contain a manifest", manifest);
             assertEquals("Manifest-Version must be 1.0",
-                    "1.0", manifest.getMainAttributes().getValue("Manifest-Version"));
+                "1.0", manifest.getMainAttributes().getValue("Manifest-Version"));
             assertEquals("Manifest must contain only Manifest-Version (no Main-Class, Class-Path, etc.)",
-                    1, manifest.getMainAttributes().size());
+                1, manifest.getMainAttributes().size());
         }
     }
 
@@ -255,22 +255,22 @@ public class ClassLoaderArchiverTest {
         String originalClasspath = System.getProperty("java.class.path");
         try {
             System.setProperty("java.class.path",
-                    originalClasspath + File.pathSeparator + signedJar.getAbsolutePath());
+                originalClasspath + File.pathSeparator + signedJar.getAbsolutePath());
 
             File archive = tmp.newFile("out.jar");
             ClassLoaderArchiver.createFatJar(archive);
 
             Set<String> entries = entryNames(archive);
             assertTrue("Regular entry from signed JAR must be included",
-                    entries.contains("signed-resource.txt"));
+                entries.contains("signed-resource.txt"));
             assertFalse(".SF files must be stripped",
-                    entries.stream().anyMatch(e -> e.toUpperCase().endsWith(".SF")));
+                entries.stream().anyMatch(e -> e.toUpperCase().endsWith(".SF")));
             assertFalse(".RSA files must be stripped",
-                    entries.stream().anyMatch(e -> e.toUpperCase().endsWith(".RSA")));
+                entries.stream().anyMatch(e -> e.toUpperCase().endsWith(".RSA")));
             assertFalse(".DSA files must be stripped",
-                    entries.stream().anyMatch(e -> e.toUpperCase().endsWith(".DSA")));
+                entries.stream().anyMatch(e -> e.toUpperCase().endsWith(".DSA")));
             assertFalse(".EC files must be stripped",
-                    entries.stream().anyMatch(e -> e.toUpperCase().endsWith(".EC")));
+                entries.stream().anyMatch(e -> e.toUpperCase().endsWith(".EC")));
         } finally {
             System.setProperty("java.class.path", originalClasspath);
         }
