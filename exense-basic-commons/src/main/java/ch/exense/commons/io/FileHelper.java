@@ -18,13 +18,34 @@ package ch.exense.commons.io;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -77,49 +98,49 @@ public class FileHelper {
      * @param folder the {@link File} to be deleted
      */
     public static boolean deleteFolder(File folder) {
-		try {
-			AtomicBoolean success = new AtomicBoolean(true);
-			Files.walkFileTree(folder.toPath(), new SimpleFileVisitor<Path>() {
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					try {
-						Files.delete(file);
-					} catch (IOException e) {
-						success.set(false);
-						logger.warn("Could not delete file '{}'. Reason: {}", file.toAbsolutePath(), e.getMessage());
-					}
-					return FileVisitResult.CONTINUE;
-				}
+        try {
+            AtomicBoolean success = new AtomicBoolean(true);
+            Files.walkFileTree(folder.toPath(), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    try {
+                        Files.delete(file);
+                    } catch (IOException e) {
+                        success.set(false);
+                        logger.warn("Could not delete file '{}'. Reason: {}", file.toAbsolutePath(), e.getMessage());
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
 
-				@Override
-				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-					if (exc != null) {
-						success.set(false);
-						logger.warn("Could not fully traverse directory '{}', it may not be completely deleted: {}",
-								dir.toAbsolutePath(), exc.getMessage());
-						return FileVisitResult.CONTINUE;
-					}
-					try {
-						Files.delete(dir);
-					} catch (IOException e) {
-						success.set(false);
-						logger.warn("Could not delete directory '{}'. Reason: {}", dir.toAbsolutePath(), e.getMessage());
-					}
-					return FileVisitResult.CONTINUE;
-				}
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    if (exc != null) {
+                        success.set(false);
+                        logger.warn("Could not fully traverse directory '{}', it may not be completely deleted: {}",
+                            dir.toAbsolutePath(), exc.getMessage());
+                        return FileVisitResult.CONTINUE;
+                    }
+                    try {
+                        Files.delete(dir);
+                    } catch (IOException e) {
+                        success.set(false);
+                        logger.warn("Could not delete directory '{}'. Reason: {}", dir.toAbsolutePath(), e.getMessage());
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
 
-				@Override
-				public FileVisitResult visitFileFailed(Path file, IOException exc) {
-					success.set(false);
-					logger.warn("Could not delete file '{}'. Reason {}", file.toAbsolutePath(), exc.getMessage());
-					return FileVisitResult.CONTINUE;
-				}
-			});
-			return success.get();
-		} catch (IOException e) {
-			logger.warn("Could not delete folder '{}'", folder.getAbsolutePath());
-			return false;
-		}
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    success.set(false);
+                    logger.warn("Could not delete file '{}'. Reason {}", file.toAbsolutePath(), exc.getMessage());
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return success.get();
+        } catch (IOException e) {
+            logger.warn("Could not delete folder '{}'", folder.getAbsolutePath());
+            return false;
+        }
     }
 
     /**
@@ -227,19 +248,20 @@ public class FileHelper {
      * @throws IOException if an error occurs during file unzip
      */
     public static void unzip(File zipFile, File target) throws IOException {
-		unzip(zipFile, target, o -> true);
-	}
+        unzip(zipFile, target, o -> true);
+    }
 
-	/**
-	 * Extracts the zip file to the target folder provided as argument
-	 * @param zipFile the zip file to be extracted
-	 * @param target the target folder to extract to
-	 * @param filter predicate on ZIP entry names that can be used to do a partial extraction
-	 * @throws IOException if an error occurs during file unzip
-	 */
-	public static void unzip(File zipFile, File target, Predicate<String> filter) throws IOException {
-		try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile), 64 * 1024)) {
-			unzip(in, target, filter);
+    /**
+     * Extracts the zip file to the target folder provided as argument
+     *
+     * @param zipFile the zip file to be extracted
+     * @param target  the target folder to extract to
+     * @param filter  predicate on ZIP entry names that can be used to do a partial extraction
+     * @throws IOException if an error occurs during file unzip
+     */
+    public static void unzip(File zipFile, File target, Predicate<String> filter) throws IOException {
+        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(zipFile), 64 * 1024)) {
+            unzip(in, target, filter);
         }
     }
 
@@ -263,93 +285,100 @@ public class FileHelper {
      * @throws IOException if an error occurs during file unzip
      */
     public static void unzip(InputStream stream, File target) throws IOException {
-		unzip(stream, target,  o -> true);
-	}
+        unzip(stream, target, o -> true);
+    }
 
-	/**
-	 * Extracts the zip file to the target folder provided as argument and applying the provided filter to only extract matching entries
-	 * @param stream the {@link InputStream} of the zip to be extracted
-	 * @param target the target folder to extract to
-	 * @param filter predicate on ZIP entry names that can be used to do a partial extraction
-	 * @throws IOException if an error occurs during file unzip
-	 */
-	public static void unzip(InputStream stream, File target, Predicate<String> filter) throws IOException {
-		Objects.requireNonNull(stream);
-		Objects.requireNonNull(target);
-		Objects.requireNonNull(filter);
-		Map<String, byte[]> entries = new LinkedHashMap<>();
+    /**
+     * Extracts the zip file to the target folder provided as argument and applying the provided filter to only extract matching entries
+     *
+     * @param stream the {@link InputStream} of the zip to be extracted
+     * @param target the target folder to extract to
+     * @param filter predicate on ZIP entry names that can be used to do a partial extraction
+     * @throws IOException if an error occurs during file unzip
+     */
+    public static void unzip(InputStream stream, File target, Predicate<String> filter) throws IOException {
+        Objects.requireNonNull(stream);
+        Objects.requireNonNull(target);
+        Objects.requireNonNull(filter);
+        Map<String, byte[]> entries = new LinkedHashMap<>();
 
-		// Create target directory if absent
-		if (!target.exists()) {
-			Files.createDirectories(target.toPath());
-		} else if (!target.isDirectory()) {
-			throw new IOException("The target should be a directory");
-		}
+        // Create target directory if absent
+        if (!target.exists()) {
+            Files.createDirectories(target.toPath());
+        } else if (!target.isDirectory()) {
+            throw new IOException("The target should be a directory");
+        }
 
-		try (ZipInputStream zip = new ZipInputStream(stream)) {
+        try (ZipInputStream zip = new ZipInputStream(stream)) {
 
             ZipEntry entry;
-			// Canonicalize target once outside the loop — resolves symlinks and relative segments
-			final Path canonicalTarget;
-			try {
-				canonicalTarget = target.toPath().toRealPath();
-			} catch (IOException e) {
-				throw new IOException("Could not canonicalize target directory: " + target, e);
-			}
+            // Canonicalize target once outside the loop — resolves symlinks and relative segments
+            final Path canonicalTarget;
+            try {
+                canonicalTarget = target.toPath().toRealPath();
+            } catch (IOException e) {
+                throw new IOException("Could not canonicalize target directory: " + target, e);
+            }
 
             while ((entry = zip.getNextEntry()) != null) {
-				String name = entry.getName().replace("\\", "/");
+                String originalName = entry.getName();
+                String name = originalName.replace("\\", "/");
 
-				// Reject absolute paths in ZIP entries (e.g. /etc/passwd)
-				if (Paths.get(name).isAbsolute()) {
-					throw new IOException("ZIP entry with absolute path is not allowed: " + name);
-				}
+                name = name.replaceAll("^/+", "");
 
-				// normalize() resolves syntactic ".." segments, combined with canonicalTarget
-				// (which has symlinks resolved) this prevents all known path traversal variants
-				Path destPath = canonicalTarget.resolve(name).normalize();
-				if (!destPath.startsWith(canonicalTarget)) {
-					throw new IOException("ZIP entry outside of target directory: " + name);
-				}
-				if (!entry.isDirectory() && filter.test(name)) {
-					entries.put(name, zip.readAllBytes());
-				}
-				zip.closeEntry();
-			}
-		}
+                if (name.isEmpty()) {
+                    logger.warn("Skipping ZIP entry '{}' because it is empty after normalization", originalName);
+                    continue;
+                }
+                if (!name.equals(originalName)) {
+                    logger.warn("Normalized ZIP entry '{}' to '{}'", originalName, name);
+                }
 
-		// Pre-create all directories
-		Set<Path> dirs = new HashSet<>();
-		for (String name : entries.keySet()) {
-			Path parent = target.toPath().resolve(name).getParent();
-			if (parent != null) dirs.add(parent);
-		}
-		try {
-			dirs.stream()
-					.sorted(Comparator.comparingInt(Path::getNameCount))
-					.forEach(d -> {
-						try {
-							Files.createDirectories(d);
-						} catch (IOException e) {
-							throw new UncheckedIOException(e);
-						}
-					});
+                // normalize() resolves syntactic ".." segments, combined with canonicalTarget
+                // (which has symlinks resolved) this prevents all known path traversal variants
+                Path destPath = canonicalTarget.resolve(name).normalize();
+                if (!destPath.startsWith(canonicalTarget)) {
+                    throw new IOException("ZIP entry outside of target directory: " + name);
+                }
+                if (!entry.isDirectory() && filter.test(name)) {
+                    entries.put(name, zip.readAllBytes());
+                }
+                zip.closeEntry();
+            }
+        }
 
-			// Write files in parallel
-			entries.entrySet().parallelStream().forEach(e -> {
-				try {
-					Files.write(target.toPath().resolve(e.getKey()).normalize(), e.getValue());
-				} catch (IOException ex) {
-					throw new UncheckedIOException(ex);
-				}
-			});
-		} catch (UncheckedIOException e) {
-			throw e.getCause();
-		}
-	}
+        // Pre-create all directories
+        Set<Path> dirs = new HashSet<>();
+        for (String name : entries.keySet()) {
+            Path parent = target.toPath().resolve(name).getParent();
+            if (parent != null) dirs.add(parent);
+        }
+        try {
+            dirs.stream()
+                .sorted(Comparator.comparingInt(Path::getNameCount))
+                .forEach(d -> {
+                    try {
+                        Files.createDirectories(d);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
 
-	/**
-	 * Extracts zip entry to file
+            // Write files in parallel
+            entries.entrySet().parallelStream().forEach(e -> {
+                try {
+                    Files.write(target.toPath().resolve(e.getKey()).normalize(), e.getValue());
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            });
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
+    }
+
+    /**
+     * Extracts zip entry to file
      *
      * @param stream the {@link InputStream} of the zip to be extracted
      * @return the extracted file
