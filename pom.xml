@@ -51,7 +51,7 @@
     <maven.compiler.release>21</maven.compiler.release>
 
     <!-- external dependencies provided using exense-dependencies -->
-    <dependencies.version>0.0.0-SED-4889-SNAPSHOT</dependencies.version>
+    <dependencies.version>2026.8.20</dependencies.version>
   </properties>
 
   <!-- Reminder: don't forget to add all modules to the end of the dependencyManagement section just below -->
