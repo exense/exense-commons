@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +39,12 @@ public class Configuration implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(.+?)\\}");
+    // '#' or '!' as first non-whitespace character
+    private static final Pattern COMMENT_LINE_PATTERN = Pattern.compile("^[ \\t\\f]*[#!]");
+    // Odd number of '\' at the end of the line
+    private static final Pattern CONTINUED_LINE_PATTERN = Pattern.compile("(?<!\\\\)(\\\\\\\\)*\\\\$");
+
     private FileWatchService fileWatchService;
 
     private File propertyFile;
@@ -44,6 +52,8 @@ public class Configuration implements Closeable {
     private Properties properties;
 
     private Map<String, String> placeholders;
+
+    private Function<String, String> environmentVariables;
 
     public Configuration() {
         super();
@@ -54,11 +64,20 @@ public class Configuration implements Closeable {
         this(propertyFile, new HashMap<>());
     }
 
+    /**
+     * @param placeholders the values of the placeholders, by lower case name. The placeholders missing from this map are
+     *                     read from the environment variables of the same name (case-sensitive).
+     */
     public Configuration(File propertyFile, Map<String, String> placeholders) throws IOException {
+        this(propertyFile, placeholders, System::getenv);
+    }
+
+    Configuration(File propertyFile, Map<String, String> placeholders, Function<String, String> environmentVariables) throws IOException {
         super();
 
         this.propertyFile = propertyFile;
         this.placeholders = placeholders;
+        this.environmentVariables = environmentVariables;
 
         load();
 
@@ -86,24 +105,51 @@ public class Configuration implements Closeable {
         }
     }
 
-    private String replacePlaceholders(String configXml) {
-        StringBuffer sb = new StringBuffer();
-        Matcher m = Pattern.compile("\\$\\{(.+?)\\}").matcher(configXml);
-        while (m.find()) {
-            String key = m.group(1);
-            if (placeholders != null) {
-                String replacement = placeholders.get(key.toLowerCase());
-                if (replacement == null) {
-                    throw new RuntimeException("Missing placeholder '" + key + "'.");
-                } else {
-                    m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
-                }
+    /**
+     * Replaces the placeholders of the properties content, except in the comment lines, which are ignored when the
+     * properties are loaded. As defined by the format of the {@link Properties}, a comment line has '#' or '!' as first
+     * non-whitespace character, unless it continues the previous line (line ending with an odd number of '\').
+     */
+    private String replacePlaceholders(String propertiesContent) {
+        StringJoiner result = new StringJoiner("\n");
+        boolean continuation = false;
+        for (String line : propertiesContent.lines().toList()) {
+            if (!continuation && COMMENT_LINE_PATTERN.matcher(line).find()) {
+                // comment lines added without replacement
+                result.add(line);
             } else {
-                throw new RuntimeException("Unable to replace placeholders. Placeholder map is null. This should never occur.");
+                String resolvedLine = replacePlaceholdersInLine(line);
+                result.add(resolvedLine);
+                // Non-comment property lines can be continued on next lines by using backslash characters
+                continuation = CONTINUED_LINE_PATTERN.matcher(resolvedLine).find();
             }
+        }
+        return result.toString();
+    }
+
+    private String replacePlaceholdersInLine(String line) {
+        StringBuffer sb = new StringBuffer();
+        Matcher m = PLACEHOLDER_PATTERN.matcher(line);
+        while (m.find()) {
+            m.appendReplacement(sb, Matcher.quoteReplacement(getPlaceholderValue(m.group(1))));
         }
         m.appendTail(sb);
         return sb.toString();
+    }
+
+    /**
+     * @return the value of the placeholder from the placeholder map, otherwise from the environment variable of the
+     * same name
+     */
+    private String getPlaceholderValue(String key) {
+        String value = placeholders != null ? placeholders.get(key.toLowerCase()) : null;
+        if (value == null) {
+            value = environmentVariables.apply(key);
+        }
+        if (value == null) {
+            throw new RuntimeException("Missing placeholder '" + key + "': not defined as argument nor as environment variable.");
+        }
+        return value;
     }
 
     public Properties getUnderlyingPropertyObject() {

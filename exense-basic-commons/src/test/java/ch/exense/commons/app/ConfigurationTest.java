@@ -91,4 +91,68 @@ public class ConfigurationTest {
             Assert.assertEquals("myPlaceholdersValue", configuration.getProperty("my.prop4"));
         }
     }
+
+    @Test
+    public void testPlaceholderInComments() throws IOException {
+        File propertyFile = FileHelper.createTempFile();
+        String content = "# commented.prop=${missing1}\n" +
+            "   ! commented.prop2=${missing2}\r\n" +
+            "my.prop1=a # ${myPlaceholder}\n" +
+            "my.prop2=first \\\n" +
+            "    #${myPlaceholder}\r" +
+            "# comment ending with a backslash \\\n" +
+            "my.prop3=${myPlaceholder}\n" +
+            "my.prop4=escaped\\\\\n" +
+            "#${missing3}";
+        Files.write(propertyFile.toPath(), content.getBytes());
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("myplaceholder", "value");
+
+        // The placeholders of the comments aren't resolved, the ones of the properties are
+        try (Configuration configuration = new Configuration(propertyFile, placeholders)) {
+            Assert.assertEquals("a # value", configuration.getProperty("my.prop1"));
+            Assert.assertEquals("first #value", configuration.getProperty("my.prop2"));
+            Assert.assertEquals("value", configuration.getProperty("my.prop3"));
+            Assert.assertEquals("escaped\\", configuration.getProperty("my.prop4"));
+            Assert.assertNull(configuration.getProperty("commented.prop"));
+            Assert.assertEquals(4, configuration.getUnderlyingPropertyObject().size());
+        }
+
+        // A missing placeholder of a property is still reported
+        Files.write(propertyFile.toPath(), "my.prop=${missing}".getBytes());
+        RuntimeException e = Assert.assertThrows(RuntimeException.class, () -> new Configuration(propertyFile, placeholders, key -> null));
+        Assert.assertEquals("Missing placeholder 'missing': not defined as argument nor as environment variable.", e.getMessage());
+    }
+
+    @Test
+    public void testPlaceholderFromEnvironmentVariable() throws IOException {
+        File propertyFile = FileHelper.createTempFile();
+        Files.write(propertyFile.toPath(), ("my.prop1=${myPlaceholder}\n" +
+            "my.prop2=${MY_ENV_VAR}\n" +
+            "my.prop3=${BOTH}").getBytes());
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("myplaceholder", "fromArgument");
+        placeholders.put("both", "fromArgument");
+        Map<String, String> environmentVariables = Map.of("MY_ENV_VAR", "fromEnvironment", "BOTH", "fromEnvironment",
+            "myPlaceholder", "fromEnvironment");
+
+        // The placeholder map takes precedence, the environment variables are used for the placeholders missing from it
+        try (Configuration configuration = new Configuration(propertyFile, placeholders, environmentVariables::get)) {
+            Assert.assertEquals("fromArgument", configuration.getProperty("my.prop1"));
+            Assert.assertEquals("fromEnvironment", configuration.getProperty("my.prop2"));
+            Assert.assertEquals("fromArgument", configuration.getProperty("my.prop3"));
+        }
+
+        // The environment variables are case-sensitive
+        Files.write(propertyFile.toPath(), "my.prop=${my_env_var}".getBytes());
+        RuntimeException e = Assert.assertThrows(RuntimeException.class,
+            () -> new Configuration(propertyFile, placeholders, environmentVariables::get));
+        Assert.assertEquals("Missing placeholder 'my_env_var': not defined as argument nor as environment variable.", e.getMessage());
+
+        // Without placeholder map, only the environment variables are used
+        Files.write(propertyFile.toPath(), "my.prop=${MY_ENV_VAR}".getBytes());
+        try (Configuration configuration = new Configuration(propertyFile, null, environmentVariables::get)) {
+            Assert.assertEquals("fromEnvironment", configuration.getProperty("my.prop"));
+        }
+    }
 }
