@@ -15,20 +15,25 @@
  ******************************************************************************/
 package ch.exense.commons.app;
 
+import ch.exense.commons.io.FileHelper;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import ch.exense.commons.io.FileHelper;
-
 public class ConfigurationTest {
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
     public void test() throws IOException {
@@ -54,18 +59,20 @@ public class ConfigurationTest {
             Assert.assertEquals(false, configuration.getPropertyAsBoolean("notExistingProp", false));
             File defaultValue = new File("notExisting");
             Assert.assertEquals(defaultValue, configuration.getPropertyAsFile("notExistingProp", defaultValue));
-            File tempFolder = FileHelper.createTempFolder();
+            File tempFolder = temporaryFolder.newFolder();
             File myFolder = new File(tempFolder + "/myFolder");
             Assert.assertEquals(myFolder, configuration.getPropertyAsDirectory("notExistingProp", myFolder));
             Assert.assertTrue(myFolder.exists());
-            FileHelper.deleteFolder(tempFolder);
         }
     }
 
     @Test
     public void testScan() throws IOException, InterruptedException {
-        File propertyFile = FileHelper.createTempFile();
-        FileHelper.copy(this.getClass().getClassLoader().getResourceAsStream("testScan.properties"), new FileOutputStream(propertyFile));
+        File propertyFile = temporaryFolder.newFile();
+        try (InputStream input = this.getClass().getClassLoader().getResourceAsStream("testScan.properties");
+             FileOutputStream output = new FileOutputStream(propertyFile)) {
+            input.transferTo(output);
+        }
         try (Configuration configuration = new Configuration(propertyFile)) {
             Assert.assertEquals("myProp1", configuration.getProperty("my.prop1"));
             Assert.assertEquals((int) 1000, (int) configuration.getPropertyAsInteger("my.prop2"));
@@ -94,7 +101,7 @@ public class ConfigurationTest {
 
     @Test
     public void testPlaceholderInComments() throws IOException {
-        File propertyFile = FileHelper.createTempFile();
+        File propertyFile = temporaryFolder.newFile();
         String content = "# commented.prop=${missing1}\n" +
             "   ! commented.prop2=${missing2}\r\n" +
             "my.prop1=a # ${myPlaceholder}\n" +
@@ -126,7 +133,7 @@ public class ConfigurationTest {
 
     @Test
     public void testPlaceholderFromEnvironmentVariable() throws IOException {
-        File propertyFile = FileHelper.createTempFile();
+        File propertyFile = temporaryFolder.newFile();
         Files.write(propertyFile.toPath(), ("my.prop1=${myPlaceholder}\n" +
             "my.prop2=${MY_ENV_VAR}\n" +
             "my.prop3=${BOTH}").getBytes());
@@ -153,6 +160,40 @@ public class ConfigurationTest {
         Files.write(propertyFile.toPath(), "my.prop=${MY_ENV_VAR}".getBytes());
         try (Configuration configuration = new Configuration(propertyFile, null, environmentVariables::get)) {
             Assert.assertEquals("fromEnvironment", configuration.getProperty("my.prop"));
+        }
+    }
+
+    @Test
+    public void testPlaceholderValueWithBackslashes() throws IOException {
+        File propertyFile = temporaryFolder.newFile();
+        Files.write(propertyFile.toPath(), "my.path=${path}".getBytes());
+        Map<String, String> placeholders = Map.of("path", "C:\\temp\\data");
+
+        // The backslashes of the value are kept as-is, not interpreted as escape sequences ('\t' = tab, '\d' = 'd')
+        try (Configuration configuration = new Configuration(propertyFile, placeholders, key -> null)) {
+            Assert.assertEquals("C:\\temp\\data", configuration.getProperty("my.path"));
+        }
+    }
+
+    @Test
+    public void testPlaceholderValueEndingWithBackslash() throws IOException {
+        File propertyFile = temporaryFolder.newFile();
+        Map<String, String> placeholders = Map.of("dir", "C:\\dir\\");
+
+        // A trailing backslash of the value doesn't continue the property on the next line
+        Files.write(propertyFile.toPath(), ("my.dir=${dir}\n" +
+            "my.other=other").getBytes());
+        try (Configuration configuration = new Configuration(propertyFile, placeholders, key -> null)) {
+            Assert.assertEquals("C:\\dir\\", configuration.getProperty("my.dir"));
+            Assert.assertEquals("other", configuration.getProperty("my.other"));
+        }
+
+        // ... and the next line, if it is a comment, stays a comment (its placeholders aren't resolved)
+        Files.write(propertyFile.toPath(), ("my.dir=${dir}\n" +
+            "# ${missing}").getBytes());
+        try (Configuration configuration = new Configuration(propertyFile, placeholders, key -> null)) {
+            Assert.assertEquals("C:\\dir\\", configuration.getProperty("my.dir"));
+            Assert.assertEquals(1, configuration.getUnderlyingPropertyObject().size());
         }
     }
 }

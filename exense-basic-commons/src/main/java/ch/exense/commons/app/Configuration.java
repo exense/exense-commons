@@ -15,9 +15,10 @@
  ******************************************************************************/
 package ch.exense.commons.app;
 
+import ch.exense.commons.io.FileWatchService;
+
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -25,25 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ch.exense.commons.io.FileWatchService;
-
 public class Configuration implements Closeable {
 
-    private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
-
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(.+?)\\}");
-    // '#' or '!' as first non-whitespace character
-    private static final Pattern COMMENT_LINE_PATTERN = Pattern.compile("^[ \\t\\f]*[#!]");
-    // Odd number of '\' at the end of the line
-    private static final Pattern CONTINUED_LINE_PATTERN = Pattern.compile("(?<!\\\\)(\\\\\\\\)*\\\\$");
 
     private FileWatchService fileWatchService;
 
@@ -96,40 +85,28 @@ public class Configuration implements Closeable {
         }
     }
 
-    public void load() throws FileNotFoundException, IOException {
+    public void load() throws IOException {
         properties = new Properties();
         if (propertyFile != null) {
             String propertiesContent = new String(Files.readAllBytes(propertyFile.toPath()));
-            String resolvedPropertiesContent = replacePlaceholders(propertiesContent);
-            properties.load(new StringReader(resolvedPropertiesContent));
+            // The placeholders are replaced after parsing: the comments are thereby ignored, and the placeholder values
+            // are taken as-is instead of being interpreted by the properties format (e.g. '\' as escape character)
+            Properties rawProperties = new Properties();
+            rawProperties.load(new StringReader(propertiesContent));
+            for (String name : rawProperties.stringPropertyNames()) {
+                // The placeholders also being replaced in keys mimics the previous full-file replacement behavior and
+                // is therefore bug-compatible with old versions. Arguably, we should only evaluate placeholders in values?
+                properties.setProperty(replacePlaceholders(name), replacePlaceholders(rawProperties.getProperty(name)));
+            }
         }
     }
 
     /**
-     * Replaces the placeholders of the properties content, except in the comment lines, which are ignored when the
-     * properties are loaded. As defined by the format of the {@link Properties}, a comment line has '#' or '!' as first
-     * non-whitespace character, unless it continues the previous line (line ending with an odd number of '\').
+     * @return the given property name or value, with its placeholders replaced by their values
      */
-    private String replacePlaceholders(String propertiesContent) {
-        StringJoiner result = new StringJoiner("\n");
-        boolean continuation = false;
-        for (String line : propertiesContent.lines().toList()) {
-            if (!continuation && COMMENT_LINE_PATTERN.matcher(line).find()) {
-                // comment lines added without replacement
-                result.add(line);
-            } else {
-                String resolvedLine = replacePlaceholdersInLine(line);
-                result.add(resolvedLine);
-                // Non-comment property lines can be continued on next lines by using backslash characters
-                continuation = CONTINUED_LINE_PATTERN.matcher(resolvedLine).find();
-            }
-        }
-        return result.toString();
-    }
-
-    private String replacePlaceholdersInLine(String line) {
-        StringBuffer sb = new StringBuffer();
-        Matcher m = PLACEHOLDER_PATTERN.matcher(line);
+    private String replacePlaceholders(String text) {
+        StringBuilder sb = new StringBuilder();
+        Matcher m = PLACEHOLDER_PATTERN.matcher(text);
         while (m.find()) {
             m.appendReplacement(sb, Matcher.quoteReplacement(getPlaceholderValue(m.group(1))));
         }
